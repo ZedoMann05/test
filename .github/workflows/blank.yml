@@ -18,7 +18,6 @@ jobs:
 
     - name: Run file size check script
       run: |
-        ls -la
         chmod +x check.sh
         OUTPUT=$(./check.sh)
         if echo "$OUTPUT" | grep -q "Error: File"; then
