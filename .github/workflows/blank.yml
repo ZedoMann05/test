@@ -19,8 +19,8 @@ jobs:
     - name: Run file size check script
       run: |
         ls -la
-        chmod +x your_script.sh
-        OUTPUT=$(./your_script.sh)
+        chmod +x check.sh
+        OUTPUT=$(./check.sh)
         if echo "$OUTPUT" | grep -q "Error: File"; then
           echo "$OUTPUT"
           exit 1
