@@ -1,0 +1,26 @@
+name: Check File Sizes
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  check_file_sizes:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Bash
+      uses: actions/setup-node@v2
+
+    - name: Run file size check script
+      run: |
+        chmod +x your_script.sh
+        OUTPUT=$(./your_script.sh)
+        if echo "$OUTPUT" | grep -q "Error: File"; then
+          echo "$OUTPUT"
+          exit 1
+        fi
