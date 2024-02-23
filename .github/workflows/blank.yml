@@ -13,9 +13,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Bash
-      uses: actions/setup-node@v2
-
     - name: Run file size check script
       run: |
         chmod +x check.sh
