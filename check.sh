@@ -1,15 +1,15 @@
 #!/bin/bash
 
 declare -A limits=(
-    ["js"]=${{ vars.JS }}  # 1MB для .js файлів
-    ["txt"]=${{ vars.txt }}   # 500KB для .txt файлів
-    ["svg"]=${{ vars.svg }}  # 2MB для .svg файлів
-    ["png"]=${{ vars.png }}  # 3MB для .png файлів
-    ["jpg"]=${{ vars.jpg }}  # 3MB для .jpg файлів
-    ["json"]=${{ vars.json }} # 1MB для .json файлів
-    ["css"]=${{ vars.css }}  # 1MB для .css файлів
-    ["mp4"]=${{ vars.mp4 }} # 20MB для .mp4 файлів
-    ["ico"]=${{ vars.ico }}    # 50KB для .ico файлів
+    ["js"]="$1"   # 1MB для .js файлів
+    ["txt"]="$2"   # 500KB для .txt файлів
+    ["svg"]="$3"   # 2MB для .svg файлів
+    ["png"]="$4"   # 3MB для .png файлів
+    ["jpg"]="$5"   # 3MB для .jpg файлів
+    ["json"]="$6"  # 1MB для .json файлів
+    ["css"]="$7"   # 1MB для .css файлів
+    ["mp4"]="$8"   # 20MB для .mp4 файлів
+    ["ico"]="$9"    # 50KB для .ico файлів
 )
 
 folder_to_check="./public"
