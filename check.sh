@@ -92,5 +92,5 @@ recursive_check "$folder_to_check"
 # Перевірка проігнорованих ассетів
 ignored_assets_exceeding_limit=""
 for ignore_path in $IGNORED_ASSETS; do
-    output=$(recursive_ignor "$ignore_path")
+    recursive_ignor "$ignore_path"
 done
