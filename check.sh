@@ -11,8 +11,8 @@ declare -A limits=(
     ["mp4"]="$8"   # 20MB для .mp4 файлів
     ["ico"]="$9"    # 50KB для .ico файлів
 )
-folder_to_check=${ASSET_PATHS[*]}
-#IGNORED_ASSETS="$IGNORED_ASSETS"
+folder_to_check="./public"
+IGNORED_ASSETS=$ASSET_PATHS
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 convert() {
     local bytes=$1
