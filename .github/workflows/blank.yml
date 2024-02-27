@@ -44,12 +44,7 @@ jobs:
         fi
 
     - name: Post report as comment
-      uses: actions/github-script@v6
+      uses: thollander/actions-comment-pull-request@v2
       with:
-        script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: '👋 Thanks for reporting!'
-          })
+        message: |
+          Hello world ! :wave:
