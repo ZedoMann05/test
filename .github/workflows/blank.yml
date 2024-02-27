@@ -49,3 +49,6 @@ jobs:
             ${{
               steps.report.outputs.report
             }}
+          issue-number: ${{ github.event.number }}
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
