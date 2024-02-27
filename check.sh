@@ -12,8 +12,8 @@ declare -A limits=(
     ["ico"]="$9"    # 50KB для .ico файлів
 )
 
-folder_to_check="$10"
-IGNORED_ASSETS="$11"
+folder_to_check="$ASSET_PATHS"
+IGNORED_ASSETS="$IGNORED_ASSETS"
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 convert() {
     local bytes=$1
