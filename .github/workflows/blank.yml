@@ -29,6 +29,7 @@ jobs:
           mp4: ${{ vars.mp4 }}
           ico: ${{ vars.ico }}
       run: |
+        echo ${{ vars.IGNORED_PATHS }}
         OUTPUT=$(bash ./check.sh)
         if [[ $OUTPUT =~ "::error::" ]]; then
           echo "${OUTPUT}"
