@@ -26,7 +26,7 @@ jobs:
     - name: Run file size check script
       run: |
         chmod +x check.sh
-        OUTPUT=$(./check.sh ${{ vars.js }} ${{ vars.txt }} ${{ vars.svg }} ${{ vars.png }} ${{ vars.jpg }} ${{ vars.json }} ${{ vars.css }} ${{ vars.mp4 }} ${{ vars.ico }} $ASSET_PATHS $IGNORED_ASSETS)
+        OUTPUT=$(./check.sh ${{ vars.js }} ${{ vars.txt }} ${{ vars.svg }} ${{ vars.png }} ${{ vars.jpg }} ${{ vars.json }} ${{ vars.css }} ${{ vars.mp4 }} ${{ vars.ico }} ${{ env.ASSET_PATHS }} $IGNORED_ASSETS)
         if [[ $OUTPUT =~ "::error::" ]]; then
           echo "${OUTPUT}"
           exit 1
