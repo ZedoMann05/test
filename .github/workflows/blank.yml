@@ -9,8 +9,7 @@ jobs:
   check_file_sizes:
     runs-on: ubuntu-latest
     
-    environment:
-      name: asset_size
+    environment: asset_size
       
     steps:
     - name: Checkout repository
