@@ -10,16 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     
     environment: asset_size
-
-    env:
-      ASSET_PATH1S: ${{ toJson(matrix.asset_paths) }}
-
-    strategy:
-      matrix:
-        asset_paths:
-          - 'path/to/asset1'
-          - 'path/to/asset2'
-          - 'path/to/asset3'
     
     steps:
     - name: Checkout repository
@@ -27,7 +17,7 @@ jobs:
 
     - name: Run file size check script
       env:
-          ASSET_PATHS: '["path/to/asset1", "path/to/asset2", "path/to/asset3"]'
+          ASSET_PATHS: '["./public/video/wellcome_ru.mp4", "path/to/asset2", "path/to/asset3"]'
       run: |
         echo $ASSET_PATHS
         chmod +x check.sh
