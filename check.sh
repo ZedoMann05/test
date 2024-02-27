@@ -13,7 +13,7 @@ declare -A limits=(
 )
 
 folder_to_check="./public"
-IGNORED_ASSETS="./public/video/wellcome_ru.mp4"
+#IGNORED_ASSETS="./public/video/wellcome_ru.mp4"
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 convert() {
     local bytes=$1
