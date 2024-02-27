@@ -91,6 +91,6 @@ recursive_ignor() {
 recursive_check "$folder_to_check"
 # Перевірка проігнорованих ассетів
 #recursive_ignor "$IGNORED_ASSETS"
-for ignore_path in $IGNORED_ASSETS; do
-    recursive_ignor "$ignore_path"
+for ignore_path in "${IGNORED_ASSETS[@]}"; do
+    check_ignor_size "$ignore_path"
 done
