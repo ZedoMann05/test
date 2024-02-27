@@ -9,6 +9,9 @@ jobs:
   check_file_sizes:
     runs-on: ubuntu-latest
     
+    permissions:
+      pull-requests: write
+    
     environment: asset_size
     
     steps:
@@ -18,17 +21,17 @@ jobs:
     - name: Run file size check script
       id: report
       env:
-          IGNORED_PATHS: ${{ vars.IGNORED_PATHS }}
-          ASSET_PATHS: ${{ vars.ASSET_PATHS }}
-          js: ${{ vars.js }}
-          txt: ${{ vars.txt }}
-          svg: ${{ vars.svg }}
-          png: ${{ vars.png }}
-          jpg: ${{ vars.jpg }}
-          json: ${{ vars.json }}
-          css: ${{ vars.css }}
-          mp4: ${{ vars.mp4 }}
-          ico: ${{ vars.ico }}
+        IGNORED_PATHS: ${{ vars.IGNORED_PATHS }}
+        ASSET_PATHS: ${{ vars.ASSET_PATHS }}
+        js: ${{ vars.js }}
+        txt: ${{ vars.txt }}
+        svg: ${{ vars.svg }}
+        png: ${{ vars.png }}
+        jpg: ${{ vars.jpg }}
+        json: ${{ vars.json }}
+        css: ${{ vars.css }}
+        mp4: ${{ vars.mp4 }}
+        ico: ${{ vars.ico }}
       run: |
         OUTPUT=$(bash ./check.sh)
         if [[ $OUTPUT =~ "::error::" ]]; then
