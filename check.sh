@@ -47,18 +47,13 @@ check_file_size() {
 # Рекурсивна функція для обходу файлів у папках
 recursive_check() {
     local current_folder="$1"
-    local has_error=0
     for file in "$current_folder"/*; do
         if [ -f "$file" ]; then
-            check_file_size "$file" || has_error=1
+            check_file_size "$file"
         elif [ -d "$file" ]; then
-            recursive_check "$file" || has_error=1
+            recursive_check "$file"
         fi
     done
-    
-    if [ $has_error -eq 0 ]; then
-        echo "All assets match required size"
-    fi
 }
 
 # Починаємо рекурсивний обхід з папки folder_to_check
