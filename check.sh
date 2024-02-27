@@ -13,7 +13,7 @@ declare -A limits=(
 )
 
 folder_to_check="./public"
-
+IGNORED_ASSETS="./public/video/wellcome_ru.mp4"
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 check_file_size() {
     local file="$1"
@@ -58,3 +58,15 @@ recursive_check() {
 
 # Починаємо рекурсивний обхід з папки folder_to_check
 recursive_check "$folder_to_check"
+# Перевірка проігнорованих ассетів
+ignored_assets_exceeding_limit=""
+for ignore_path in $IGNORED_ASSETS; do
+    output=$(recursive_check "$ignore_path")
+    if [ ! -z "$output" ]; then
+        ignored_assets_exceeding_limit="$ignored_assets_exceeding_limit$output\n"
+    fi
+done
+
+if [ ! -z "$ignored_assets_exceeding_limit" ]; then
+    echo -e "Ignored assets exceeding the limit:\n$ignored_assets_exceeding_limit"
+fi
