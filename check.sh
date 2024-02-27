@@ -13,7 +13,7 @@ declare -A limits=(
 )
 
 folder_to_check="./public"
-#IGNORED_ASSETS="./public/video/wellcome_ru.mp4"
+IGNORED_ASSETS="./public/video/wellcome_ru.mp4"
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 convert() {
     local bytes=$1
@@ -90,6 +90,7 @@ recursive_ignor() {
 # Починаємо рекурсивний обхід з папки folder_to_check
 recursive_check "$folder_to_check"
 # Перевірка проігнорованих ассетів
+recursive_ignor "$IGNORED_ASSETS"
 ignored_assets_exceeding_limit=""
 for ignore_path in $IGNORED_ASSETS; do
     recursive_ignor "$ignore_path"
