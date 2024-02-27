@@ -46,7 +46,7 @@ check_file_size() {
                     return
                 fi
             done
-            echo -e "Error: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+            echo -e "::error::File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
         fi
     fi
 }
