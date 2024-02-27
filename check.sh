@@ -13,7 +13,7 @@ declare -A limits=(
 )
 
 folder_to_check="$10"
-IGNORED_ASSETS=($11)
+IGNORED_ASSETS="$11"
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 convert() {
     local bytes=$1
