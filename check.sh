@@ -90,6 +90,8 @@ recursive_ignor() {
 recursive_check "$folder_to_check"
 # Перевірка проігнорованих ассетів
 #recursive_ignor "$IGNORED_ASSETS"
+IGNORED_ASSETS=($(echo $ASSET_PATHS | jq -r '.[]'))
+
 for ignore_path in "${IGNORED_ASSETS[@]}"; do
     check_ignor_size "$ignore_path"
 done
