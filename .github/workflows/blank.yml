@@ -17,7 +17,7 @@ jobs:
 
     - name: Run file size check script
       env:
-          IGNORED_PATHS: '["./public/video/wellco1me_ru.mp4","./public/IMG_13951.JPG"]'
+          IGNORED_PATHS: '["./public/video/wellcome_ru.mp4","./public/IMG_1395.JPG"]'
           ASSET_PATHS: "./public"
           js: ${{ vars.js }}
           txt: ${{ vars.txt }}
