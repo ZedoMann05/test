@@ -80,7 +80,7 @@ recursive_ignor() {
     local current_folder="$1"
     for file in "$current_folder"/*; do
         if [ -f "$file" ]; then
-            check_file_size "$file"
+            check_ignor_size "$file"
         elif [ -d "$file" ]; then
             recursive_ignor "$file"
         fi
