@@ -17,8 +17,8 @@ jobs:
 
     - name: Run file size check script
       run: |
-        echo $mp4
-        echo $MP4
+        echo ${{ vars.mp4 }}
+        echo ${{ vars.MP4 }}
         chmod +x check.sh
         OUTPUT=$(./check.sh)
         if [[ $OUTPUT =~ "File" ]]; then
