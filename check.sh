@@ -27,7 +27,6 @@ convert() {
     fi
 }
 
-
 check_file_size() {
     local file="$1"
     local size=$(stat -c %s "$file")
