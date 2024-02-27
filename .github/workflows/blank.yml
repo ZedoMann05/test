@@ -19,8 +19,11 @@ jobs:
       run: |
         chmod +x check.sh
         OUTPUT=$(./check.sh ${{ vars.js }} ${{ vars.txt }} ${{ vars.svg }} ${{ vars.png }} ${{ vars.jpg }} ${{ vars.json }} ${{ vars.css }} ${{ vars.mp4 }} ${{ vars.ico }})
-        if [[ $OUTPUT =~ "File" ]]; then
+        if [[ $OUTPUT =~ "::error::" ]]; then
           echo "${OUTPUT}"
           exit 1
+        elif [[ $OUTPUT =~ "Warning" ]]; then
+          echo "${OUTPUT}"
+        else
+          echo "All assets match required size"
         fi
-        echo "All assets match required size"
