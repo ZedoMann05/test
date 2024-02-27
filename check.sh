@@ -11,8 +11,9 @@ declare -A limits=(
     ["mp4"]="$mp4"   # 20MB для .mp4 файлів
     ["ico"]="$ico"    # 50KB для .ico файлів
 )
-folder_to_check=$ASSET_PATHS
+#folder_to_check=$ASSET_PATHS
 IGNORED_ASSETS=($(echo $IGNORED_PATHS | jq -r '.[]'))
+recursive_check "$ASSET_PATHS"
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 convert() {
     local bytes=$1
@@ -101,7 +102,6 @@ recursive_check() {
 # }
 
 # Починаємо рекурсивний обхід з папки folder_to_check
-recursive_check "$folder_to_check"
 # Перевірка проігнорованих ассетів
 #recursive_ignor "$IGNORED_ASSETS"
 
