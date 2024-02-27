@@ -17,10 +17,8 @@ jobs:
       run: |
         chmod +x check.sh
         OUTPUT=$(./check.sh)
-        if echo "$OUTPUT" | grep -q "Error: File"; then
+        if [[ $OUTPUT =~ "Error: File" ]]; then
           echo "$OUTPUT"
           exit 1
         fi
-        else
-          echo "All assets match required size"
-        fi
+        echo "All assets match required size"
