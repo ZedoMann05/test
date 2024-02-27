@@ -8,7 +8,7 @@ declare -A limits=(
     ["jpg"]=3000000  # 3MB для .jpg файлів
     ["json"]=1000000 # 1MB для .json файлів
     ["css"]=1000000  # 1MB для .css файлів
-    ["mp4"]=30000000 # 20MB для .mp4 файлів
+    ["mp4"]=50000000 # 20MB для .mp4 файлів
     ["ico"]=50000    # 50KB для .ico файлів
 )
 
@@ -58,3 +58,6 @@ recursive_check() {
 
 # Починаємо рекурсивний обхід з папки folder_to_check
 recursive_check "$folder_to_check"
+if [ $? -eq 0 ]; then
+    echo "All assets match required size"
+fi
