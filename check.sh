@@ -12,7 +12,7 @@ declare -A limits=(
     ["ico"]="$9"    # 50KB для .ico файлів
 )
 folder_to_check="./public"
-IGNORED_ASSETS=$ASSET_PATHS
+IGNORED_ASSETS=($(echo $ASSET_PATHS | jq -r '.[]'))
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 convert() {
     local bytes=$1
@@ -68,20 +68,30 @@ check_file_size() {
 # }
 
 # Рекурсивна функція для обходу файлів у папках
+# recursive_check() {
+#     local current_folder="$1"
+#     for file in "$current_folder"/*; do
+#         # Перевіряємо, чи файл не є серед ігнорованих ассетів
+#         if ! [[ " ${IGNORED_ASSETS[*]} " =~ " ${file} " ]]; then
+#             if [ -f "$file" ]; then
+#                 check_file_size "$file"
+#             elif [ -d "$file" ]; then
+#                 recursive_check "$file"
+#             fi
+#         fi
+#     done
+# }
 recursive_check() {
     local current_folder="$1"
     for file in "$current_folder"/*; do
         # Перевіряємо, чи файл не є серед ігнорованих ассетів
-        if ! [[ " ${IGNORED_ASSETS[*]} " =~ " ${file} " ]]; then
-            if [ -f "$file" ]; then
-                check_file_size "$file"
-            elif [ -d "$file" ]; then
-                recursive_check "$file"
-            fi
+        if [ -f "$file" ]; then
+            check_file_size "$file"
+        elif [ -d "$file" ]; then
+            recursive_check "$file"
         fi
     done
 }
-
 # recursive_ignor() {
 #     local current_folder="$1"
 #     for file in "$current_folder"/*; do
@@ -97,7 +107,6 @@ recursive_check() {
 recursive_check "$folder_to_check"
 # Перевірка проігнорованих ассетів
 #recursive_ignor "$IGNORED_ASSETS"
-IGNORED_ASSETS=($(echo $ASSET_PATHS | jq -r '.[]'))
 
 # for ignore_path in "${IGNORED_ASSETS[@]}"; do
 #     check_ignor_size "$ignore_path"
