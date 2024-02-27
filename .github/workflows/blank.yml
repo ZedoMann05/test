@@ -13,15 +13,11 @@ jobs:
 
     env:
       ASSET_PATHS: ${{ toJson(matrix.asset_paths) }}
-      IGNORED_ASSETS: ${{ toJson(matrix.ignored_assets) }}
 
     strategy:
       matrix:
         asset_paths:
           - "./public"
-        ignored_assets:
-          - "./public/video/wellcome_ru.mp4"
-          - "./public/IMG_1395.JPG"
     
     steps:
     - name: Checkout repository
