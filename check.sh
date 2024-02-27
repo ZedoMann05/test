@@ -38,9 +38,8 @@ check_file_size() {
     # Функція для конвертації розміру з байтів у зручний формат
     if [ -n "$limit" ]; then
         if [ "$size" -gt "$limit" ]; then
-            excess=$((size - limit))
             # Перевірка, чи файл є серед проігнорованих ассетів
-            if [[ " ${IGNORED_ASSETS[@]} " =~ "$file" ]]; then
+            if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
                 echo -e "Warning: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
             else
                 echo -e "::error::File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
