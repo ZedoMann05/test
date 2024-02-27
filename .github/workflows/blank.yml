@@ -18,8 +18,17 @@ jobs:
     - name: Run file size check script
       env:
           ASSET_PATHS: '["./public/video/wellco1me_ru.mp4","./public/IMG_1395.JPG"]'
+          js: ${{ vars.js }}
+          txt: ${{ vars.txt }}
+          svg: ${{ vars.svg }}
+          png: ${{ vars.png }}
+          jpg: ${{ vars.jpg }}
+          json: ${{ vars.json }}
+          css: ${{ vars.css }}
+          mp4: ${{ vars.mp4 }}
+          ico: ${{ vars.ico }}
       run: |
-        OUTPUT=$(bash ./check.sh ${{ vars.js }} ${{ vars.txt }} ${{ vars.svg }} ${{ vars.png }} ${{ vars.jpg }} ${{ vars.json }} ${{ vars.css }} ${{ vars.mp4 }} ${{ vars.ico }} ${{ env.ASSET_PATHS }} $IGNORED_ASSETS)
+        OUTPUT=$(bash ./check.sh)
         if [[ $OUTPUT =~ "::error::" ]]; then
           echo "${OUTPUT}"
           exit 1
