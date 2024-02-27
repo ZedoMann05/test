@@ -1,15 +1,15 @@
 #!/bin/bash
 
 declare -A limits=(
-    ["js"]="$1"   # 1MB для .js файлів
-    ["txt"]="$2"   # 500KB для .txt файлів
-    ["svg"]="$3"   # 2MB для .svg файлів
-    ["png"]="$4"   # 3MB для .png файлів
-    ["jpg"]="$5"   # 3MB для .jpg файлів
-    ["json"]="$6"  # 1MB для .json файлів
-    ["css"]="$7"   # 1MB для .css файлів
-    ["mp4"]="$8"   # 20MB для .mp4 файлів
-    ["ico"]="$9"    # 50KB для .ico файлів
+    ["js"]="$js"   # 1MB для .js файлів
+    ["txt"]="$txt"   # 500KB для .txt файлів
+    ["svg"]="$svg"   # 2MB для .svg файлів
+    ["png"]="$png"   # 3MB для .png файлів
+    ["jpg"]="$jpg"   # 3MB для .jpg файлів
+    ["json"]="$json"  # 1MB для .json файлів
+    ["css"]="$css"   # 1MB для .css файлів
+    ["mp4"]="$mp4"   # 20MB для .mp4 файлів
+    ["ico"]="$ico"    # 50KB для .ico файлів
 )
 folder_to_check="./public"
 IGNORED_ASSETS=($(echo $ASSET_PATHS | jq -r '.[]'))
