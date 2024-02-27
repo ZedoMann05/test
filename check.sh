@@ -65,7 +65,7 @@ recursive_check() {
     local current_folder="$1"
     for file in "$current_folder"/*; do
         # Перевіряємо, чи файл не є серед ігнорованих ассетів
-        if ! [[ " ${IGNORED_ASSETS[*]} " =~ " ${file} " ]]; then
+        if ! [[ " ${IGNORED_ASSETS[@]} " =~ " ${file} " ]]; then
             if [ -f "$file" ]; then
                 check_file_size "$file"
             elif [ -d "$file" ]; then
