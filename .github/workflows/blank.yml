@@ -41,8 +41,7 @@ jobs:
         fi
 
     - name: Post report as comment
-      if: ${{ always() }}
-      uses: actions/github-script@v5
+      uses: thollander/actions-comment-pull-request@v2
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
