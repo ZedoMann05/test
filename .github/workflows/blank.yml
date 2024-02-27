@@ -17,7 +17,7 @@ jobs:
 
     - name: Run file size check script
       env:
-          ASSET_PATHS: '["./public/video/wellcome_ru.mp4","./public/IMG_1395.JPG"]'
+          ASSET_PATHS: '["./public/video/wellco1me_ru.mp4","./public/IMG_1395.JPG"]'
       run: |
         echo $ASSET_PATHS
         chmod +x check.sh
