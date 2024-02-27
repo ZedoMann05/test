@@ -18,7 +18,7 @@ jobs:
         chmod +x check.sh
         OUTPUT=$(./check.sh)
         if [[ $OUTPUT =~ "File" ]]; then
-          echo "::error::${OUTPUT}"
+          echo "${OUTPUT}"
           exit 1
         fi
         echo "All assets match required size"
