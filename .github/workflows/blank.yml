@@ -17,8 +17,11 @@ jobs:
 
     strategy:
       matrix:
-        asset_paths: ["./public/"]
-        ignored_assets: ["video/wellcome_ru.mp4", "IMG_1395.JPG"]
+        asset_paths:
+          - "./public"
+        ignored_assets:
+          - "./public/video/wellcome_ru.mp4"
+          - "./public/IMG_1395.JPG"
     
     steps:
     - name: Checkout repository
