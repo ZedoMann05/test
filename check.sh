@@ -40,8 +40,6 @@ check_file_size() {
         if [ "$size" -gt "$limit" ]; then
             excess=$((size - limit))
             echo -e "Error: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
-        else
-            echo "All assets match required size"
         fi
     fi
 }
@@ -49,13 +47,18 @@ check_file_size() {
 # Рекурсивна функція для обходу файлів у папках
 recursive_check() {
     local current_folder="$1"
+    local has_error=0
     for file in "$current_folder"/*; do
         if [ -f "$file" ]; then
-            check_file_size "$file"
+            check_file_size "$file" || has_error=1
         elif [ -d "$file" ]; then
-            recursive_check "$file"
+            recursive_check "$file" || has_error=1
         fi
     done
+    
+    if [ $has_error -eq 0 ]; then
+        echo "All assets match required size"
+    fi
 }
 
 # Починаємо рекурсивний обхід з папки folder_to_check
