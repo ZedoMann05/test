@@ -11,7 +11,8 @@ declare -A limits=(
     ["mp4"]="$8"   # 20MB для .mp4 файлів
     ["ico"]="$9"    # 50KB для .ico файлів
 )
-
+echo $10
+echo $ASSET_PATHS
 folder_to_check="$10"
 IGNORED_ASSETS="$IGNORED_ASSETS"
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
