@@ -18,7 +18,7 @@ jobs:
     - name: Run file size check script
       env:
           IGNORED_PATHS: ${{ vars.IGNORED_PATHS }}
-          ASSET_PATHS: "./public"
+          ASSET_PATHS: ${{ vars.ASSET_PATHS }}
           js: ${{ vars.js }}
           txt: ${{ vars.txt }}
           svg: ${{ vars.svg }}
@@ -29,7 +29,6 @@ jobs:
           mp4: ${{ vars.mp4 }}
           ico: ${{ vars.ico }}
       run: |
-        echo ${{ vars.IGNORED_PATHS }}
         OUTPUT=$(bash ./check.sh)
         if [[ $OUTPUT =~ "::error::" ]]; then
           echo "${OUTPUT}"
