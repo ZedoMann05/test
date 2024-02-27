@@ -13,7 +13,6 @@ declare -A limits=(
 )
 #folder_to_check=$ASSET_PATHS
 IGNORED_ASSETS=($(echo $IGNORED_PATHS | jq -r '.[]'))
-recursive_check "$ASSET_PATHS"
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 convert() {
     local bytes=$1
@@ -90,6 +89,8 @@ recursive_check() {
         fi
     done
 }
+
+recursive_check "$ASSET_PATHS"
 # recursive_ignor() {
 #     local current_folder="$1"
 #     for file in "$current_folder"/*; do
