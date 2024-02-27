@@ -38,34 +38,37 @@ check_file_size() {
     # Функція для конвертації розміру з байтів у зручний формат
     if [ -n "$limit" ]; then
         if [ "$size" -gt "$limit" ]; then
-            excess=$((size - limit))
-            echo -e "::error::File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+            if [[ " ${IGNORED_ASSETS[*]} " =~ " ${file} " ]]; then
+                echo -e "Warning: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+            else
+                echo -e "Error: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+            fi
         fi
     fi
 }
 
-check_ignor_size() {
-    local file="$1"
-    local size=$(stat -c %s "$file")
-    local extension="${file##*.}"  # Визначаємо розширення файлу
-    local extension="${extension,,}"  # Перетворюємо розширення в нижній регістр
-    local limit="${limits[$extension]}"
+# check_ignor_size() {
+#     local file="$1"
+#     local size=$(stat -c %s "$file")
+#     local extension="${file##*.}"  # Визначаємо розширення файлу
+#     local extension="${extension,,}"  # Перетворюємо розширення в нижній регістр
+#     local limit="${limits[$extension]}"
     
-    # Функція для конвертації розміру з байтів у зручний формат
-    if [ -n "$limit" ]; then
-        if [ "$size" -gt "$limit" ]; then
-            excess=$((size - limit))
-            echo -e "Warning: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
-        fi
-    fi
-}
+#     # Функція для конвертації розміру з байтів у зручний формат
+#     if [ -n "$limit" ]; then
+#         if [ "$size" -gt "$limit" ]; then
+#             excess=$((size - limit))
+#             echo -e "Warning: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+#         fi
+#     fi
+# }
 
 # Рекурсивна функція для обходу файлів у папках
 recursive_check() {
     local current_folder="$1"
     for file in "$current_folder"/*; do
         # Перевіряємо, чи файл не є серед ігнорованих ассетів
-        if ! [[ " ${IGNORED_ASSETS[@]} " =~ " ${file} " ]]; then
+        if ! [[ " ${IGNORED_ASSETS[*]} " =~ " ${file} " ]]; then
             if [ -f "$file" ]; then
                 check_file_size "$file"
             elif [ -d "$file" ]; then
@@ -75,16 +78,16 @@ recursive_check() {
     done
 }
 
-recursive_ignor() {
-    local current_folder="$1"
-    for file in "$current_folder"/*; do
-        if [ -f "$file" ]; then
-            check_ignor_size "$file"
-        elif [ -d "$file" ]; then
-            recursive_ignor "$file"
-        fi
-    done
-}
+# recursive_ignor() {
+#     local current_folder="$1"
+#     for file in "$current_folder"/*; do
+#         if [ -f "$file" ]; then
+#             check_ignor_size "$file"
+#         elif [ -d "$file" ]; then
+#             recursive_ignor "$file"
+#         fi
+#     done
+# }
 
 # Починаємо рекурсивний обхід з папки folder_to_check
 recursive_check "$folder_to_check"
@@ -92,6 +95,6 @@ recursive_check "$folder_to_check"
 #recursive_ignor "$IGNORED_ASSETS"
 IGNORED_ASSETS=($(echo $ASSET_PATHS | jq -r '.[]'))
 
-for ignore_path in "${IGNORED_ASSETS[@]}"; do
-    check_ignor_size "$ignore_path"
-done
+# for ignore_path in "${IGNORED_ASSETS[@]}"; do
+#     check_ignor_size "$ignore_path"
+# done
