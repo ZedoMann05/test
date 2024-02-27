@@ -14,7 +14,7 @@ declare -A limits=(
 echo $10
 echo $ASSET_PATHS
 folder_to_check="$10"
-IGNORED_ASSETS="$IGNORED_ASSETS"
+#IGNORED_ASSETS="$IGNORED_ASSETS"
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 convert() {
     local bytes=$1
