@@ -40,13 +40,11 @@ check_file_size() {
         if [ "$size" -gt "$limit" ]; then
             excess=$((size - limit))
             # Перевірка, чи файл є серед проігнорованих ассетів
-            for ignored_file in "${IGNORED_ASSETS[@]}"; do
-                if [ "$file" = "$ignored_file" ]; then
-                    echo -e "Warning: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
-                    return
-                fi
-            done
-            echo -e "::error::File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+            if [[ " ${IGNORED_ASSETS[@]} " =~ "$file" ]]; then
+                echo -e "Warning: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+            else
+                echo -e "::error::File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+            fi
         fi
     fi
 }
