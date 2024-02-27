@@ -20,7 +20,7 @@ jobs:
         echo ${{ vars.mp4 }}
         echo ${{ vars.MP4 }}
         chmod +x check.sh
-        OUTPUT=$(./check.sh)
+        OUTPUT=$(./check.sh ${{ vars.js }} ${{ vars.txt }} ${{ vars.svg }} ${{ vars.png }} ${{ vars.jpg }} ${{ vars.json }} ${{ vars.css }} ${{ vars.mp4 }} ${{ vars.ico }})
         if [[ $OUTPUT =~ "File" ]]; then
           echo "${OUTPUT}"
           exit 1
