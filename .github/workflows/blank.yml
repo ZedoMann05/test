@@ -21,3 +21,6 @@ jobs:
           echo "$OUTPUT"
           exit 1
         fi
+        else
+          echo "All assets match required size"
+        fi
