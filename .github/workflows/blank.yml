@@ -21,4 +21,4 @@ jobs:
           echo "$OUTPUT"
           exit 1
         fi
-        echo "All assets match required size"
+        echo -e "\e[32mAll assets match required size\e[0m"
