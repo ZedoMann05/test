@@ -10,7 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     
     environment: asset_size
-      
+
+    env:
+      ASSET_PATHS: ${{ toJson(matrix.asset_paths) }}
+      IGNORED_ASSETS: ${{ toJson(matrix.ignored_assets) }}
+
+    strategy:
+      matrix:
+        asset_paths: ["./public"]
+        ignored_assets: ["./public/video/wellcome_ru.mp4", "./public/IMG_1395.JPG"]
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -18,7 +27,7 @@ jobs:
     - name: Run file size check script
       run: |
         chmod +x check.sh
-        OUTPUT=$(./check.sh ${{ vars.js }} ${{ vars.txt }} ${{ vars.svg }} ${{ vars.png }} ${{ vars.jpg }} ${{ vars.json }} ${{ vars.css }} ${{ vars.mp4 }} ${{ vars.ico }})
+        OUTPUT=$(./check.sh ${{ vars.js }} ${{ vars.txt }} ${{ vars.svg }} ${{ vars.png }} ${{ vars.jpg }} ${{ vars.json }} ${{ vars.css }} ${{ vars.mp4 }} ${{ vars.ico }} "$ASSET_PATHS" "$IGNORED_ASSETS")
         if [[ $OUTPUT =~ "::error::" ]]; then
           echo "${OUTPUT}"
           exit 1
