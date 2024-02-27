@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare -A limits=(
-    ["js"]=${{ vars.js }}  # 1MB для .js файлів
+    ["js"]=${{ vars.JS }}  # 1MB для .js файлів
     ["txt"]=${{ vars.txt }}   # 500KB для .txt файлів
     ["svg"]=${{ vars.svg }}  # 2MB для .svg файлів
     ["png"]=${{ vars.png }}  # 3MB для .png файлів
