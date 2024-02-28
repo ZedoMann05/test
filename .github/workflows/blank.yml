@@ -60,12 +60,12 @@ jobs:
         mp4: ${{ inputs.mp4 }}
         ico: ${{ inputs.ico }}
       run: |
-        OUTPUT=$(bash ./check.sh >> report.txt)
+        OUTPUT=$(bash ./check.sh)
         if [[ $OUTPUT =~ "Error" ]]; then
-          echo "${OUTPUT}"
+          echo "${OUTPUT}" >> report.txt
           exit 1
         elif [[ $OUTPUT =~ "Warning" ]]; then
-          echo "${OUTPUT}"
+          echo "${OUTPUT}" >> report.txt
         else
           echo "All assets match required size"
         fi
