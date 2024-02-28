@@ -12,7 +12,6 @@ declare -A limits=(
     ["ico"]="$ico"    # 50KB для .ico файлів
 )
 #folder_to_check=$ASSET_PATHS
-ERRORS=""
 IGNORED_ASSETS=($(echo $IGNORED_PATHS | jq -r '.[]'))
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 convert() {
@@ -40,9 +39,9 @@ check_file_size() {
         if [ "$size" -gt "$limit" ]; then
             # Перевірка, чи файл є серед проігнорованих ассетів
             if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
-                echo -e "\033[33mWarning:\033[0m File $file exceeds the limit for type .$extension \033[31mSize\033[0m: $(convert $size) (\033[32mLimit\033[0m: $(convert $limit))"
+                echo -e "Warning: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
             else
-                echo -e "\033[31mError:\033[0m File $file exceeds the limit for type .$extension \033[31mSize\033[0m: $(convert $size) (\033[32mLimit\033[0m: $(convert $limit))"
+                echo -e "Error: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
             fi
         fi
     fi
