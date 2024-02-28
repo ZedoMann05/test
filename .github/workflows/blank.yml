@@ -48,7 +48,7 @@ jobs:
     - name: Run file size check script
       id: report
       env:
-        ignored_paths: '["./public/video/wellcome_ru.mp4"]'
+        ignored_paths: ${{ inputs.ignored_paths }}
         asset_paths: ${{ inputs.asset_paths }}
         js: ${{ inputs.js }}
         txt: ${{ inputs.txt }}
@@ -62,9 +62,11 @@ jobs:
       run: |
         OUTPUT=$(bash ./check.sh)
         if [[ $OUTPUT =~ "Error" ]]; then
+          echo "${OUTPUT}"
           echo "${OUTPUT}" >> report.txt
           exit 1
         elif [[ $OUTPUT =~ "Warning" ]]; then
+          echo "${OUTPUT}"
           echo "${OUTPUT}" >> report.txt
         else
           echo "All assets match required size"
