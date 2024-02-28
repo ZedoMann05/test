@@ -9,6 +9,9 @@ on:
         asset_paths:
           required: true
           type: string
+        js:
+          required: true
+          type: string
         txt:
           required: true
           type: string
