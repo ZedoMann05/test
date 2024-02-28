@@ -19,7 +19,7 @@ on:
           required: true
           type: string
         png:
-          required: false
+          required: true
           type: string
         jpg:
           required: true
@@ -28,13 +28,13 @@ on:
           required: true
           type: string
         css:
-          required: false
+          required: true
           type: string
         mp4:
           required: true
           type: string
         ico:
-          required: false
+          required: true
           type: string
 
 jobs:
