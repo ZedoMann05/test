@@ -33,15 +33,7 @@ jobs:
         mp4: ${{ vars.mp4 }}
         ico: ${{ vars.ico }}
       run: |
-        OUTPUT=$(bash ./check.sh) || true  # Встановлюємо вихідну змінну, ігноруючи помилки
-        if [[ $OUTPUT =~ "::error::" ]]; then
-          echo "${OUTPUT}"
-          exit 1
-        elif [[ $OUTPUT =~ "Warning" ]]; then
-          echo "${OUTPUT}"
-        else
-          echo "All assets match required size"
-        fi
+        OUTPUT=$(bash ./check.sh)
         echo "::set-output name=report::$OUTPUT"
 
     - name: Post report as comment
@@ -50,5 +42,4 @@ jobs:
       with:
         message: |
           ## Asset Size Report
-          ${GITHUB_SHA}
           ${{ steps.report.outputs.report }}
