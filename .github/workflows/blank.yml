@@ -44,18 +44,10 @@ jobs:
         fi
 
     - name: Post report as comment
-      if: always()
-      uses: actions/github-script@v5
+      if: ${{ always() }}
+      uses: thollander/actions-comment-pull-request@v2
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const { owner, repo } = context.repo;
-          const { number } = context.issue;
-          const report = "${{ steps.report.outputs.report }}";
-          const octokit = github.getOctokit(github.token);
-          await octokit.issues.createComment({
-            owner,
-            repo,
-            issue_number: number,
-            body: `## Asset Size Report\n\n${report}`
-          });
+        message: |
+          ## Asset Size Report
+          ${GITHUB_SHA}
+          ${{ steps.report.outputs.report }}
