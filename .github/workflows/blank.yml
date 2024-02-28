@@ -42,6 +42,7 @@ jobs:
         else
           echo "All assets match required size"
         fi
+        echo "::set-output name=report::$OUTPUT"
 
     - name: Post report as comment
       if: ${{ always() }}
