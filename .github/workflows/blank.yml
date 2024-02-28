@@ -33,21 +33,16 @@ jobs:
         mp4: ${{ vars.mp4 }}
         ico: ${{ vars.ico }}
       run: |
-        try {
-          OUTPUT=$(bash ./check.sh)
-          if [[ $OUTPUT =~ "::error::" ]]; then
-            echo "${OUTPUT}"
-            exit 1
-          elif [[ $OUTPUT =~ "Warning" ]]; then
-            echo "${OUTPUT}"
-          else
-            echo "All assets match required size"
-          fi
-          echo "$OUTPUT" > output.txt  # Записуємо вміст змінної OUTPUT у файл output.txt
-        } catch(err) {
-          echo "Error occurred: $err"
+        OUTPUT=$(bash ./check.sh) || true  # Встановлюємо вихідну змінну, ігноруючи помилки
+        if [[ $OUTPUT =~ "::error::" ]]; then
+          echo "${OUTPUT}"
           exit 1
-        }
+        elif [[ $OUTPUT =~ "Warning" ]]; then
+          echo "${OUTPUT}"
+        else
+          echo "All assets match required size"
+        fi
+        echo "::set-output name=report::$OUTPUT"
 
     - name: Post report as comment
       if: ${{ always() }}
