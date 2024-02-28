@@ -48,7 +48,7 @@ jobs:
     - name: Run file size check script
       id: report
       env:
-        ignored_paths: '["./public/video/wellcome_ru.mp4"]'
+        ignored_paths: '["./public/video/wellcome_ru.mp4", "./public/IMG_1395.JPG"]'
         asset_paths: ${{ inputs.asset_paths }}
         js: ${{ inputs.js }}
         txt: ${{ inputs.txt }}
