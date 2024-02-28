@@ -9,6 +9,9 @@ on:
         asset_paths:
           required: true
           type: string
+        js:
+          required: true
+          type: string
         txt:
           required: true
           type: string
@@ -16,7 +19,7 @@ on:
           required: true
           type: string
         png:
-          required: false
+          required: true
           type: string
         jpg:
           required: true
@@ -25,13 +28,13 @@ on:
           required: true
           type: string
         css:
-          required: false
+          required: true
           type: string
         mp4:
           required: true
           type: string
         ico:
-          required: false
+          required: true
           type: string
 
 jobs:
@@ -45,7 +48,7 @@ jobs:
     - name: Run file size check script
       id: report
       env:
-        ignored_paths: ${{ inputs.ignored_paths }}
+        ignored_paths: '["./public/video/wellco1me_ru.mp4"]'
         asset_paths: ${{ inputs.asset_paths }}
         js: ${{ inputs.js }}
         txt: ${{ inputs.txt }}
@@ -57,6 +60,9 @@ jobs:
         mp4: ${{ inputs.mp4 }}
         ico: ${{ inputs.ico }}
       run: |
+        echo $ignored_paths
+        echo $asset_paths
+        echo $js
         OUTPUT=$(bash ./check.sh)
         echo "::set-output name=report::$OUTPUT"
         if [[ $OUTPUT =~ "Error" ]]; then
