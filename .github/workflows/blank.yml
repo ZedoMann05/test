@@ -50,5 +50,4 @@ jobs:
       with:
         message: |
           ## Asset Size Report
-          ${GITHUB_SHA}
           ${{ steps.report.outputs.report }}
