@@ -1,5 +1,4 @@
 #!/bin/bash
-
 declare -A limits=(
     ["js"]=$js   # 1MB для .js файлів
     ["txt"]=$txt   # 500KB для .txt файлів
