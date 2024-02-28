@@ -42,7 +42,7 @@ check_file_size() {
             if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
                 echo -e "Warning: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
             else
-                ERRORS+= "Error: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+                ERRORS+="Error: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))\n"
             fi
         fi
     fi
