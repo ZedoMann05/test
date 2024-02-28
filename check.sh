@@ -12,7 +12,7 @@ declare -A limits=(
     ["ico"]="$ico"    # 50KB для .ico файлів
 )
 #folder_to_check=$ASSET_PATHS
-IGNORED_ASSETS=($(echo $IGNORED_PATHS | jq -r '.[]'))
+ignored_assets=($(echo $ignored_paths | jq -r '.[]'))
 # Функція для перевірки розміру файлу та порівняння з лімітом для відповідного типу файлу
 convert() {
     local bytes=$1
@@ -38,7 +38,7 @@ check_file_size() {
     if [ -n "$limit" ]; then
         if [ "$size" -gt "$limit" ]; then
             # Перевірка, чи файл є серед проігнорованих ассетів
-            if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
+            if [[ " ${ignored_assets[*]} " =~ "$file" ]]; then
                 echo -e "Warning: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
             else
                 echo -e "Error: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
@@ -89,7 +89,7 @@ recursive_check() {
     done
 }
 
-recursive_check "$ASSET_PATHS"
+recursive_check "$asset_paths"
 # recursive_ignor() {
 #     local current_folder="$1"
 #     for file in "$current_folder"/*; do

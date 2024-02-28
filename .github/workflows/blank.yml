@@ -2,12 +2,41 @@ name: Check File Sizes
 
 on:
   workflow_call:
+    inputs:
+        ignored_paths:
+          required: true
+          type: string
+        asset_paths:
+          required: true
+          type: string
+        txt:
+          required: true
+          type: string
+        svg:
+          required: true
+          type: string
+        png:
+          required: false
+          type: string
+        jpg:
+          required: true
+          type: string
+        json:
+          required: true
+          type: string
+        css:
+          required: false
+          type: string
+        mp4:
+          required: true
+          type: string
+        ico:
+          required: false
+          type: string
 
 jobs:
   check_file_sizes:
     runs-on: ubuntu-latest
-    
-    environment: asset_size
     
     steps:
     - name: Checkout repository
@@ -16,17 +45,17 @@ jobs:
     - name: Run file size check script
       id: report
       env:
-        IGNORED_PATHS: ${{ vars.IGNORED_PATHS }}
-        ASSET_PATHS: ${{ vars.ASSET_PATHS }}
-        js: ${{ vars.js }}
-        txt: ${{ vars.txt }}
-        svg: ${{ vars.svg }}
-        png: ${{ vars.png }}
-        jpg: ${{ vars.jpg }}
-        json: ${{ vars.json }}
-        css: ${{ vars.css }}
-        mp4: ${{ vars.mp4 }}
-        ico: ${{ vars.ico }}
+        ignored_paths: ${{ inputs.ignored_paths }}
+        asset_paths: ${{ inputs.asset_paths }}
+        js: ${{ inputs.js }}
+        txt: ${{ inputs.txt }}
+        svg: ${{ inputs.svg }}
+        png: ${{ inputs.png }}
+        jpg: ${{ inputs.jpg }}
+        json: ${{ inputs.json }}
+        css: ${{ inputs.css }}
+        mp4: ${{ inputs.mp4 }}
+        ico: ${{ inputs.ico }}
       run: |
         OUTPUT=$(bash ./check.sh)
         echo "::set-output name=report::$OUTPUT"

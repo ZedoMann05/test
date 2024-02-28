@@ -12,3 +12,15 @@ jobs:
       pull-requests: write
     name: Version Calculation
     uses: ./.github/workflows/blank.yml
+    with:
+      ignored_paths: ./public
+      asset_paths: '["./public/video/wellco1me_ru.mp4", "./public/IMG_1395.JPG"]'
+      js: 1000000
+      txt: 500000
+      svg: 2000000
+      png: 3000000
+      jpg: 3000000
+      json: 3000000
+      css: 1000000
+      mp4: 30000000
+      ico: 50000
