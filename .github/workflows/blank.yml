@@ -1,17 +1,11 @@
 name: Check File Sizes
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  workflow_call:
 
 jobs:
   check_file_sizes:
     runs-on: ubuntu-latest
-    
-    permissions:
-      pull-requests: write
     
     environment: asset_size
     
