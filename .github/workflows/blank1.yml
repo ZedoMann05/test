@@ -8,5 +8,7 @@ on:
 
 jobs:
   check:
+    permissions:
+      pull-requests: write
     name: Version Calculation
     uses: ./.github/workflows/blank.yml
