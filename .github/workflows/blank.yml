@@ -35,7 +35,7 @@ jobs:
       run: |
         OUTPUT=$(bash ./check.sh)
         echo "::set-output name=report::$OUTPUT"
-        if [[ $OUTPUT =~ "::error::" ]]; then
+        if [[ $OUTPUT =~ "Error" ]]; then
           echo "${OUTPUT}"
           exit 1
         elif [[ $OUTPUT =~ "Warning" ]]; then
