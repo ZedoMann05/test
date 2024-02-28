@@ -40,9 +40,9 @@ check_file_size() {
         if [ "$size" -gt "$limit" ]; then
             # Перевірка, чи файл є серед проігнорованих ассетів
             if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
-                echo -e "Warning: File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+                echo -e "\e[33mWarning:\e[0m File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
             else
-                echo -e "::error::File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+                echo -e "\e[31mError:\e[0m File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
             fi
         fi
     fi
