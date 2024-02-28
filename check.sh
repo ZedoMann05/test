@@ -35,12 +35,10 @@ check_file_size() {
     local limit="${limits[$extension]}"
     
     if [ -n "$limit" ]; then
-        if [ "$size" -gt "$limit" ]; then
-            if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
-                echo -e "Warning: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
-            else
-                echo -e "Error: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
-            fi
+        if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
+            echo -e "Warning: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
+        elif [ "$size" -gt "$limit" ]; then
+            echo -e "Error: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
         fi
     fi
 }
