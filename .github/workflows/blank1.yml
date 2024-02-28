@@ -14,7 +14,7 @@ jobs:
     uses: ./.github/workflows/blank.yml
     with:
       ignored_paths: ./public
-      asset_paths: '["./public/video/wellco1me_ru.mp4", "./public/IMG_1395.JPG"]'
+      asset_paths: '["./public/video/wellco1me_ru.mp4"]'
       js: "1000000"
       txt: "500000"
       svg: "2000000"
