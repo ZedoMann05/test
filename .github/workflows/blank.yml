@@ -34,7 +34,7 @@ jobs:
         ico: ${{ vars.ico }}
       run: |
         OUTPUT=$(bash ./check.sh)
-        echo "report=$OUTPUT" >> $GITHUB_OUTPUT
+        echo "::set-output name=report::$OUTPUT"
         if [[ $OUTPUT =~ "Error" ]]; then
           echo "${OUTPUT}"
           exit 1
@@ -48,4 +48,6 @@ jobs:
       if: ${{ always() }}
       uses: thollander/actions-comment-pull-request@v2
       with:
-        message-file: $GITHUB_OUTPUT
+        message: |
+          ## Asset Size Report
+          ${{ steps.report.outputs.report }}
