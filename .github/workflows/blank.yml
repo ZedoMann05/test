@@ -60,7 +60,7 @@ jobs:
         mp4: ${{ inputs.mp4 }}
         ico: ${{ inputs.ico }}
       run: |
-        OUTPUT=$(bash ./check.sh)
+        OUTPUT=$(bash ./check.sh >> report.txt)
         if [[ $OUTPUT =~ "Error" ]]; then
           echo "${OUTPUT}"
           exit 1
@@ -74,6 +74,4 @@ jobs:
       if: ${{ always() }}
       uses: thollander/actions-comment-pull-request@v2
       with:
-        message: |
-          ## Asset Size Report
-          ${{ steps.report.outputs.report }}
+        filePath: ./report.txt
