@@ -61,7 +61,6 @@ jobs:
         ico: ${{ inputs.ico }}
       run: |
         OUTPUT=$(bash ./check.sh)
-        echo "::set-output name=report::$OUTPUT"
         if [[ $OUTPUT =~ "Error" ]]; then
           echo "${OUTPUT}"
           exit 1
