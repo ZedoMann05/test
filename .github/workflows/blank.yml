@@ -80,10 +80,10 @@ jobs:
                 if [ "$size" -gt "$limit" ]; then
                     if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
                         warnings["$extension"]+="- File \`$file\` Size: <b>$(convert $size)</b>\n"
-                        total_warnings=$((total_warnings + 1))
+                        total_warnings=$((total_warnings++))
                     else
                         errors["$extension"]+="- File \`$file\` Size: <b>$(convert $size)</b>\n"
-                        total_errors=$((total_errors + 1))
+                        total_errors=$((total_errors++))
                     fi
                 fi
             fi
@@ -135,7 +135,7 @@ jobs:
 
         if [ $total_errors -gt 0 ] && [ $total_warnings -gt 0 ]; then
             echo "Status: \`FAILED\`" >> ./report.md
-            echo -e "\nSome assets exceed the specified limit in the following directories: \`${ASSET_PATHS[*]}\`." >> ./report.md
+            echo -e "\nSome assets exceed the specified limit in the following directories: \`${ASSET_PATHS[*]}\`" >> ./report.md
             echo -e "\nTotal Errors: <b>$total_errors</b>" >> ./report.md
             echo -e "Total Warnings: <b>$total_warnings</b>" >> ./report.md
             echo -e "\n## Errors" >> ./report.md
