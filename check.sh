@@ -79,35 +79,35 @@ recursive_check() {
 recursive_check "$asset_paths"
 
 # Print report
-echo "#Assets Size Validation Report" > ./report.txt
+echo "#Assets Size Validation Report" > ./report.md
 
 if [ ${#errors[@]} -gt 0 ]; then
-    echo "Status: `FAILED`" >> ./report.txt
-    echo -e "\nSome assets exceed the specified limit in the following directories: `$asset_paths`." >> ./report.txt
-    echo -e "\nTotal Errors: ${#errors[@]}." >> ./report.txt
-    echo -e "\nErrors" >> ./report.txt
+    echo "Status: `FAILED`" >> ./report.md
+    echo -e "\nSome assets exceed the specified limit in the following directories: `$asset_paths`." >> ./report.md
+    echo -e "\nTotal Errors: ${#errors[@]}." >> ./report.md
+    echo -e "\nErrors" >> ./report.md
 
     for extension in "${!errors[@]}"; do
-        echo -e "$extension" >> ./report.txt
-        echo -e "Limit: $(convert ${limits[$extension]})" >> ./report.txt
-        echo -e "${errors[$extension]}" >> ./report.txt
+        echo -e "$extension" >> ./report.md
+        echo -e "Limit: $(convert ${limits[$extension]})" >> ./report.md
+        echo -e "${errors[$extension]}" >> ./report.md
     done
 fi
 
 if [ ${#warnings[@]} -gt 0 ]; then
-    echo "Status: `WARNING`" >> ./report.txt
-    echo -e "\nSome assets exceed the specified limit in the following directories: `$asset_paths`, but they do not fail the validation because they are ignored by configuration." >> ./report.txt
-    echo -e "\nTotal Warnings: ${#warnings[@]}." >> ./report.txt
+    echo "Status: `WARNING`" >> ./report.md
+    echo -e "\nSome assets exceed the specified limit in the following directories: `$asset_paths`, but they do not fail the validation because they are ignored by configuration." >> ./report.md
+    echo -e "\nTotal Warnings: ${#warnings[@]}." >> ./report.md
 
     for extension in "${!warnings[@]}"; do
-        echo -e "<b>$extension</b>" >> ./report.txt
-        echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.txt
-        echo -e "`${warnings[$extension]}`" >> ./report.txt
+        echo -e "<b>$extension</b>" >> ./report.md
+        echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.md
+        echo -e "`${warnings[$extension]}`" >> ./report.md
     done
 fi
 
 if [ ${#errors[@]} -eq 0 ] && [ ${#warnings[@]} -eq 0 ]; then
-    echo "Status: SUCCESS" >> ./report.txt
-    echo -e "\nAll assets match the size limit for their file types in the following directories: $asset_paths." >> ./report.txt
-    echo -e "\nNo actions required." >> ./report.txt
+    echo "Status: SUCCESS" >> ./report.md
+    echo -e "\nAll assets match the size limit for their file types in the following directories: $asset_paths." >> ./report.md
+    echo -e "\nNo actions required." >> ./report.md
 fi
