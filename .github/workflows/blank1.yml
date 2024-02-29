@@ -22,10 +22,9 @@ jobs:
         txt:500KB
         svg:2MB
         png:4KB
-        jpg:4MB
+        jpg:2MB
         json:1MB
         css:1MB
         mp4:30MB
         ico:50KB
 
-        
