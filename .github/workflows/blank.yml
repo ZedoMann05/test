@@ -31,13 +31,13 @@ jobs:
         OUTPUT=$(bash ./check.sh "$types")
         if [[ $OUTPUT =~ "Error" ]]; then
           echo "${OUTPUT}"
-          echo "${OUTPUT}" >> report.txt
+          echo "${OUTPUT}"
           exit 1
         elif [[ $OUTPUT =~ "Warning" ]]; then
           echo "${OUTPUT}"
-          echo "${OUTPUT}" >> report.txt
+          echo "${OUTPUT}"
         else
-          echo "All assets match required size" >> report.txt
+          echo "All assets match required size"
         fi
 
     - name: Post report as comment

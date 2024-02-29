@@ -1,6 +1,8 @@
 #!/bin/bash
 
 declare -A limits
+declare -A errors
+declare -A warnings
 
 # Parse input parameters for asset types and their limits
 parse_input_params() {
@@ -11,7 +13,7 @@ parse_input_params() {
         local limit=$(echo "$type_limit_pair" | cut -d':' -f2)
         # Convert limit to bytes if it's in human-readable format
         if [[ "$limit" == *GB ]]; then
-            limit=$(echo "$limit" | sed 's/GiB//')
+            limit=$(echo "$limit" | sed 's/GB//')
             limit=$(( limit * 1024 * 1024 * 1024 ))
         elif [[ "$limit" == *MB ]]; then
             limit=$(echo "$limit" | sed 's/MB//')
@@ -29,14 +31,13 @@ convert() {
     if (( bytes < 1024 )); then
         echo "${bytes} bytes"
     elif (( bytes < 1048576 )); then
-        echo "$(( bytes / 1024 )) KB"
+        printf "%.2f KB" "$(echo "scale=2; $bytes / 1024" | bc)"
     elif (( bytes < 1073741824 )); then
         printf "%.2f MB" "$(echo "scale=2; $bytes / 1024 / 1024" | bc)"
     else
-        printf "%.2f GiB" "$(echo "scale=2; $bytes / 1024 / 1024 / 1024" | bc)"
+        printf "%.2f GB" "$(echo "scale=2; $bytes / 1024 / 1024 / 1024" | bc)"
     fi
 }
-
 
 check_file_size() {
     local file="$1"
@@ -47,11 +48,9 @@ check_file_size() {
     
     if [ -n "$limit" ]; then
         if [ "$size" -gt "$limit" ]; then
-            if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
-                echo -e "Warning: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
-            else
-                echo -e "Error: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
-            fi
+            errors["$extension"]+="\n$((size - limit)) bytes over the limit: $file ($(convert $size) > $(convert $limit))"
+        elif [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
+            warnings["$extension"]+="\nIgnored asset: $file ($(convert $size))"
         fi
     fi
 }
@@ -75,3 +74,34 @@ recursive_check() {
 }
 
 recursive_check "$asset_paths"
+
+# Print report to ./report.txt
+echo "Assets Size Validation Report" > ./report.txt
+
+if [ ${#errors[@]} -gt 0 ]; then
+    echo "Status: FAILED" >> ./report.txt
+    echo -e "\nSome assets exceed the specified limit in the following directories: $asset_paths." >> ./report.txt
+    echo -e "\nTotal Errors: ${#errors[@]}." >> ./report.txt
+    echo -e "\nErrors" >> ./report.txt
+
+    for extension in "${!errors[@]}"; do
+        echo -e "$extension" >> ./report.txt
+        echo -e "Limit: $(convert ${limits[$extension]})" >> ./report.txt
+        echo -e "${errors[$extension]}" >> ./report.txt
+    done
+elif [ ${#warnings[@]} -gt 0 ]; then
+    echo "Status: WARNING" >> ./report.txt
+    echo -e "\nSome assets exceed the specified limit in the following directories: $asset_paths, but they do not fail the validation because they are ignored by configuration." >> ./report.txt
+    echo -e "\nTotal Warnings: ${#warnings[@]}." >> ./report.txt
+    echo -e "\nWarnings" >> ./report.txt
+
+    for extension in "${!warnings[@]}"; do
+        echo -e "$extension" >> ./report.txt
+        echo -e "Limit: $(convert ${limits[$extension]})" >> ./report.txt
+        echo -e "${warnings[$extension]}" >> ./report.txt
+    done
+else
+    echo "Status: SUCCESS" >> ./report.txt
+    echo -e "\nAll assets match the size limit for their file types in the following directories: $asset_paths." >> ./report.txt
+    echo -e "\nNo actions required." >> ./report.txt
+fi
