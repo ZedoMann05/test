@@ -79,6 +79,7 @@ recursive_check() {
 recursive_check "$asset_paths"
 
 # Print report
+# Print report
 echo "# Assets Size Validation Report" > ./report.md
 
 total_errors=0
@@ -86,13 +87,15 @@ total_warnings=0
 
 if [ ${#errors[@]} -gt 0 ]; then
     for extension in "${!errors[@]}"; do
-        total_errors=$((total_errors + $(echo "${errors[$extension]}" | wc -l)))
+        errors_count=$(echo "${errors[$extension]}" | grep -c 'Error:')
+        total_errors=$((total_errors + errors_count))
     done
 fi
 
 if [ ${#warnings[@]} -gt 0 ]; then
     for extension in "${!warnings[@]}"; do
-        total_warnings=$((total_warnings + $(echo "${warnings[$extension]}" | wc -l)))
+        warnings_count=$(echo "${warnings[$extension]}" | grep -c 'Warning:')
+        total_warnings=$((total_warnings + warnings_count))
     done
 fi
 
@@ -143,5 +146,4 @@ else
     echo -e "\nAll assets match the size limit for their file types in the following directories: \`$asset_paths\`." >> ./report.md
     echo -e "\nNo actions required." >> ./report.md
 fi
-
 
