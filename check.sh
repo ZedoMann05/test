@@ -4,10 +4,9 @@ declare -A limits
 
 # Parse input parameters for asset types and their limits
 parse_input_params() {
-    local input_types="$1"
+    local input_types="$@"
     local type_limit_pair
-    IFS=$'\n'
-    for type_limit_pair in $input_types; do
+    for type_limit_pair in "${input_types[@]}"; do
         local type=$(echo "$type_limit_pair" | cut -d':' -f1)
         local limit=$(echo "$type_limit_pair" | cut -d':' -f2)
         limits["$type"]="$limit"
