@@ -95,12 +95,16 @@ if [ $total_errors -gt 0 ]; then
         echo -e "$file" >> ./report.md
         echo -e "${errors[$file]}" >> ./report.md
     done
-fi
+    
+    echo -e "\nTotal Warnings: $total_warnings." >> ./report.md
+    echo -e "## Warnings\n" >> ./report.md
 
-if [ $total_warnings -gt 0 ]; then
-    if [ $total_errors -eq 0 ]; then
-        status="WARNING"
-    fi
+    for file in "${!warnings[@]}"; do
+        echo -e "$file" >> ./report.md
+        echo -e "${warnings[$file]}" >> ./report.md
+    done
+elif [ $total_warnings -gt 0 ]; then
+    status="WARNING"
     echo -e "\nSome assets exceed the specified limit in the following directories: \`$asset_paths\`, but they do not fail the validation because they are ignored by configuration." >> ./report.md
     echo -e "\nTotal Warnings: $total_warnings." >> ./report.md
     echo -e "\n## Warnings" >> ./report.md
@@ -109,9 +113,7 @@ if [ $total_warnings -gt 0 ]; then
         echo -e "$file" >> ./report.md
         echo -e "${warnings[$file]}" >> ./report.md
     done
-fi
-
-if [ $total_errors -eq 0 ] && [ $total_warnings -eq 0 ]; then
+else
     status="SUCCESS"
     echo -e "\nAll assets match the size limit for their file types in the following directories: \`$asset_paths\`." >> ./report.md
     echo -e "\nNo actions required." >> ./report.md
