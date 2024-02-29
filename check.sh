@@ -141,7 +141,7 @@ elif [ $total_errors -gt 0 ] && [ $total_warnings -eq 0 ]; then
         echo -e "${errors[$extension]}" >> ./report.md
     done
 else
-    echo "Status: \`FAILED\`" >> ./report.md
+    echo "Status: \`SUCCESS\`" >> ./report.md
     echo -e "\nAll assets match the size limit for their file types in the following directories: \`$asset_paths\`." >> ./report.md
     echo -e "\nNo actions required." >> ./report.md
 fi
