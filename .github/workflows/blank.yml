@@ -80,10 +80,10 @@ jobs:
                 if [ "$size" -gt "$limit" ]; then
                     if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
                         warnings["$extension"]+="- File \`$file\` Size: <b>$(convert $size)</b>\n"
-                        total_warnings+=1
+                        total_warnings=$((total_warnings + 1))
                     else
                         errors["$extension"]+="- File \`$file\` Size: <b>$(convert $size)</b>\n"
-                        total_errors+=1
+                        total_errors=$((total_errors + 1))
                     fi
                 fi
             fi
