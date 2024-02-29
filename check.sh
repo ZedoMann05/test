@@ -11,7 +11,7 @@ parse_input_params() {
         local limit=$(echo "$type_limit_pair" | cut -d':' -f2)
         # Convert limit to bytes if it's in human-readable format
         if [[ "$limit" == *GB ]]; then
-            limit=$(echo "$limit" | sed 's/GB//')
+            limit=$(echo "$limit" | sed 's/GiB//')
             limit=$(( limit * 1024 * 1024 * 1024 ))
         elif [[ "$limit" == *MB ]]; then
             limit=$(echo "$limit" | sed 's/MB//')
@@ -31,9 +31,9 @@ convert() {
     elif (( bytes < 1048576 )); then
         echo "$(( bytes / 1024 )) KB"
     elif (( bytes < 1073741824 )); then
-        printf "%.2f MB, %.2f KB, %.2f bytes" "$(echo "scale=2; $bytes / 1024 / 1024" | bc)" "$(echo "scale=2; $bytes / 1024" | bc)" "$bytes"
+        printf "%.2f MB" "$(echo "scale=2; $bytes / 1024 / 1024" | bc)" "$(echo "scale=2; $bytes / 1024" | bc)" "$bytes"
     else
-        printf "%.2f GB, %.2f MB, %.2f KB, %.2f bytes" "$(echo "scale=2; $bytes / 1024 / 1024 / 1024" | bc)" "$(echo "scale=2; $bytes / 1024 / 1024" | bc)" "$(echo "scale=2; $bytes / 1024" | bc)" "$bytes"
+        printf "%.2f GiB" "$(echo "scale=2; $bytes / 1024 / 1024 / 1024" | bc)" "$(echo "scale=2; $bytes / 1024 / 1024" | bc)" "$(echo "scale=2; $bytes / 1024" | bc)" "$bytes"
     fi
 }
 
