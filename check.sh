@@ -31,13 +31,12 @@ convert() {
     elif (( bytes < 1048576 )); then
         echo "$(( bytes / 1024 )) KB"
     elif (( bytes < 1073741824 )); then
-        echo "$(( bytes / 1024 / 1024 )) MB"
-    elif (( bytes < 1099511627776 )); then
-        echo "$(( bytes / 1024 / 1024 / 1024 )) GB"
+        printf "%.2f MB, %.2f KB, %.2f bytes" "$(echo "scale=2; $bytes / 1024 / 1024" | bc)" "$(echo "scale=2; $bytes / 1024" | bc)" "$bytes"
     else
-        printf "%.2f TB" "$(echo "scale=2; $bytes / 1024 / 1024 / 1024 / 1024" | bc)"
+        printf "%.2f GB, %.2f MB, %.2f KB, %.2f bytes" "$(echo "scale=2; $bytes / 1024 / 1024 / 1024" | bc)" "$(echo "scale=2; $bytes / 1024 / 1024" | bc)" "$(echo "scale=2; $bytes / 1024" | bc)" "$bytes"
     fi
 }
+
 
 check_file_size() {
     local file="$1"
@@ -47,10 +46,12 @@ check_file_size() {
     local limit="${limits[$extension]}"
     
     if [ -n "$limit" ]; then
-        if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
-            echo -e "Warning: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
-        elif [ "$size" -gt "$limit" ]; then
-            echo -e "Error: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
+        if [ "$size" -gt "$limit" ]; then
+            if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
+                echo -e "Warning: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
+            else
+                echo -e "Error: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
+            fi
         fi
     fi
 }
