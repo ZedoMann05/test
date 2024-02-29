@@ -21,19 +21,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     
-    - name: Process types input
-      id: process_types
-      run: |
-        echo "::set-output name=types::$(echo "$INPUT_TYPES" | awk '{for (i=1;i<=NF;i++) print $i}' | sed 's/:/=/g')"
-    
     - name: Run file size check script
       id: report
       env:
         ignored_paths: ${{ inputs.ignored_paths }}
         asset_paths: ${{ inputs.asset_paths }}
-        types: ${{ steps.process_types.outputs.types }}
+        types: ${{ inputs.types }}
       run: |
-        echo $types
+        types_arr=$(echo "${types}" | jq -r 'to_entries | map("\(.key):\(.value)") | .[]')
         OUTPUT=$(bash ./check.sh)
         if [[ $OUTPUT =~ "Error" ]]; then
           echo "${OUTPUT}"
