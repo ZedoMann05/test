@@ -79,9 +79,11 @@ jobs:
             if [ -n "$limit" ]; then
                 if [ "$size" -gt "$limit" ]; then
                     if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
+                        echo -e "::warning::File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
                         warnings["$extension"]+="- \`$file\` Size: <b>$(convert $size)</b>\n"
                         total_warnings=$((total_warnings + 1))
                     else
+                        echo -e "::error::File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
                         errors["$extension"]+="- \`$file\` Size: <b>$(convert $size)</b>\n"
                         total_errors=$((total_errors + 1))
                     fi
@@ -101,14 +103,18 @@ jobs:
         total_warnings=0
 
         recursive_check() {
-            local current_folder="$1"
-            for file in "$current_folder"/*; do
-                if [ -f "$file" ]; then
-                    check_file_size "$file"
-                elif [ -d "$file" ]; then
-                    recursive_check "$file"
-                fi
-            done
+            local current_path="$1"
+            if [ -d "$current_path" ]; then
+                for item in "$current_path"/*; do
+                    if [ -f "$item" ]; then
+                        check_file_size "$item"
+                    elif [ -d "$item" ]; then
+                        recursive_check "$item"
+                    fi
+                done
+            else
+                check_file_size "$current_path"
+            fi
         }
 
         for path in "${ASSET_PATHS[@]}"; do

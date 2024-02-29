@@ -14,8 +14,9 @@ jobs:
     uses: ./.github/workflows/blank.yml
     with:
       ignored_paths: |
-        ./public/IMG_1395.JPG
+        
       asset_paths: |
+        ./public/IMG_1395.JPG
         ./public/video/wellcome_ru.mp4
       types: |
         js:1MB
