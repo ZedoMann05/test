@@ -50,9 +50,9 @@ check_file_size() {
     if [ -n "$limit" ]; then
         if [ "$size" -gt "$limit" ]; then
             if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
-                warnings["$extension"]+="Warning: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
+                warnings["$extension"]+="\n- Warning: File \`$file\` exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
             else
-                errors["$extension"]+="Error: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
+                errors["$extension"]+="\nError: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
             fi
         fi
     fi
@@ -103,7 +103,7 @@ if [ ${#warnings[@]} -gt 0 ]; then
     for extension in "${!warnings[@]}"; do
         echo -e "<b>$extension</b>" >> ./report.md
         echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.md
-        echo -e "\n${warnings[$extension]}" >> ./report.md
+        echo -e "${warnings[$extension]}" >> ./report.md
     done
 fi
 
