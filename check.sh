@@ -93,7 +93,7 @@ if [ ${#errors[@]} -gt 0 ]; then
     done
 fi
 
-if [ ${#errors[@]} -eq 0 ] && [ ${#warnings[@]} -gt 0 ]; then
+if [ ${#warnings[@]} -gt 0 ]; then
     echo "Status: WARNING" >> ./report.txt
     echo -e "\nSome assets exceed the specified limit in the following directories: $asset_paths, but they do not fail the validation because they are ignored by configuration." >> ./report.txt
     echo -e "\nTotal Warnings: ${#warnings[@]}." >> ./report.txt
@@ -110,4 +110,3 @@ if [ ${#errors[@]} -eq 0 ] && [ ${#warnings[@]} -eq 0 ]; then
     echo -e "\nAll assets match the size limit for their file types in the following directories: $asset_paths." >> ./report.txt
     echo -e "\nNo actions required." >> ./report.txt
 fi
-
