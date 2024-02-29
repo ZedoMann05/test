@@ -6,9 +6,20 @@ declare -A limits
 parse_input_params() {
     local input_types="$@"
     local type_limit_pair
-    for type_limit_pair in "${input_types[@]}"; do
+    for type_limit_pair in "$input_types"; do
         local type=$(echo "$type_limit_pair" | cut -d':' -f1)
         local limit=$(echo "$type_limit_pair" | cut -d':' -f2)
+        # Convert limit to bytes if it's in human-readable format
+        if [[ "$limit" == *GB ]]; then
+            limit=$(echo "$limit" | sed 's/GB//')
+            limit=$(( limit * 1024 * 1024 * 1024 ))
+        elif [[ "$limit" == *MB ]]; then
+            limit=$(echo "$limit" | sed 's/MB//')
+            limit=$(( limit * 1024 * 1024 ))
+        elif [[ "$limit" == *KB ]]; then
+            limit=$(echo "$limit" | sed 's/KB//')
+            limit=$(( limit * 1024 ))
+        fi
         limits["$type"]="$limit"
     done
 }
@@ -20,9 +31,11 @@ convert() {
     elif (( bytes < 1048576 )); then
         echo "$(( bytes / 1024 )) KB"
     elif (( bytes < 1073741824 )); then
-        printf "%.2f MB" "$(echo "scale=2; $bytes / 1024 / 1024" | bc)"
+        echo "$(( bytes / 1024 / 1024 )) MB"
+    elif (( bytes < 1099511627776 )); then
+        echo "$(( bytes / 1024 / 1024 / 1024 )) GB"
     else
-        printf "%.2f GB" "$(echo "scale=2; $bytes / 1024 / 1024 / 1024" | bc)"
+        printf "%.2f TB" "$(echo "scale=2; $bytes / 1024 / 1024 / 1024 / 1024" | bc)"
     fi
 }
 
