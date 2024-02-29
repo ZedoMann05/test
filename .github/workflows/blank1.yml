@@ -14,10 +14,10 @@ jobs:
     uses: ./.github/workflows/blank.yml
     with:
       ignored_paths: |
-        "./public/video/wellcome_ru.mp4"
-        "./public/IMG_1395.JPG"
+        ./public/video/wellcome_ru.mp4
+        ./public/IMG_1395.JPG
       asset_paths: |
-        "./public"
+        ./public
       types: |
         js:1MB
         txt:500KB
