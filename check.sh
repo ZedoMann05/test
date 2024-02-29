@@ -82,57 +82,63 @@ recursive_check "$asset_paths"
 echo "# Assets Size Validation Report" > ./report.md
 
 total_errors=0
-error_files=()
 total_warnings=0
-warning_files=()
 
 if [ ${#errors[@]} -gt 0 ]; then
     for extension in "${!errors[@]}"; do
-        error_files+=( "${errors[$extension]}" )
-        total_errors=$(( total_errors + ${#errors[$extension]} ))
+        errors_count=$(grep -o 'Error' <<< "${errors[$extension]}" | wc -l)
+        total_errors=$((total_errors + errors_count))
     done
 fi
 
 if [ ${#warnings[@]} -gt 0 ]; then
     for extension in "${!warnings[@]}"; do
-        warning_files+=( "${warnings[$extension]}" )
-        total_warnings=$(( total_warnings + ${#warnings[$extension]} ))
+        warnings_count=$(grep -o 'Warning' <<< "${warnings[$extension]}" | wc -l)
+        total_warnings=$((total_warnings + warnings_count))
     done
 fi
 
-if [ ${total_errors} -gt 0 ] && [ ${total_warnings} -gt 0 ]; then
+if [ $total_errors -gt 0 ] && [ $total_warnings -gt 0 ]; then
     echo "Status: \`FAILED\`" >> ./report.md
     echo -e "\nSome assets exceed the specified limit in the following directories: \`$asset_paths\`." >> ./report.md
-    echo -e "\nTotal Errors: <b>${total_errors}</b>" >> ./report.md
-    echo -e "Total Warnings: <b>${total_warnings}</b>" >> ./report.md
+    echo -e "\nTotal Errors: <b>$total_errors</b>" >> ./report.md
+    echo -e "Total Warnings: <b>$total_warnings</b>" >> ./report.md
     echo -e "\n## Errors" >> ./report.md
 
-    for file in "${error_files[@]}"; do
-        echo -e "${file}" >> ./report.md
+    for extension in "${!errors[@]}"; do
+        echo -e "<b>$extension</b>" >> ./report.md
+        echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.md
+        echo -e "${errors[$extension]}" >> ./report.md
     done
 
     echo -e "\n## Warnings" >> ./report.md
 
-    for file in "${warning_files[@]}"; do
-        echo -e "${file}" >> ./report.md
+    for extension in "${!warnings[@]}"; do
+        echo -e "<b>$extension</b>" >> ./report.md
+        echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.md
+        echo -e "${warnings[$extension]}" >> ./report.md
     done
-elif [ ${total_errors} -eq 0 ] && [ ${total_warnings} -gt 0 ]; then
+elif [ $total_errors -eq 0 ] && [ $total_warnings -gt 0 ]; then
     echo "Status: \`WARNING\`" >> ./report.md
     echo -e "\nSome assets exceed the specified limit in the following directories: \`$asset_paths\`, but they do not fail the validation because they are ignored by configuration." >> ./report.md
-    echo -e "\nTotal Warnings: <b>${total_warnings}</b>" >> ./report.md
+    echo -e "\nTotal Warnings: <b>$total_warnings</b>" >> ./report.md
     echo -e "\n## Warnings" >> ./report.md
 
-    for file in "${warning_files[@]}"; do
-        echo -e "${file}" >> ./report.md
+    for extension in "${!warnings[@]}"; do
+        echo -e "<b>$extension</b>" >> ./report.md
+        echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.md
+        echo -e "${warnings[$extension]}" >> ./report.md
     done
-elif [ ${total_errors} -gt 0 ] && [ ${total_warnings} -eq 0 ]; then
+elif [ $total_errors -gt 0 ] && [ $total_warnings -eq 0 ]; then
     echo "Status: \`FAILED\`" >> ./report.md
     echo -e "\nSome assets exceed the specified limit in the following directories: \`$asset_paths\`." >> ./report.md
-    echo -e "\nTotal Errors: <b>${total_errors}</b>" >> ./report.md
+    echo -e "\nTotal Errors: <b>$total_errors</b>" >> ./report.md
     echo -e "\n## Errors" >> ./report.md
 
-    for file in "${error_files[@]}"; do
-        echo -e "${file}" >> ./report.md
+    for extension in "${!errors[@]}"; do
+        echo -e "<b>$extension</b>" >> ./report.md
+        echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.md
+        echo -e "${errors[$extension]}" >> ./report.md
     done
 else
     echo "Status: SUCCESS" >> ./report.md
