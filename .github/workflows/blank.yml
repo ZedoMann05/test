@@ -28,8 +28,7 @@ jobs:
         asset_paths: ${{ inputs.asset_paths }}
         types: ${{ inputs.types }}
       run: |
-        types_arr=$(echo "${types}" | jq -r 'to_entries | map("\(.key):\(.value)") | .[]')
-        OUTPUT=$(bash ./check.sh "${types_arr[@]}")
+        OUTPUT=$(bash ./check.sh "$types")
         if [[ $OUTPUT =~ "Error" ]]; then
           echo "${OUTPUT}"
           echo "${OUTPUT}" >> report.txt
