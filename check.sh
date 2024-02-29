@@ -79,7 +79,7 @@ recursive_check() {
 recursive_check "$asset_paths"
 
 # Print report
-echo "#Assets Size Validation Report" > ./report.md
+echo "# Assets Size Validation Report" > ./report.md
 
 if [ ${#errors[@]} -gt 0 ]; then
     echo "Status: `FAILED`" >> ./report.md
