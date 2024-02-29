@@ -103,7 +103,7 @@ if [ ${#warnings[@]} -gt 0 ]; then
     for extension in "${!warnings[@]}"; do
         echo -e "<b>$extension</b>" >> ./report.md
         echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.md
-        echo -e "${warnings[$extension]}" >> ./report.md
+        echo -e "\n${warnings[$extension]}" >> ./report.md
     done
 fi
 
