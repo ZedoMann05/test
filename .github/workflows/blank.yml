@@ -37,7 +37,7 @@ jobs:
           echo "${OUTPUT}"
           echo "${OUTPUT}" >> report.txt
         else
-          echo "All assets match required size"
+          echo "All assets match required size" >> report.txt
         fi
 
     - name: Post report as comment

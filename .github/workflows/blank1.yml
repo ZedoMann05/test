@@ -23,5 +23,5 @@ jobs:
         jpg:3MB
         json:1MB
         css:1MB
-        mp4:40MB
+        mp4:30MB
         ico:50KB
