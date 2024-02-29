@@ -13,8 +13,11 @@ jobs:
     name: Version Calculation
     uses: ./.github/workflows/blank.yml
     with:
-      ignored_paths: '["./public/video/wellcome_ru.mp4", "./public/IMG_1395.JPG"]'
-      asset_paths: ./public
+      ignored_paths: |
+        "./public/video/wellcome_ru.mp4"
+        "./public/IMG_1395.JPG"
+      asset_paths: |
+        "./public"
       types: |
         js:1MB
         txt:500KB
