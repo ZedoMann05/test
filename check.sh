@@ -82,8 +82,8 @@ recursive_check "$asset_paths"
 echo "# Assets Size Validation Report" > ./report.md
 
 if [ ${#errors[@]} -gt 0 ]; then
-    echo "Status: `FAILED`" >> ./report.md
-    echo -e "\nSome assets exceed the specified limit in the following directories: `$asset_paths`." >> ./report.md
+    echo "Status: FAILED" >> ./report.md
+    echo -e "\nSome assets exceed the specified limit in the following directories: $asset_paths." >> ./report.md
     echo -e "\nTotal Errors: ${#errors[@]}." >> ./report.md
     echo -e "\nErrors" >> ./report.md
 
@@ -96,13 +96,13 @@ fi
 
 if [ ${#warnings[@]} -gt 0 ]; then
     echo "Status: `WARNING`" >> ./report.md
-    echo -e "\nSome assets exceed the specified limit in the following directories: `$asset_paths`, but they do not fail the validation because they are ignored by configuration." >> ./report.md
+    echo -e "\nSome assets exceed the specified limit in the following directories: $asset_paths, but they do not fail the validation because they are ignored by configuration." >> ./report.md
     echo -e "\nTotal Warnings: ${#warnings[@]}." >> ./report.md
 
     for extension in "${!warnings[@]}"; do
         echo -e "<b>$extension</b>" >> ./report.md
         echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.md
-        echo -e "`${warnings[$extension]}`" >> ./report.md
+        echo -e "${warnings[$extension]}" >> ./report.md
     done
 fi
 
