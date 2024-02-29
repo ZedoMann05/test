@@ -101,14 +101,18 @@ jobs:
         total_warnings=0
 
         recursive_check() {
-            local current_folder="$1"
-            for file in "$current_folder"/*; do
-                if [ -f "$file" ]; then
-                    check_file_size "$file"
-                elif [ -d "$file" ]; then
-                    recursive_check "$file"
-                fi
-            done
+            local current_path="$1"
+            if [ -d "$current_path" ]; then
+                for item in "$current_path"/*; do
+                    if [ -f "$item" ]; then
+                        check_file_size "$item"
+                    elif [ -d "$item" ]; then
+                        recursive_check "$item"
+                    fi
+                done
+            else
+                check_file_size "$current_path"
+            fi
         }
 
         for path in "${ASSET_PATHS[@]}"; do
