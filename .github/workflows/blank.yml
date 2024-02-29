@@ -87,14 +87,13 @@ jobs:
             fi
         }
 
-        echo "ignored_paths: $ignored_paths"
-        echo "asset_paths: $asset_paths"
+        # Main script starts here
 
         # Parse input parameters for asset types and their limits
         parse_input_params "$types"
 
-        IGNORED_ASSETS=($(echo -e "$ignored_paths" | jq -r '.[]'))
-        ASSET_PATHS=($(echo -e "$asset_paths" | jq -r '.[]'))
+        IGNORED_ASSETS=($(echo -e "$ignored_paths"))
+        ASSET_PATHS=($(echo -e "$asset_paths"))
 
         recursive_check() {
             local current_folder="$1"
