@@ -77,6 +77,7 @@ recursive_check "$asset_paths"
 
 # Print report to ./report.txt
 # Print report
+# Print report
 echo "Assets Size Validation Report" > ./report.txt
 
 if [ ${#errors[@]} -gt 0 ]; then
