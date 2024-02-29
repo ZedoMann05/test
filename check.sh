@@ -50,7 +50,7 @@ check_file_size() {
     if [ -n "$limit" ]; then
         if [ "$size" -gt "$limit" ]; then
             if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
-                warnings["$extension"]+="\n- Warning: File \`$file\` exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
+                warnings["$extension"]+="- Warning: File \`$file\` exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))\n"
             else
                 errors["$extension"]+="\nError: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
             fi
