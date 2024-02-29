@@ -79,14 +79,28 @@ recursive_check() {
 recursive_check "$asset_paths"
 
 # Print report
-# Print report
 echo "# Assets Size Validation Report" > ./report.md
+
+total_errors=0
+total_warnings=0
 
 if [ ${#errors[@]} -gt 0 ] && [ ${#warnings[@]} -gt 0 ]; then
     echo "Status: \`FAILED\`" >> ./report.md
     echo -e "\nSome assets exceed the specified limit in the following directories: \`$asset_paths\`." >> ./report.md
-    echo -e "\nTotal Errors: <b>${#errors[@]}</b>" >> ./report.md
-    echo -e "Total Warnings: <b>${#warnings[@]}</b>" >> ./report.md
+    
+    # Calculate total errors
+    for extension in "${!errors[@]}"; do
+        total_errors=$((total_errors + $(echo "${errors[$extension]}" | wc -l)))
+    done
+
+    echo -e "\nTotal Errors: <b>$total_errors</b>" >> ./report.md
+
+    # Calculate total warnings
+    for extension in "${!warnings[@]}"; do
+        total_warnings=$((total_warnings + $(echo "${warnings[$extension]}" | wc -l)))
+    done
+    
+    echo -e "Total Warnings: <b>$total_warnings</b>" >> ./report.md
     echo -e "\n## Errors" >> ./report.md
 
     for extension in "${!errors[@]}"; do
@@ -105,7 +119,13 @@ if [ ${#errors[@]} -gt 0 ] && [ ${#warnings[@]} -gt 0 ]; then
 elif [ ${#errors[@]} -eq 0 ] && [ ${#warnings[@]} -gt 0 ]; then
     echo "Status: \`WARNING\`" >> ./report.md
     echo -e "\nSome assets exceed the specified limit in the following directories: \`$asset_paths\`, but they do not fail the validation because they are ignored by configuration." >> ./report.md
-    echo -e "\nTotal Warnings: <b>${#warnings[@]}</b>" >> ./report.md
+    
+    # Calculate total warnings
+    for extension in "${!warnings[@]}"; do
+        total_warnings=$((total_warnings + $(echo "${warnings[$extension]}" | wc -l)))
+    done
+
+    echo -e "\nTotal Warnings: <b>$total_warnings</b>" >> ./report.md
     echo -e "\n## Warnings" >> ./report.md
 
     for extension in "${!warnings[@]}"; do
@@ -116,7 +136,13 @@ elif [ ${#errors[@]} -eq 0 ] && [ ${#warnings[@]} -gt 0 ]; then
 elif [ ${#errors[@]} -gt 0 ] && [ ${#warnings[@]} -eq 0 ]; then
     echo "Status: \`FAILED\`" >> ./report.md
     echo -e "\nSome assets exceed the specified limit in the following directories: \`$asset_paths\`." >> ./report.md
-    echo -e "\nTotal Errors: <b>${#errors[@]}</b>" >> ./report.md
+
+    # Calculate total errors
+    for extension in "${!errors[@]}"; do
+        total_errors=$((total_errors + $(echo "${errors[$extension]}" | wc -l)))
+    done
+
+    echo -e "\nTotal Errors: <b>$total_errors</b>" >> ./report.md
     echo -e "\n## Errors" >> ./report.md
 
     for extension in "${!errors[@]}"; do
@@ -129,3 +155,4 @@ else
     echo -e "\nAll assets match the size limit for their file types in the following directories: \`$asset_paths\`." >> ./report.md
     echo -e "\nNo actions required." >> ./report.md
 fi
+
