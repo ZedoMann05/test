@@ -87,7 +87,8 @@ jobs:
             fi
         }
 
-        # Main script starts here
+        echo "ignored_paths: $ignored_paths"
+        echo "asset_paths: $asset_paths"
 
         # Parse input parameters for asset types and their limits
         parse_input_params "$types"
