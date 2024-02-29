@@ -79,9 +79,11 @@ jobs:
             if [ -n "$limit" ]; then
                 if [ "$size" -gt "$limit" ]; then
                     if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
-                        warnings["$extension"]+="- Warning: File \`$file\` exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))\n"
+                        warnings["$extension"]+="- File \`$file\` Size: <b>$(convert $size)</b>\n"
+                        ((total_warnings++))
                     else
-                        errors["$extension"]+="- Error: File \`$file\` exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))\n"
+                        errors["$extension"]+="- File \`$file\` Size: <b>$(convert $size)</b>\n"
+                        ((total_errors++))
                     fi
                 fi
             fi
@@ -116,19 +118,19 @@ jobs:
         total_errors=0
         total_warnings=0
 
-        if [ ${#errors[@]} -gt 0 ]; then
-            for extension in "${!errors[@]}"; do
-                errors_count=$(grep -o 'Error' <<< "${errors[$extension]}" | wc -l)
-                total_errors=$((total_errors + errors_count))
-            done
-        fi
+        # if [ ${#errors[@]} -gt 0 ]; then
+        #     for extension in "${!errors[@]}"; do
+        #         errors_count=$(grep -o 'Error' <<< "${errors[$extension]}" | wc -l)
+        #         total_errors=$((total_errors + errors_count))
+        #     done
+        # fi
 
-        if [ ${#warnings[@]} -gt 0 ]; then
-            for extension in "${!warnings[@]}"; do
-                warnings_count=$(grep -o 'Warning' <<< "${warnings[$extension]}" | wc -l)
-                total_warnings=$((total_warnings + warnings_count))
-            done
-        fi
+        # if [ ${#warnings[@]} -gt 0 ]; then
+        #     for extension in "${!warnings[@]}"; do
+        #         warnings_count=$(grep -o 'Warning' <<< "${warnings[$extension]}" | wc -l)
+        #         total_warnings=$((total_warnings + warnings_count))
+        #     done
+        # fi
 
         if [ $total_errors -gt 0 ] && [ $total_warnings -gt 0 ]; then
             echo "Status: \`FAILED\`" >> ./report.md
