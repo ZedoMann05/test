@@ -79,9 +79,9 @@ jobs:
             if [ -n "$limit" ]; then
                 if [ "$size" -gt "$limit" ]; then
                     if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
-                        warnings["$extension"]+="- File \`$file\` Size: <b>$(convert $size)</b>\n"
+                        warnings["$extension"]+="- Warning: File \`$file\` exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))\n"
                     else
-                        errors["$extension"]+="- File \`$file\` Size: <b>$(convert $size)</b>\n"
+                        errors["$extension"]+="- Error: File \`$file\` exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))\n"
                     fi
                 fi
             fi
