@@ -13,7 +13,7 @@ parse_input_params() {
         local limit=$(echo "$type_limit_pair" | cut -d':' -f2)
         # Convert limit to bytes if it's in human-readable format
         if [[ "$limit" == *GB ]]; then
-            limit=$(echo "$limit" | sed 's/GB//')
+            limit=$(echo "$limit" | sed 's/GiB//')
             limit=$(( limit * 1024 * 1024 * 1024 ))
         elif [[ "$limit" == *MB ]]; then
             limit=$(echo "$limit" | sed 's/MB//')
@@ -31,13 +31,14 @@ convert() {
     if (( bytes < 1024 )); then
         echo "${bytes} bytes"
     elif (( bytes < 1048576 )); then
-        printf "%.2f KB" "$(echo "scale=2; $bytes / 1024" | bc)"
+        echo "$(( bytes / 1024 )) KB"
     elif (( bytes < 1073741824 )); then
         printf "%.2f MB" "$(echo "scale=2; $bytes / 1024 / 1024" | bc)"
     else
-        printf "%.2f GB" "$(echo "scale=2; $bytes / 1024 / 1024 / 1024" | bc)"
+        printf "%.2f GiB" "$(echo "scale=2; $bytes / 1024 / 1024 / 1024" | bc)"
     fi
 }
+
 
 check_file_size() {
     local file="$1"
@@ -48,9 +49,11 @@ check_file_size() {
     
     if [ -n "$limit" ]; then
         if [ "$size" -gt "$limit" ]; then
-            errors["$extension"]+="\n$((size - limit)) bytes over the limit: $file ($(convert $size) > $(convert $limit))"
-        elif [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
-            warnings["$extension"]+="\nIgnored asset: $file ($(convert $size))"
+            if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
+                warnings["$extension"]+="Warning: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
+            else
+                errors["$extension"]+="Error: File $file exceeds the limit for type .$extension Size: $(convert $size) (Limit: $(convert $limit))"
+            fi
         fi
     fi
 }
@@ -75,8 +78,6 @@ recursive_check() {
 
 recursive_check "$asset_paths"
 
-# Print report to ./report.txt
-# Print report
 # Print report
 echo "Assets Size Validation Report" > ./report.txt
 
