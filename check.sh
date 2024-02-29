@@ -1,19 +1,24 @@
 #!/bin/bash
 
-declare -A limits=(
-    ["js"]="$js"
-    ["txt"]="$txt"
-    ["svg"]="$svg"
-    ["png"]="$png"
-    ["jpg"]="$jpg"
-    ["json"]="$json"
-    ["css"]="$css"
-    ["mp4"]="$mp4"
-    ["ico"]="$ico"
-)
+# Parse input parameters for asset types and their limits
+parse_input_params() {
+    local input_types="$1"
+    local type_limit_pair
+    IFS=$'\n'
+    for type_limit_pair in $input_types; do
+        # Check if input is in the format 'type:limit' or 'type limit'
+        if [[ "$type_limit_pair" =~ ":" ]]; then
+            local type=$(echo "$type_limit_pair" | cut -d':' -f1)
+            local limit=$(echo "$type_limit_pair" | cut -d':' -f2)
+        else
+            local type=$(echo "$type_limit_pair" | awk '{print $1}')
+            local limit=$(echo "$type_limit_pair" | awk '{print $2}')
+        fi
+        limits["$type"]="$limit"
+    done
+}
 
-IGNORED_ASSETS=($(echo $ignored_paths | jq -r '.[]'))
-
+# Function to convert file size to human-readable format
 convert() {
     local bytes=$1
     if (( bytes < 1024 )); then
@@ -27,6 +32,7 @@ convert() {
     fi
 }
 
+# Function to check file size against limits
 check_file_size() {
     local file="$1"
     local size=$(stat -c %s "$file")
@@ -43,6 +49,7 @@ check_file_size() {
     fi
 }
 
+# Recursive function to check files in directories
 recursive_check() {
     local current_folder="$1"
     for file in "$current_folder"/*; do
@@ -53,5 +60,13 @@ recursive_check() {
         fi
     done
 }
+
+# Main script starts here
+declare -A limits
+
+# Parse input parameters for asset types and their limits
+parse_input_params "$types"
+
+IGNORED_ASSETS=($(echo $ignored_paths | jq -r '.[]'))
 
 recursive_check "$asset_paths"

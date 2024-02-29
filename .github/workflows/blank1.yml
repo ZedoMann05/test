@@ -15,12 +15,13 @@ jobs:
     with:
       ignored_paths: '["./public/video/wellcome_ru.mp4", "./public/IMG_1395.JPG"]'
       asset_paths: ./public
-      js: 1000000
-      txt: 500000
-      svg: 2000000
-      png: 3000000
-      jpg: 2000000
-      json: 3000000
-      css: 1000000
-      mp4: 30000000
-      ico: 50000
+      types: |
+        js:1MB
+        txt:500KB
+        svg:2MB
+        png:3MB
+        jpg:3MB
+        json:1MB
+        css:1MB
+        mp4:40MB
+        ico:50KB

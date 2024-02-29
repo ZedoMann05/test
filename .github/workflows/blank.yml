@@ -9,31 +9,7 @@ on:
         asset_paths:
           required: true
           type: string
-        js:
-          required: true
-          type: string
-        txt:
-          required: true
-          type: string
-        svg:
-          required: true
-          type: string
-        png:
-          required: true
-          type: string
-        jpg:
-          required: true
-          type: string
-        json:
-          required: true
-          type: string
-        css:
-          required: true
-          type: string
-        mp4:
-          required: true
-          type: string
-        ico:
+        types:
           required: true
           type: string
 
@@ -44,22 +20,20 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-
+    
+    - name: Process types input
+      id: process_types
+      run: |
+        echo "::set-output name=types::$(echo "$INPUT_TYPES" | awk '{for (i=1;i<=NF;i++) print $i}' | sed 's/:/=/g')"
+    
     - name: Run file size check script
       id: report
       env:
         ignored_paths: ${{ inputs.ignored_paths }}
         asset_paths: ${{ inputs.asset_paths }}
-        js: ${{ inputs.js }}
-        txt: ${{ inputs.txt }}
-        svg: ${{ inputs.svg }}
-        png: ${{ inputs.png }}
-        jpg: ${{ inputs.jpg }}
-        json: ${{ inputs.json }}
-        css: ${{ inputs.css }}
-        mp4: ${{ inputs.mp4 }}
-        ico: ${{ inputs.ico }}
+        types: ${{ steps.process_types.outputs.types }}
       run: |
+        echo $types
         OUTPUT=$(bash ./check.sh)
         if [[ $OUTPUT =~ "Error" ]]; then
           echo "${OUTPUT}"
