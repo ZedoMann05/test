@@ -92,7 +92,8 @@ jobs:
         # Parse input parameters for asset types and their limits
         parse_input_params "$types"
 
-        IGNORED_ASSETS=($(echo $ignored_paths | jq -r '.[]'))
+        IGNORED_ASSETS=($(echo -e "$ignored_paths" | jq -r '.[]'))
+        ASSET_PATHS=($(echo -e "$asset_paths" | jq -r '.[]'))
 
         recursive_check() {
             local current_folder="$1"
@@ -105,7 +106,9 @@ jobs:
             done
         }
 
-        recursive_check "$asset_paths"
+        for path in "${ASSET_PATHS[@]}"; do
+            recursive_check "$path"
+        done
 
         # Print report
         echo "# Assets Size Validation Report" > ./report.md
@@ -129,7 +132,7 @@ jobs:
 
         if [ $total_errors -gt 0 ] && [ $total_warnings -gt 0 ]; then
             echo "Status: \`FAILED\`" >> ./report.md
-            echo -e "\nSome assets exceed the specified limit in the following directories: \`$asset_paths\`." >> ./report.md
+            echo -e "\nSome assets exceed the specified limit in the following directories: ${ASSET_PATHS[*]}." >> ./report.md
             echo -e "\nTotal Errors: <b>$total_errors</b>" >> ./report.md
             echo -e "Total Warnings: <b>$total_warnings</b>" >> ./report.md
             echo -e "\n## Errors" >> ./report.md
