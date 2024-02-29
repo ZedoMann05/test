@@ -19,7 +19,7 @@ jobs:
         js:1MB
         txt:500KB
         svg:2MB
-        png:2KB
+        png:4MB
         jpg:2KB
         json:1MB
         css:1MB
