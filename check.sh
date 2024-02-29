@@ -85,6 +85,8 @@ recursive_check "$asset_paths"
 # Print report
 echo "# Assets Size Validation Report" > ./report.md
 
+echo "Status: \`$status\`" >> ./report.md
+
 if [ $total_errors -gt 0 ]; then
     status="FAILED"
     echo -e "\nSome assets exceed the specified limit in the following directories: \`$asset_paths\`." >> ./report.md
@@ -92,7 +94,8 @@ if [ $total_errors -gt 0 ]; then
     echo -e "\n## Errors" >> ./report.md
 
     for file in "${!errors[@]}"; do
-        echo -e "$file" >> ./report.md
+        echo -e "<b>$extension</b>" >> ./report.md
+        echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.md
         echo -e "${errors[$file]}" >> ./report.md
     done
     
@@ -100,7 +103,8 @@ if [ $total_errors -gt 0 ]; then
     echo -e "## Warnings\n" >> ./report.md
 
     for file in "${!warnings[@]}"; do
-        echo -e "$file" >> ./report.md
+        echo -e "<b>$extension</b>" >> ./report.md
+        echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.md
         echo -e "${warnings[$file]}" >> ./report.md
     done
 elif [ $total_warnings -gt 0 ]; then
@@ -110,7 +114,8 @@ elif [ $total_warnings -gt 0 ]; then
     echo -e "\n## Warnings" >> ./report.md
 
     for file in "${!warnings[@]}"; do
-        echo -e "$file" >> ./report.md
+        echo -e "<b>$extension</b>" >> ./report.md
+        echo -e "Limit: <b>$(convert ${limits[$extension]})</b>" >> ./report.md
         echo -e "${warnings[$file]}" >> ./report.md
     done
 else
@@ -119,4 +124,3 @@ else
     echo -e "\nNo actions required." >> ./report.md
 fi
 
-echo "Status: \`$status\`" >> ./report.md
