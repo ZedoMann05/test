@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    
+
     permissions:
       pull-requests: write
     
@@ -23,7 +23,7 @@ jobs:
         js:1MB
         txt:500KB
         svg:2MB
-        png:4KB
+        png:154KB
         jpg:2MB
         json:1MB
         css:1MB
