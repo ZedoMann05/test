@@ -95,7 +95,7 @@ if [ ${#errors[@]} -gt 0 ]; then
 fi
 
 if [ ${#warnings[@]} -gt 0 ]; then
-    printf "Status: `WARNING`" >> ./report.md
+    echo "Status: 'WARNING'" >> ./report.md
     echo -e "\nSome assets exceed the specified limit in the following directories: $asset_paths, but they do not fail the validation because they are ignored by configuration." >> ./report.md
     echo -e "\nTotal Warnings: ${#warnings[@]}." >> ./report.md
 
