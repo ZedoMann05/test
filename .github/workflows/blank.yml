@@ -42,13 +42,17 @@ jobs:
             local type_limit_pair
             for type_limit_pair in $input_types; do
                 local type=$(echo "$type_limit_pair" | cut -d':' -f1)
-                local limit=$(echo "$type_limit_pair" | cut -d':' -f2)
-                # Convert limit to bytes if it's in human-readable format
-                case $limit in
-                    *GB) limit=$(( ${limit%GB} * 1024 * 1024 * 1024 ));;
-                    *MB) limit=$(( ${limit%MB} * 1024 * 1024 ));;
-                    *KB) limit=$(( ${limit%KB} * 1024 ));;
+                local limit_with_unit=$(echo "$type_limit_pair" | cut -d':' -f2)
+                local numeric_limit=$(echo "$limit_with_unit" | sed 's/[^0-9.]//g')
+                local unit=$(echo "$limit_with_unit" | sed 's/[0-9.]//g')
+                
+                case $unit in
+                    "GB") limit=$(( numeric_limit * 1024 * 1024 * 1024 ));;
+                    "MB") limit=$(( numeric_limit * 1024 * 1024 ));;
+                    "KB") limit=$(( numeric_limit * 1024 ));;
+                    *) limit=$numeric_limit;;
                 esac
+                
                 limits["$type"]="$limit"
             done
         }
