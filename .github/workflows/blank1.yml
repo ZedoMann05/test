@@ -17,6 +17,7 @@ jobs:
     with:
       ignored_paths: |
         ./public/6.PNG
+        ./public/IMG_1395.JPG
       asset_paths: |
         ./public
       types: |
