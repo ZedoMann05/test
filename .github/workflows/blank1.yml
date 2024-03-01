@@ -8,6 +8,9 @@ on:
 
 jobs:
   check:
+
+    permissions:
+      pull-requests: write
     
     name: Check Assets Sizes
     uses: ./.github/workflows/blank.yml
