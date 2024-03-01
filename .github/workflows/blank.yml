@@ -47,9 +47,9 @@ jobs:
                 local unit=$(echo "$limit_with_unit" | sed 's/[0-9.]//g')
                 
                 case $unit in
-                    "GB") limit=$(( numeric_limit * 1024 * 1024 * 1024 ));;
-                    "MB") limit=$(( numeric_limit * 1024 * 1024 ));;
-                    "KB") limit=$(( numeric_limit * 1024 ));;
+                    "GB") limit=$(python -c "print(int($numeric_limit * 1024 * 1024 * 1024))");;
+                    "MB") limit=$(python -c "print(int($numeric_limit * 1024 * 1024))");;
+                    "KB") limit=$(python -c "print(int($numeric_limit * 1024))");;
                     *) limit=$numeric_limit;;
                 esac
                 
