@@ -21,7 +21,7 @@ jobs:
       asset_paths: |
         ./public
       types: |
-        js:4.35MB
+        js:4.33MB
         txt:500KB
         svg:2MB
         png:2KB
