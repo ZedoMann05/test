@@ -8,12 +8,10 @@ on:
 
 jobs:
   check:
-
-    permissions:
-      pull-requests: write
     
     name: Check Assets Sizes
     uses: ./.github/workflows/blank.yml
+    secrets: inherit
     with:
       ignored_paths: |
         ./public/IMG_1395.JPG

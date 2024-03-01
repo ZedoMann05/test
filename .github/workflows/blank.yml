@@ -1,28 +1,29 @@
-name: Check File Sizes
+name: Check Assets Sizes
 
 on:
   workflow_call:
     inputs:
-        ignored_paths:
-          required: true
-          type: string
-        asset_paths:
-          required: true
-          type: string
-        types:
-          required: true
-          type: string
+      ignored_paths:
+        required: true
+        type: string
+      asset_paths:
+        required: true
+        type: string
+      types:
+        required: true
+        type: string
 
 jobs:
   check_file_sizes:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
-    
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Run file size check script
-      id: report
       env:
         ignored_paths: ${{ inputs.ignored_paths }}
         asset_paths: ${{ inputs.asset_paths }}
@@ -34,7 +35,7 @@ jobs:
         declare -A errors
         declare -A warnings
 
-        # Parse input parameters for asset types and their limits
+        # Function to parse input parameters for asset types and their limits
         parse_input_params() {
             local input_types="$1"
             local type_limit_pair
@@ -42,33 +43,28 @@ jobs:
                 local type=$(echo "$type_limit_pair" | cut -d':' -f1)
                 local limit=$(echo "$type_limit_pair" | cut -d':' -f2)
                 # Convert limit to bytes if it's in human-readable format
-                if [[ "$limit" == *GB ]]; then
-                    limit=$(echo "$limit" | sed 's/GiB//')
-                    limit=$(( limit * 1024 * 1024 * 1024 ))
-                elif [[ "$limit" == *MB ]]; then
-                    limit=$(echo "$limit" | sed 's/MB//')
-                    limit=$(( limit * 1024 * 1024 ))
-                elif [[ "$limit" == *KB ]]; then
-                    limit=$(echo "$limit" | sed 's/KB//')
-                    limit=$(( limit * 1024 ))
-                fi
+                case $limit in
+                    *GB) limit=$(( ${limit%GB} * 1024 * 1024 * 1024 ));;
+                    *MB) limit=$(( ${limit%MB} * 1024 * 1024 ));;
+                    *KB) limit=$(( ${limit%KB} * 1024 ));;
+                esac
                 limits["$type"]="$limit"
             done
         }
 
+        # Function to convert file size to human-readable format
         convert() {
             local bytes=$1
-            if (( bytes < 1024 )); then
-                echo "${bytes} bytes"
-            elif (( bytes < 1048576 )); then
-                echo "$(( bytes / 1024 )) KB"
-            elif (( bytes < 1073741824 )); then
-                printf "%.2f MB" "$(echo "scale=2; $bytes / 1024 / 1024" | bc)"
-            else
-                printf "%.2f GiB" "$(echo "scale=2; $bytes / 1024 / 1024 / 1024" | bc)"
-            fi
+            local units=("bytes" "KB" "MB" "GB" "TB")
+            local i=0
+            while (( bytes > 1024 )); do
+                (( bytes /= 1024 ))
+                (( i++ ))
+            done
+            echo "$bytes ${units[i]}"
         }
 
+        # Function to check file size against the limits
         check_file_size() {
             local file="$1"
             local size=$(stat -c %s "$file")
@@ -76,17 +72,15 @@ jobs:
             local extension="${extension,,}"
             local limit="${limits[$extension]}"
             
-            if [ -n "$limit" ]; then
-                if [ "$size" -gt "$limit" ]; then
-                    if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
-                        echo -e "::warning::File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
-                        warnings["$extension"]+="- \`$file\` Size: <b>$(convert $size)</b>\n"
-                        total_warnings=$((total_warnings + 1))
-                    else
-                        echo -e "::error::File $file exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
-                        errors["$extension"]+="- \`$file\` Size: <b>$(convert $size)</b>\n"
-                        total_errors=$((total_errors + 1))
-                    fi
+            if [ -n "$limit" ] && [ "$size" -gt "$limit" ]; then
+                if [[ " ${IGNORED_ASSETS[*]} " =~ "$file" ]]; then
+                    echo -e "::warning::File \`$file\` exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+                    warnings["$extension"]+="- \`$file\` Size: <b>$(convert $size)</b>\n"
+                    (( total_warnings++ ))
+                else
+                    echo -e "::error::File \`$file\` exceeds the limit for type .$extension \e[31mSize\e[0m: $(convert $size) (\e[32mLimit\e[0m: $(convert $limit))"
+                    errors["$extension"]+="- \`$file\` Size: <b>$(convert $size)</b>\n"
+                    (( total_errors++ ))
                 fi
             fi
         }
@@ -96,12 +90,14 @@ jobs:
         # Parse input parameters for asset types and their limits
         parse_input_params "$types"
 
-        IGNORED_ASSETS=($(echo -e "$ignored_paths"))
-        ASSET_PATHS=($(echo -e "$asset_paths"))
+        # Convert string inputs to arrays
+        mapfile -t IGNORED_ASSETS <<< "$ignored_paths"
+        mapfile -t ASSET_PATHS <<< "$asset_paths"
 
         total_errors=0
         total_warnings=0
 
+        # Recursive function to check file sizes
         recursive_check() {
             local current_path="$1"
             if [ -d "$current_path" ]; then
@@ -117,6 +113,7 @@ jobs:
             fi
         }
 
+        # Loop through each asset path and perform file size check
         for path in "${ASSET_PATHS[@]}"; do
             recursive_check "$path"
         done
@@ -173,7 +170,7 @@ jobs:
             echo -e "\nAll assets match the size limit for their file types in the following directories: \`${ASSET_PATHS[*]}\`." >> ./report.md
             echo -e "\nNo actions required." >> ./report.md
         fi
-        
+
     - name: Post report as comment
       if: ${{ always() }}
       uses: thollander/actions-comment-pull-request@v2
