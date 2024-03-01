@@ -15,7 +15,7 @@ on:
 
 
 jobs:
-  check_file_sizes:
+  check_assets_sizes:
     runs-on: ubuntu-latest
 
     steps:
