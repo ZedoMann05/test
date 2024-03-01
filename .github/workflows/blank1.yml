@@ -16,7 +16,6 @@ jobs:
     uses: ./.github/workflows/blank.yml
     with:
       ignored_paths: |
-        ./public/6.PNG
         ./public/IMG_1395.JPG
       asset_paths: |
         ./public
@@ -24,6 +23,7 @@ jobs:
         js:1MB
         txt:500KB
         svg:2MB
+        png:2KB
         jpg:2MB
         json:1MB
         css:1MB
