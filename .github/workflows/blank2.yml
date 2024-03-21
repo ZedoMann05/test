@@ -21,6 +21,7 @@ jobs:
         else
           echo "::set-output name=validation_result::valid"
         fi
+        git show -s --format="%s" 
     
     - name: Post comment on Pull Request
       if: ${{ always() }}
