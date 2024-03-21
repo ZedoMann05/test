@@ -20,3 +20,4 @@ jobs:
         else
           echo "::set-output name=validation_result::valid"
         fi
+        git log -1 --format="%s"
