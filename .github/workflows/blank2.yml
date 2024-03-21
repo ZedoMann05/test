@@ -17,8 +17,7 @@ jobs:
       run: |
         echo ${{ github.base_ref }}
         echo ${{ github.head_ref }}
-        echo ${{ github.ref_name }}
-        echo ${{ github.ref_type }}
+        git branch ${{ github.head_ref }}
         git log ${{ github.head_ref }} $GITHUB_SHA 
     
     # - name: Post comment on Pull Request
