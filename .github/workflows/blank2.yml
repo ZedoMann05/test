@@ -17,17 +17,14 @@ jobs:
       run: |
         latest_commit_sha=$GITHUB_SHA
 
-        # Отримуємо повну інформацію про останній коміт
-        latest_commit_info=$(git log -1 $latest_commit_sha)
-        
         # Отримуємо назву останнього коміту
-        latest_commit_message=$(echo "$latest_commit_info" | grep -m 1 "commit" | cut -d ' ' -f 2-)
-        
+        latest_commit_message=$(git log -1 --format=%s $latest_commit_sha)
+
         echo "Назва останнього коміту: $latest_commit_message"
     
-    - name: Post comment on Pull Request
-      if: ${{ always() }}
-      uses: thollander/actions-comment-pull-request@v2
-      with:
-        message: |
-          ${{ steps.validate.outputs.validation_result }} There are valid commits according to regulation.
+    # - name: Post comment on Pull Request
+    #   if: ${{ always() }}
+    #   uses: thollander/actions-comment-pull-request@v2
+    #   with:
+    #     message: |
+    #       ${{ steps.validate.outputs.validation_result }} There are valid commits according to regulation.
