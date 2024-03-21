@@ -1,0 +1,26 @@
+name: Check Assets Sizes
+
+on:
+  workflow_call:
+
+
+jobs:
+  check_assets_sizes:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Run file size check script
+      run: |
+        commits=$(git log --format="%s" ${{ github.event.before }}..${{ github.sha }} | grep -E "(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+" | wc -l)
+        if [ $commits -gt 0 ]; then
+          echo "🟢 There are valid commits according to regulation."
+          exit 0
+        else
+          echo "🔴 There is no commits that are valid according to regulation"
+          exit 1
+        fi
