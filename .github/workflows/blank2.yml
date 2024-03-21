@@ -15,8 +15,10 @@ jobs:
     
     - name: check commit
       run: |
-        git log ${{ github.base_ref }}..$GITHUB_SHA --first-parent
-
+        echo ${{ github.base_ref }}
+        echo ${{ github.head_ref }}
+        echo ${{ github.ref_name }}
+        echo ${{ github.ref_type }}
     
     # - name: Post comment on Pull Request
     #   if: ${{ always() }}
