@@ -1,7 +1,7 @@
 name: Get Last Commit Name
 
 on:
-  workflow_dispatch:
+  workflow_call:
 
 jobs:
   get-last-commit-name:
