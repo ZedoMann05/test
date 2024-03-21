@@ -9,13 +9,13 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
     
     - name: check commit
       run: |
-        git log --format=%s -n 1 HEAD^
+        git log --format="%s" -n 1 $GITHUB_SHA
 
     
     # - name: Post comment on Pull Request
