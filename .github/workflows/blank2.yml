@@ -1,10 +1,10 @@
-name: Check Assets Sizes
+name: Check commit
 
 on:
   workflow_call:
 
 jobs:
-  check_assets_sizes:
+  check_commit:
     runs-on: ubuntu-latest
 
     steps:
@@ -13,7 +13,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: Run file size check script
+    - name: check commit
       run: |
         invalid_commits=0
         while IFS= read -r commit; do
