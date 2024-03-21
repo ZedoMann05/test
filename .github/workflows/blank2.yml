@@ -10,12 +10,10 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.pull_request.base.sha }}
 
     - name: Get commit message from PR
       run: |
-        commit_message=$(git log --format="%s" -n 1)
+        commit_message=$(git log --format="%s" -n 1 $GITHUB_SHA)
         echo "::set-output name=commit_message::$commit_message"
 
     - name: Use the commit message
