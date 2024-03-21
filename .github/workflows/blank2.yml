@@ -15,7 +15,7 @@ jobs:
     
     - name: Run file size check script
       run: |
-        commits=$(git log --format="%s" | grep -E "(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+" | wc -l)
+        commits=$(git log --format="%s" | grep -E "(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+")
         if [ $commits -gt 0 ]; then
           echo "🟢 There are valid commits according to regulation."
           exit 0
