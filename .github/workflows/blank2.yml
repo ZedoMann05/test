@@ -22,6 +22,7 @@ jobs:
           exit 0
         else
           echo "🔴 There is no commits that are valid according to regulation"
+          git diff --name-only origin/dev HEAD
           git log -1 --format="%s"
           exit 1
         fi
