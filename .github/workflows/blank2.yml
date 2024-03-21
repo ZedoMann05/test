@@ -4,18 +4,31 @@ on:
   workflow_call:
 
 jobs:
-  check_commit_message:
+  check_commit:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Get commit message from PR
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: check commit
       run: |
-        commit_message=$(git log --format="%s" -n 1 $GITHUB_SHA)
-        echo "::set-output name=commit_message::$commit_message"
-
-    - name: Use the commit message
-      run: |
-        echo "Commit message from PR: ${{ steps.get_commit_message.outputs.commit_message }}"
+        last_commit_message=$(git log -1 --format="%s")
+        last_real_commit=$(git log --no-merges -1 --format="%H")
+        if ! echo "$last_commit_message" | grep -qE "(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+"; then
+          echo "validation_result=invalid" >> $GITHUB_ENV
+        else
+          echo "validation_result=valid" >> $GITHUB_ENV
+        fi
+        echo "last_commit_message=$last_commit_message"
+        echo "last_real_commit=$last_real_commit"
+        git log
+    
+    # - name: Post comment on Pull Request
+    #   if: ${{ always() }}
+    #   uses: thollander/actions-comment-pull-request@v2
+    #   with:
+    #     message: |
+    #       ${{ steps.validate.outputs.validation_result }} There are valid commits according to regulation.
