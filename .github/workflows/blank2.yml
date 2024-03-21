@@ -13,16 +13,18 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: check commit
+    - name: Validate Commits
       run: |
-        latest_commit_sha=$GITHUB_SHA
-
-        # Отримуємо назву останнього коміту
-        latest_commit_message=$(git log -1 --format=%B $latest_commit_sha | head -n 1)
-        
-        echo "Назва останнього коміту: $latest_commit_message"
-
-        echo "Назва останнього коміту: ${{ github.event.head_commit.message }}"
+        # Здійснюємо перевірку комітів за допомогою регулярного виразу
+        if git log --format=%B origin/main..HEAD | grep -E '^(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+'; then
+          echo "🟢 There are valid commits according to regulation."
+          exit 0
+        else
+          echo "🔴 There is no commits that are valid according to regulation"
+          exit 1
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     # - name: Post comment on Pull Request
     #   if: ${{ always() }}
