@@ -18,8 +18,8 @@ jobs:
         latest_commit_sha=$GITHUB_SHA
 
         # Отримуємо назву останнього коміту
-        latest_commit_message=$(git log -1 --format=%s $latest_commit_sha)
-
+        latest_commit_message=$(git log -1 --format=%B $latest_commit_sha | head -n 1)
+        
         echo "Назва останнього коміту: $latest_commit_message"
     
     # - name: Post comment on Pull Request
