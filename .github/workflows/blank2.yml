@@ -1,27 +1,17 @@
-name: Check commit
+name: Get Last Commit Name
 
 on:
-  workflow_call:
+  workflow_dispatch:
 
 jobs:
-  check_commit:
+  get-last-commit-name:
     runs-on: ubuntu-latest
-
-    env:
-      commitmsg: ${{ github.event.head_commit.message }}
-
+    outputs:
+      commit-name: ${{ steps.display.outputs.commit-name }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: get commit message
-      run: |
-          echo Commit MSG = ${{ env.commitmsg }}
-    # - name: Post comment on Pull Request
-    #   if: ${{ always() }}
-    #   uses: thollander/actions-comment-pull-request@v2
-    #   with:
-    #     message: |
-    #       ${{ steps.validate.outputs.validation_result }} There are valid commits according to regulation.
+      uses: actions/checkout@v2
+
+    - name: Get last commit name
+      id: display
+      run: echo "::set-output name=commit-name::$(git log -1 --pretty=format:'%s')"
