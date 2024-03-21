@@ -15,14 +15,15 @@ jobs:
     
     - name: check commit
       run: |
-        last_commit_message=$(git log --format="%s" ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
-        if ! echo "$last_commit_message" | grep -qE "(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+"; then
-          echo "::set-output name=validation_result::invalid"
-        else
-          echo "::set-output name=validation_result::valid"
-        fi
-        git show -s --format="%s" --verbose
-        echo "$last_commit_message"
+        latest_commit_sha=$GITHUB_SHA
+
+        # Отримуємо повну інформацію про останній коміт
+        latest_commit_info=$(git log -1 $latest_commit_sha)
+        
+        # Отримуємо назву останнього коміту
+        latest_commit_message=$(echo "$latest_commit_info" | grep -m 1 "commit" | cut -d ' ' -f 2-)
+        
+        echo "Назва останнього коміту: $latest_commit_message"
     
     - name: Post comment on Pull Request
       if: ${{ always() }}
