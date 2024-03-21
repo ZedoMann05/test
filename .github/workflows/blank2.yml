@@ -21,8 +21,8 @@ jobs:
         else
           echo "::set-output name=validation_result::valid"
         fi
-        git show -s --format="%s" 
-        echo last_commit_message
+        git show -s --format="%s" --verbose
+        echo "$last_commit_message"
     
     - name: Post comment on Pull Request
       if: ${{ always() }}
