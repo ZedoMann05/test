@@ -18,7 +18,7 @@ jobs:
         echo ${{ github.base_ref }}
         echo ${{ github.head_ref }}
         git branch ${{ github.head_ref }}
-        git log ${{ github.head_ref }} $GITHUB_SHA 
+        git log ${{ github.head_ref }}
     
     # - name: Post comment on Pull Request
     #   if: ${{ always() }}
