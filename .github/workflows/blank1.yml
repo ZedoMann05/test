@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Use last commit name from another workflow
-      uses: ./.github/workflows/get-last-commit-name.yml
+      uses: ./.github/workflows/blank2.yml
       id: last-commit-name
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
