@@ -16,7 +16,7 @@ jobs:
     - name: check commit
       run: |
         last_commit_message=$(git log -1 --format="%s")
-        last_real_commit=$(git log --no-merges -1 --format="%H")
+        last_real_commit=$(git log --no-merges -1 --format="%s")
         if ! echo "$last_commit_message" | grep -qE "(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+"; then
           echo "validation_result=invalid" >> $GITHUB_ENV
         else
