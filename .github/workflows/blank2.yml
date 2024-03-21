@@ -18,12 +18,12 @@ jobs:
         last_commit_message=$(git log -1 --format="%s")
         last_real_commit=$(git log --no-merges -1 --format="%H")
         if ! echo "$last_commit_message" | grep -qE "(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+"; then
-          echo "::set-output name=validation_result::invalid"
+          echo "validation_result=invalid" >> $GITHUB_ENV
         else
-          echo "::set-output name=validation_result::valid"
+          echo "validation_result=valid" >> $GITHUB_ENV
         fi
-        git show -s --format="%s" $last_real_commit
-        echo "$last_commit_message
+        echo "last_commit_message=$last_commit_message"
+        echo "last_real_commit=$last_real_commit"
     
     # - name: Post comment on Pull Request
     #   if: ${{ always() }}
