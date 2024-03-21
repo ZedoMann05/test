@@ -15,11 +15,14 @@ jobs:
     
     - name: Run file size check script
       run: |
-        commits=$(git log --format="%s" | grep -E "(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+")
-        if [ $commits -gt 0 ]; then
-          echo "🟢 There are valid commits according to regulation."
-          exit 0
+        invalid_commits=0
+        while IFS= read -r commit; do
+          if ! echo "$commit" | grep -qE "(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+"; then
+            invalid_commits=$((invalid_commits+1))
+          fi
+        done < <(git log --format="%s" ${{ github.event.before }}..${{ github.sha }})
+        if [ $invalid_commits -eq 0 ]; then
+          echo "::set-output name=validation_result::valid"
         else
-          echo "🔴 There is no commits that are valid according to regulation"
-          exit 1
+          echo "::set-output name=validation_result::invalid"
         fi
