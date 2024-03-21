@@ -11,15 +11,35 @@ on:
       - main
 
 jobs:
-  my-job:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Use last commit name from another workflow
-      uses: ./.github/workflows/blank2.yml
-      id: last-commit-name
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+  # check:
 
-    - name: Display Last Commit Name
-      run: |
-        echo "Last commit name: ${{ steps.last-commit-name.outputs.commit-name }}"
+  #   permissions:
+  #     pull-requests: write
+    
+  #   name: Check Assets Sizes
+  #   uses: ./.github/workflows/blank.yml
+  #   secrets: inherit
+  #   with:
+  #     ignored_paths: |
+  #       ./public/IMG_1395.JPG
+  #     asset_paths: |
+  #       ./public
+  #     types: |
+  #       js:4.33MB
+  #       txt:500KB
+  #       svg:2MB
+  #       png:2KB
+  #       jpg:2MB
+  #       json:1MB
+  #       css:1MB
+  #       mp4:30MB
+  #       ico:50KB
+  
+  check-commit:
+
+    # permissions:
+    #   pull-requests: write
+
+    name: Check commit
+    uses: ./.github/workflows/blank2.yml
+    secrets: inherit
