@@ -24,6 +24,7 @@ jobs:
         fi
         echo "last_commit_message=$last_commit_message"
         echo "last_real_commit=$last_real_commit"
+        git log
     
     # - name: Post comment on Pull Request
     #   if: ${{ always() }}
