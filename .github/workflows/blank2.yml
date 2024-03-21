@@ -19,6 +19,8 @@ jobs:
         git branch
         git branch dev
         git branch
+        git log --format="%s" -n 1 $GITHUB_SHA
+        git log
 
     
     # - name: Post comment on Pull Request
