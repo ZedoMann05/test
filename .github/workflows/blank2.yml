@@ -19,6 +19,7 @@ jobs:
         echo ${{ github.head_ref }}
         echo ${{ github.ref_name }}
         echo ${{ github.ref_type }}
+        git log ${{ github.head_ref }} $GITHUB_SHA --first-parent
     
     # - name: Post comment on Pull Request
     #   if: ${{ always() }}
