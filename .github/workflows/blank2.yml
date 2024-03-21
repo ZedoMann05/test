@@ -20,7 +20,7 @@ jobs:
         # Отримуємо назву останнього коміту
         latest_commit_message=$(git log -1 --format=%B $latest_commit_sha | head -n 1)
         
-        echo "Назва останнього коміту: latest_commit_message"
+        echo "Назва останнього коміту: $latest_commit_message"
 
         echo "Назва останнього коміту: ${{ github.event.head_commit.message }}"
     
