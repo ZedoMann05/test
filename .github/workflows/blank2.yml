@@ -23,17 +23,8 @@ jobs:
         fi
     
     - name: Post comment on Pull Request
-      if: github.event.pull_request.draft == false
-      uses: actions/github-script@v4
+      if: ${{ always() }}
+      uses: thollander/actions-comment-pull-request@v2
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const result = process.env.VALID_COMMITS_RESULT;
-          const message = result === 'valid' ? '🟢 There are valid commits according to regulation.' : '🔴 There is no commits that are valid according to regulation';
-          const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-          await octokit.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-            body: message
-          });
+        message: |
+          ${{ steps.validate.outputs.validation_result }} There are valid commits according to regulation.
