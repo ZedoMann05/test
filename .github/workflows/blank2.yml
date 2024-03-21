@@ -22,11 +22,12 @@ jobs:
           echo "::set-output name=validation_result::valid"
         fi
     
-    - name: Post report as comment
-      if: ${{ always() }}
-      uses: thollander/actions-comment-pull-request@v2
+    - name: Post comment on Pull Request
+      if: github.event.pull_request.draft == false
+      uses: actions/github-script@v4
       with:
-        message: |
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
           const result = process.env.VALID_COMMITS_RESULT;
           const message = result === 'valid' ? '🟢 There are valid commits according to regulation.' : '🔴 There is no commits that are valid according to regulation';
           const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
