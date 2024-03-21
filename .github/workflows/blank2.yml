@@ -16,13 +16,14 @@ jobs:
     - name: check commit
       run: |
         last_commit_message=$(git log -1 --format="%s")
+        last_real_commit=$(git log --no-merges -1 --format="%H")
         if ! echo "$last_commit_message" | grep -qE "(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+"; then
           echo "::set-output name=validation_result::invalid"
         else
           echo "::set-output name=validation_result::valid"
         fi
-        git show -s --format="%s"
-        echo "$last_commit_message"
+        git show -s --format="%s" $last_real_commit
+        echo "$last_commit_message
     
     # - name: Post comment on Pull Request
     #   if: ${{ always() }}
