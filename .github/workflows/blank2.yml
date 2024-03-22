@@ -27,7 +27,7 @@ jobs:
         else
           echo "# Validate Commit" > ./report.md
           echo "Your commit - $(git log -1 --format=%B $head_sha)" >> ./report.md
-          echo "🔴 There is no commits that are valid according to regulation" > ./report.md
+          echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
           exit 1
         fi
       env:
