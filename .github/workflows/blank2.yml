@@ -13,11 +13,13 @@ jobs:
         
     - name: Validate Commits
       run: |
-        git fetch origin ${{ github.head_ref }}
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          head_sha=$(git rev-parse HEAD)
+        else
+          head_sha=$(git rev-parse ${{ github.ref }})
+        fi
         
-        head_sha=$(git rev-parse origin/${{ github.head_ref }})
-        
-        branch_pattern=$(echo ${{ github.head_ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
+        branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
 
         if git log --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
           echo "# Validate Commit" > ./report.md
@@ -27,7 +29,7 @@ jobs:
         else
           echo "# Validate Commit" > ./report.md
           echo "Your commit - $(git log --format=%B $head_sha)" >> ./report.md
-          echo "🔴 There are no commits that are valid according to regulation" >> ./report.md
+          echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
           exit 1
         fi
     
