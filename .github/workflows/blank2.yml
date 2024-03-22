@@ -30,8 +30,6 @@ jobs:
           echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
           exit 1
         fi
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Post comment on Pull Request
       if: ${{ always() }}
