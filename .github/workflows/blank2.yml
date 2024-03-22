@@ -13,24 +13,25 @@ jobs:
         
     - name: Validate Commits
       run: |
-        git fetch origin ${{ github.event.pull_request.head.ref }}
-        
-        head_sha=$(git rev-parse origin/${{ github.event.pull_request.head.ref }})
+        # Отримуємо список ідентифікаторів комітів, пов'язаних з поточним Pull Request
+        commits=($(echo "${{ github.event.pull_request.commits }}" | tr -d '[],'))
         
         branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
-
-        # Фільтруємо коміти лише за автором (користувачем GitHub)
-        if git log --author="${{ github.actor }}" --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
-          echo "# Validate Commit" > ./report.md
-          echo "Your commit - $(git log --format=%B $head_sha)" >> ./report.md
-          echo "🟢 There are valid commits according to regulation." >> ./report.md
-          exit 0
-        else
-          echo "# Validate Commit" > ./report.md
-          echo "Your commit - $(git log --format=%B $head_sha)" >> ./report.md
-          echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
-          exit 1
-        fi
+        
+        # Перебираємо коміти і валідуємо їх
+        echo "# Validate Commit" > ./report.md
+        echo "All commits are valid according to regulation." >> ./report.md
+        for commit_sha in "${commits[@]}"; do
+          if git log --format=%B $commit_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
+            echo "🟢 Commit $commit_sha is valid according to regulation."
+          else
+            echo "🔴 Commit $commit_sha is not valid according to regulation."
+            exit 1
+          fi
+        done
+        
+        # Якщо всі коміти пройшли валідацію
+        exit 0
     
     - name: Post comment on Pull Request
       if: ${{ always() }}
