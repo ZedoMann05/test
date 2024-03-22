@@ -19,7 +19,8 @@ jobs:
         
         branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
 
-        if git log --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
+        # Фільтруємо коміти лише за автором (користувачем GitHub)
+        if git log --author="${{ github.actor }}" --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
           echo "# Validate Commit" > ./report.md
           echo "Your commit - $(git log --format=%B $head_sha)" >> ./report.md
           echo "🟢 There are valid commits according to regulation." >> ./report.md
