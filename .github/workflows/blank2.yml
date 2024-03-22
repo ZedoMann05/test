@@ -18,27 +18,26 @@ jobs:
         # Перевіряємо, чи існує гілка у робочому дереві Git
         if ! git show-ref --verify --quiet "refs/heads/$branch_name"; then
           echo "🟡 Branch $branch_name does not exist in the working tree."
-          exit 0
         fi
         
         branch_pattern=$(echo "$branch_name" | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
         
         # Отримуємо ідентифікатори комітів з історії гілки
         commit_shas=$(git log --pretty=format:"%H" "$branch_name")
-        
+
+        echo "# Validate Commit" > ./report.md
+        echo "All commits are valid according to regulation." >> ./report.md
         # Перевіряємо кожен коміт
         for commit_sha in $commit_shas; do
           if git log --format=%B "$commit_sha" | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
-            echo "🟢 Commit $commit_sha is valid according to regulation."
+            echo "🟢 Commit $commit_sha is valid according to regulation." >> ./report.md
           else
-            echo "🔴 Commit $commit_sha is not valid according to regulation."
+            echo "🔴 Commit $commit_sha is not valid according to regulation." >> ./report.md
             exit 1
           fi
         done
         
         # Якщо всі коміти пройшли валідацію
-        echo "# Validate Commit" > ./report.md
-        echo "All commits are valid according to regulation." >> ./report.md
         exit 0
     
     - name: Post comment on Pull Request
