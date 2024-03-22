@@ -13,13 +13,13 @@ jobs:
         
     - name: Validate Commits
       run: |
-        # Отримуємо список ідентифікаторів комітів, пов'язаних з поточним Pull Request
-        commits=($(echo "${{ github.event.pull_request.commits }}" | tr -d '[],'))
-        
         branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
         
+        # Отримуємо ідентифікатори комітів з історії гілки
+        commit_shas=$(git log --pretty=format:"%H" "${{ github.event.pull_request.head.ref }}")
+        
         # Перебираємо коміти і валідуємо їх
-        for commit_sha in "${commits[@]}"; do
+        for commit_sha in $commit_shas; do
           if git log --format=%B "$commit_sha" | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
             echo "🟢 Commit $commit_sha is valid according to regulation."
           else
