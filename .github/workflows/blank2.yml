@@ -13,12 +13,20 @@ jobs:
         
     - name: Validate Commits
       run: |
-        branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
+        branch_name="${{ github.event.pull_request.head.ref }}"
+        
+        # Перевіряємо, чи існує гілка у робочому дереві Git
+        if ! git rev-parse --verify "$branch_name"; then
+          echo "🔴 Branch $branch_name does not exist in the working tree."
+          exit 1
+        fi
+        
+        branch_pattern=$(echo "$branch_name" | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
         
         # Отримуємо ідентифікатори комітів з історії гілки
-        commit_shas=$(git log --pretty=format:"%H" "${{ github.event.pull_request.head.ref }}")
+        commit_shas=$(git log --pretty=format:"%H" "$branch_name")
         
-        # Перебираємо коміти і валідуємо їх
+        # Перевіряємо кожен коміт
         for commit_sha in $commit_shas; do
           if git log --format=%B "$commit_sha" | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
             echo "🟢 Commit $commit_sha is valid according to regulation."
