@@ -47,3 +47,4 @@ jobs:
     #   with:
     #     message: |
     #       ${{ steps.validate.outputs.validation_result }} There are valid commits according to regulation.
+    
