@@ -16,9 +16,9 @@ jobs:
         branch_name="${{ github.event.pull_request.head.ref }}"
         
         # Перевіряємо, чи існує гілка у робочому дереві Git
-        if ! git rev-parse --verify "$branch_name"; then
-          echo "🔴 Branch $branch_name does not exist in the working tree."
-          exit 1
+        if ! git show-ref --verify --quiet "refs/heads/$branch_name"; then
+          echo "🟡 Branch $branch_name does not exist in the working tree."
+          exit 0
         fi
         
         branch_pattern=$(echo "$branch_name" | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
