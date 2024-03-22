@@ -9,7 +9,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
         
     - name: Validate Commits
       run: |
@@ -18,25 +18,19 @@ jobs:
         head_sha=$(git rev-parse origin/${{ github.event.pull_request.head.ref }})
         
         branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
-        
-        echo $branch_pattern
 
-        git log -1 --format=%B $head_sha
-
-        # Здійснюємо перевірку комітів за допомогою регулярного виразу
         if git log -1 --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
-          echo "🟢 There are valid commits according to regulation."
+          echo "🟢 There are valid commits according to regulation." > ./report.md
           exit 0
         else
-          echo "🔴 There is no commits that are valid according to regulation"
+          echo "🔴 There is no commits that are valid according to regulation" > ./report.md
           exit 1
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
-    # - name: Post comment on Pull Request
-    #   if: ${{ always() }}
-    #   uses: thollander/actions-comment-pull-request@v2
-    #   with:
-    #     message: |
-    #       ${{ steps.validate.outputs.validation_result }} There are valid commits according to regulation.
+    - name: Post comment on Pull Request
+      if: ${{ always() }}
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        filePath: ./report.md
