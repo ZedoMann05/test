@@ -19,7 +19,7 @@ jobs:
 
         valid_commits=true
         for commit_sha in $commits; do
-          if ! git log --format=%B $commit_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
+          if ! git log --format=%B -n 1 $commit_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
             valid_commits=false
             break
           fi
@@ -29,7 +29,7 @@ jobs:
           echo "# Validate Commit" > ./report.md
           echo "Your commits:" >> ./report.md
           for commit_sha in $commits; do
-            echo "- $(git log --format=%B $commit_sha)" >> ./report.md
+            echo "- $(git log --format=%B -n 1 $commit_sha)" >> ./report.md
           done
           echo "🟢 All new commits are valid according to the regulation." >> ./report.md
           exit 0
@@ -37,7 +37,7 @@ jobs:
           echo "# Validate Commit" > ./report.md
           echo "Your commits:" >> ./report.md
           for commit_sha in $commits; do
-            echo "- $(git log --format=%B $commit_sha)" >> ./report.md
+            echo "- $(git log --format=%B -n 1 $commit_sha)" >> ./report.md
           done
           echo "🔴 Not all new commits are valid according to the regulation." >> ./report.md
           exit 1
