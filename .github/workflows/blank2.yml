@@ -13,24 +13,52 @@ jobs:
         
     - name: Validate Commits
       run: |
-        git fetch origin ${{ github.event.pull_request.head.ref }}
+        # Функція для перевірки валідності комітів
+        validate_commits() {
+          valid_commits=0
+          invalid_commits=0
+          
+          # Перебираємо всі коміти в поточному діапазоні
+          while read -r commit; do
+            if echo "$commit" | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
+              valid_commits=$((valid_commits + 1))
+            else
+              invalid_commits=$((invalid_commits + 1))
+            fi
+          done <<< "$(git log --format=%B $range_start..$range_end)"
+          
+          # Вивід результатів
+          echo "# Validate Commit" > ./report.md
+          echo "🟢 Valid commits: $valid_commits" >> ./report.md
+          echo "🔴 Invalid commits: $invalid_commits" >> ./report.md
+          
+          # Встановлення коду виходу на основі результатів
+          if [ $invalid_commits -eq 0 ]; then
+            echo "🟢 All commits are valid according to regulation." >> ./report.md
+            exit 0
+          else
+            echo "🔴 There are invalid commits according to regulation" >> ./report.md
+            exit 1
+          fi
+        }
+
+        # Отримання діапазону комітів для перевірки
+        if [ -n "${{ github.event.pull_request }}" ]; then
+          # Якщо це пулл реквест
+          range_start=$(git rev-parse ${{ github.event.pull_request.base.ref }}) # Базовий коміт
+          range_end=$(git rev-parse ${{ github.event.pull_request.head.ref }})   # Головний коміт
+        else
+          # Якщо це простий пуш
+          range_start=${{ github.event.before }}
+          range_end=${{ github.event.after }}
+        fi
         
-        head_sha=$(git rev-parse origin/${{ github.event.pull_request.head.ref }})
-        
+        # Отримання шаблону гілки
         branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
 
-        if git log --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
-          echo "# Validate Commit" > ./report.md
-          echo "Your commit - $(git log --format=%B $head_sha)" >> ./report.md
-          echo "🟢 There are valid commits according to regulation." >> ./report.md
-          exit 0
-        else
-          echo "# Validate Commit" > ./report.md
-          echo "Your commit - $(git log --format=%B $head_sha)" >> ./report.md
-          echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
-          exit 1
-        fi
-    
+        # Виклик функції для перевірки валідності комітів
+        validate_commits
+        
     - name: Post comment on Pull Request
       if: ${{ always() }}
       uses: thollander/actions-comment-pull-request@v2
