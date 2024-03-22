@@ -37,8 +37,8 @@ jobs:
   
   check-commit:
 
-    # permissions:
-    #   pull-requests: write
+    permissions:
+      pull-requests: write
 
     name: Check commit
     uses: ./.github/workflows/blank2.yml
