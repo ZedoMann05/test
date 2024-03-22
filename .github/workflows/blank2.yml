@@ -11,10 +11,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       
+    - name: Fetch base branch
+      run: git fetch origin ${{ github.event.pull_request.base.ref }}
+      
+    - name: Fetch head branch
+      run: git fetch origin ${{ github.event.pull_request.head.ref }}
+      
     - name: Validate Commits
       run: |
         # Здійснюємо перевірку комітів за допомогою регулярного виразу
-        if git log --format=%B ${{ github.event.pull_request.base.ref }}..${{ github.event.pull_request.head.ref }} | grep -E '^(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+'; then
+        if git log --format=%B FETCH_HEAD..${{ github.event.pull_request.head.ref }} | grep -E '^(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+'; then
           echo "🟢 There are valid commits according to regulation."
           exit 0
         else
