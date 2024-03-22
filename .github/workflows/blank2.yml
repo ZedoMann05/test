@@ -10,35 +10,47 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Get pull request details
+      id: pr_details
+      run: |
+        NUMBER="${{ github.event.pull_request.number }}"
+        TOKEN="${{ secrets.GITHUB_TOKEN }}"
+        RESPONSE=$(curl -s -H "Authorization: token $TOKEN" "https://api.github.com/repos/${{ github.repository }}/pulls/$NUMBER/commits")
+        echo "::set-output name=response::$RESPONSE"
+        
+    - name: Extract commit SHAs
+      id: extract_shas
+      run: |
+        RESPONSE="${{ steps.pr_details.outputs.response }}"
+        echo $RESPONSE | jq -r '.[].sha' > commit_shas.txt
         
     - name: Validate Commits
       run: |
-        commits=$(git log --pretty=format:"%H" ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
-        
         branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
-
         valid_commits=true
-        for commit_sha in $commits; do
+        
+        while IFS= read -r commit_sha; do
           if ! git log --format=%B -n 1 $commit_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
             valid_commits=false
             break
           fi
-        done
-
+        done < commit_shas.txt
+        
         if $valid_commits; then
           echo "# Validate Commit" > ./report.md
           echo "Your commits:" >> ./report.md
-          for commit_sha in $commits; do
+          while IFS= read -r commit_sha; do
             echo "- $(git log --format=%B -n 1 $commit_sha)" >> ./report.md
-          done
+          done < commit_shas.txt
           echo "🟢 All new commits are valid according to the regulation." >> ./report.md
           exit 0
         else
           echo "# Validate Commit" > ./report.md
           echo "Your commits:" >> ./report.md
-          for commit_sha in $commits; do
+          while IFS= read -r commit_sha; do
             echo "- $(git log --format=%B -n 1 $commit_sha)" >> ./report.md
-          done
+          done < commit_shas.txt
           echo "🔴 Not all new commits are valid according to the regulation." >> ./report.md
           exit 1
         fi
