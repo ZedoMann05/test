@@ -13,23 +13,27 @@ jobs:
         
     - name: Validate Commits
       run: |
-        # Знаходимо кількість комітів, що додані у Pull Request
-        commit_count=$(git rev-list --count HEAD ^origin/${{ github.event.pull_request.base.ref }})
+        git fetch origin pull/${{ github.event.pull_request.number }}/head:pr-${{ github.event.pull_request.number }}
+        git checkout pr-${{ github.event.pull_request.number }}
+        
+        branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
 
-        # Отримуємо список SHA комітів, що були додані у Pull Request
-        commit_list=$(git rev-list --reverse HEAD ^origin/${{ github.event.pull_request.base.ref }})
-
-        # Перевіряємо кожен коміт
-        for sha in $commit_list; do
-          commit_message=$(git log --format=%B -n 1 $sha)
-          branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
-
-          if echo "$commit_message" | grep -qE "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
-            echo "Valid commit: $commit_message"
-          else
-            echo "Invalid commit: $commit_message"
-            exit 1
-          fi
-        done
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if git log --format=%B HEAD | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
+          echo "# Validate Commit" > ./report.md
+          echo "Your commits:" >> ./report.md
+          git log --format=%B HEAD >> ./report.md
+          echo "🟢 There are valid commits according to the regulation." >> ./report.md
+          exit 0
+        else
+          echo "# Validate Commit" > ./report.md
+          echo "Your commits:" >> ./report.md
+          git log --format=%B HEAD >> ./report.md
+          echo "🔴 There are no commits that are valid according to the regulation." >> ./report.md
+          exit 1
+        fi
+    
+    - name: Post comment on Pull Request
+      if: ${{ always() }}
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        filePath: ./report.md
