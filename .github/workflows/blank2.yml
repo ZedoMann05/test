@@ -19,14 +19,14 @@ jobs:
         
         branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
 
-        if git log -1 --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
+        if git log --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
           echo "# Validate Commit" > ./report.md
-          echo "Your commit - $(git log -1 --format=%B $head_sha)" >> ./report.md
+          echo "Your commit - $(git log --format=%B $head_sha)" >> ./report.md
           echo "🟢 There are valid commits according to regulation." >> ./report.md
           exit 0
         else
           echo "# Validate Commit" > ./report.md
-          echo "Your commit - $(git log -1 --format=%B $head_sha)" >> ./report.md
+          echo "Your commit - $(git log --format=%B $head_sha)" >> ./report.md
           echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
           exit 1
         fi
