@@ -13,22 +13,33 @@ jobs:
         
     - name: Validate Commits
       run: |
-        git fetch origin pull/${{ github.event.pull_request.number }}/head:pr-${{ github.event.pull_request.number }}
-        git checkout pr-${{ github.event.pull_request.number }}
+        commits=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/commits" | jq -r '.[].sha')
         
         branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
 
-        if git log --format=%B HEAD | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
+        valid_commits=true
+        for commit_sha in $commits; do
+          if ! git log --format=%B $commit_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
+            valid_commits=false
+            break
+          fi
+        done
+
+        if $valid_commits; then
           echo "# Validate Commit" > ./report.md
           echo "Your commits:" >> ./report.md
-          git log --format=%B HEAD >> ./report.md
-          echo "🟢 There are valid commits according to the regulation." >> ./report.md
+          for commit_sha in $commits; do
+            echo "- $(git log --format=%B $commit_sha)" >> ./report.md
+          done
+          echo "🟢 All new commits are valid according to the regulation." >> ./report.md
           exit 0
         else
           echo "# Validate Commit" > ./report.md
           echo "Your commits:" >> ./report.md
-          git log --format=%B HEAD >> ./report.md
-          echo "🔴 There are no commits that are valid according to the regulation." >> ./report.md
+          for commit_sha in $commits; do
+            echo "- $(git log --format=%B $commit_sha)" >> ./report.md
+          done
+          echo "🔴 Not all new commits are valid according to the regulation." >> ./report.md
           exit 1
         fi
     
