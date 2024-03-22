@@ -14,23 +14,21 @@ jobs:
     - name: Validate Commits
       run: |
         if [ "${{ github.event_name }}" = "pull_request" ]; then
-          head_sha=$(git rev-parse HEAD)
-        else
-          head_sha=$(git rev-parse ${{ github.ref }})
-        fi
-        
-        branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
-
-        if git log --no-merges --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
-          echo "# Validate Commit" > ./report.md
-          echo "Your commit - $(git log --no-merges --format=%B $head_sha)" >> ./report.md
-          echo "🟢 There are valid commits according to regulation." >> ./report.md
+          base_ref=$(jq -r '.pull_request.base.ref' $GITHUB_EVENT_PATH)
+          head_ref=$(jq -r '.pull_request.head.ref' $GITHUB_EVENT_PATH)
+          git diff --name-only $base_ref...$head_ref | while read -r file; do
+            if git log --no-merges --oneline $base_ref...$head_ref -- $file | grep -qE "^(fix|hotfix|bugfix|feat|feature|breaking)\($head_ref\)?:.+"; then
+              echo "File $file contains valid commits."
+            else
+              echo "File $file does not contain valid commits."
+              exit 1
+            fi
+          done
+          echo "All files contain valid commits."
           exit 0
         else
-          echo "# Validate Commit" > ./report.md
-          echo "Your commit - $(git log --no-merges --format=%B $head_sha)" >> ./report.md
-          echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
-          exit 1
+          echo "This is not a pull request. Exiting..."
+          exit 0
         fi
     
     - name: Post comment on Pull Request
