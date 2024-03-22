@@ -10,25 +10,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-      
-    - name: Fetch base branch
-      run: git fetch origin ${{ github.event.pull_request.base.ref }}
-      
-    - name: Fetch head branch
-      run: git fetch origin ${{ github.event.pull_request.head.ref }}
-      
-    - name: Get base branch SHA
-      id: base_sha
-      run: echo "::set-output name=sha::$(git rev-parse origin/${{ github.event.pull_request.base.ref }})"
-        
-    - name: Get head branch SHA
-      id: head_sha
-      run: echo "::set-output name=sha::$(git rev-parse origin/${{ github.event.pull_request.head.ref }})"
         
     - name: Validate Commits
       run: |
-        base_sha="${{ steps.base_sha.outputs.sha }}"
-        head_sha="${{ steps.head_sha.outputs.sha }}"
+        git fetch origin ${{ github.event.pull_request.head.ref }}
+        
+        head_sha=$(git rev-parse origin/${{ github.event.pull_request.head.ref }})
         
         # Здійснюємо перевірку комітів за допомогою регулярного виразу
         if git log -1 --format=%B $head_sha | grep -E '^(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+'; then
