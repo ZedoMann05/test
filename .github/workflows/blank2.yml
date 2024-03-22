@@ -17,10 +17,22 @@ jobs:
     - name: Fetch head branch
       run: git fetch origin ${{ github.event.pull_request.head.ref }}
       
+    - name: Get base branch SHA
+      run: |
+        BASE_SHA=$(git rev-parse origin/${{ github.event.pull_request.base.ref }})
+        echo "Base branch SHA: $BASE_SHA"
+        echo "::set-env name=BASE_SHA::$BASE_SHA"
+        
+    - name: Get head branch SHA
+      run: |
+        HEAD_SHA=$(git rev-parse origin/${{ github.event.pull_request.head.ref }})
+        echo "Head branch SHA: $HEAD_SHA"
+        echo "::set-env name=HEAD_SHA::$HEAD_SHA"
+        
     - name: Validate Commits
       run: |
         # Здійснюємо перевірку комітів за допомогою регулярного виразу
-        if git log --format=%s FETCH_HEAD..${{ github.event.pull_request.head.ref }} | grep -E '^(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+'; then
+        if git log --format=%B $BASE_SHA..$HEAD_SHA | grep -E '^(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+'; then
           echo "🟢 There are valid commits according to regulation."
           exit 0
         else
