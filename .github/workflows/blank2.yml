@@ -13,7 +13,7 @@ jobs:
         
     - name: Validate Commits
       run: |
-        commits=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/commits" | jq -r '.[].sha')
+        commits=$(git log --pretty=format:"%H" ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
         
         branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
 
