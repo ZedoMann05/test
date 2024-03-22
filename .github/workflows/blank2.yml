@@ -4,21 +4,25 @@ on:
   workflow_call:
 
 jobs:
-  check_commit:
+  validate:
     runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: check commit
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Validate Commits
       run: |
-        echo ${{ github.base_ref }}
-        echo ${{ github.head_ref }}
-        git branch ${{ github.head_ref }}
-        git log ${{ github.head_ref }}
+        # Здійснюємо перевірку комітів за допомогою регулярного виразу
+        if git log --format=%B ${{ github.event.pull_request.head.ref }}..${{ github.event.pull_request.base.sha }} | grep -E '^(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+'; then
+          echo "🟢 There are valid commits according to regulation."
+          exit 0
+        else
+          echo "🔴 There is no commits that are valid according to regulation"
+          exit 1
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     # - name: Post comment on Pull Request
     #   if: ${{ always() }}
