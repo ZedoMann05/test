@@ -16,7 +16,7 @@ jobs:
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           head_sha=$(git rev-parse HEAD)
         else
-          head_sha=$(git rev-parse ${{ github.ref }})
+          head_sha=$(git rev-parse ${{ github.head_ref }})
         fi
         
         branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
