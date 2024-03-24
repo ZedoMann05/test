@@ -17,7 +17,7 @@ jobs:
         head_sha=$(git rev-parse HEAD)
 
         # Отримати шаблон для гілки (видаляємо "refs/heads/")
-        branch_pattern=$(echo ${{ github.ref }} | sed 's|refs/heads/||')
+        branch_pattern=$(echo ${{ github.head_ref }} | sed 's|refs/heads/||')
 
         # Отримати SHA попереднього коміту, щоб використовувати його як точку початку для фільтрації комітів
         previous_sha=$(git rev-parse HEAD^)
