@@ -46,20 +46,13 @@ jobs:
             if echo "$commit" | grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
                 # Якщо коміт валідний, збільшуємо лічильник валідних комітів
                 ((valid_commits++))
+            else
+                # Якщо знайдено невалідний коміт, виводимо повідомлення про помилку та завершуємо скрипт
+                echo "# Validate Commit" > ./report.md
+                echo "🔴 There is at least one commit that is not valid according to regulation" >> ./report.md
+                exit 1
             fi
-        done < commit_log.txt
-
-        # Перевірка, чи є хоча б один валідний коміт
-        if ((valid_commits > 0)); then
-            echo "# Validate Commit" > ./report.md
-            echo "🟢 There are valid commits according to regulation." >> ./report.md
-            exit 0
-        else
-            # Якщо немає валідних комітів, виводимо повідомлення про помилку та завершуємо скрипт
-            echo "# Validate Commit" > ./report.md
-            echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
-            exit 1
-        fi
+        done < commits.txt
     
     - name: Post report as comment
       if: ${{ always() }}
