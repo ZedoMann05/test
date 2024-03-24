@@ -27,11 +27,11 @@ jobs:
         while read -r commit_hash; do
           if git log -1 --format=%B $commit_hash | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
             echo "# Validate Commit" > ./report.md
-            echo "Your commit - $(git log -1 --format=%B $commit_hash)" >> ./report.md
+            echo "Your commit - $(git log -1 --format=%s $commit_hash)" >> ./report.md
             echo "🟢 There are valid commits according to regulation." >> ./report.md
           else
             echo "# Validate Commit" > ./report.md
-            echo "Your commit - $(git log -1 --format=%B $commit_hash)" >> ./report.md
+            echo "Your commit - $(git log -1 --format=%s $commit_hash)" >> ./report.md
             echo "🔴 There are no valid commits according to regulation." >> ./report.md
             exit 1
           fi
