@@ -13,16 +13,11 @@ jobs:
 
     - name: Validate Commit
       run: |
-        # Отримати список SHA комітів, які відсутні на сервері
-        git fetch origin ${{ github.ref }}
-    
-        # Отримати SHA останнього коміту, що був доданий під час пушу
-        head_sha=$(git log --format=%H origin/${{ github.ref }}..HEAD | tail -n 1)
-    
-        # Отримати шаблон для гілки (видаляємо "refs/heads/")
-        branch_pattern=$(echo ${{ github.ref }} | sed 's|refs/heads/||')
-    
-        # Перевірити останній коміт на відповідність шаблону
+        git fetch origin ${{ github.event.pull_request.head.ref }}
+        
+        head_sha=$(git rev-parse origin/${{ github.event.pull_request.head.ref }})
+        
+        branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
         if git log -1 --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
           echo "# Validate Commit" > ./report.md
           echo "Your commit - $(git log -1 --format=%B $head_sha)" >> ./report.md
@@ -31,10 +26,9 @@ jobs:
         else
           echo "# Validate Commit" > ./report.md
           echo "Your commit - $(git log -1 --format=%B $head_sha)" >> ./report.md
-          echo "🔴 There are no valid commits according to regulation." >> ./report.md
+          echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
           exit 1
         fi
-    
     
     - name: Post report as comment
       if: ${{ always() }}
