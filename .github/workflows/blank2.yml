@@ -14,13 +14,13 @@ jobs:
     - name: Validate Commit
       run: |
         # Отримати список SHA комітів, які відсутні на сервері
-        git fetch origin ${{ github.head_ref }}
+        git fetch origin ${{ github.ref }}
     
         # Отримати SHA останнього коміту, що був доданий під час пушу
-        head_sha=$(git log --format=%H origin/${{ github.head_ref }}..HEAD | tail -n 1)
+        head_sha=$(git log --format=%H origin/${{ github.ref }}..HEAD | tail -n 1)
     
         # Отримати шаблон для гілки (видаляємо "refs/heads/")
-        branch_pattern=$(echo ${{ github.head_ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
+        branch_pattern=$(echo ${{ github.ref }} | sed 's|refs/heads/||')
     
         # Перевірити останній коміт на відповідність шаблону
         if git log -1 --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
