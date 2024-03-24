@@ -35,7 +35,7 @@ jobs:
         #   exit 1
         # fi
 
-        git log --format=%s $base_sha..$head_sha > commit_log.txt
+        git log --format=%s $base_sha..$head_sha > commits.txt
 
         # Ініціалізація змінної, що позначає стан валідації
         valid_commits=0
