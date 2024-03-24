@@ -6,41 +6,37 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-        
-    - name: Validate Commits
-      run: |
-        branch_name="${{ github.event.pull_request.head.ref }}"
-        
-        # Перевіряємо, чи існує гілка у робочому дереві Git
-        if ! git show-ref --verify --quiet "refs/heads/$branch_name"; then
-          echo "🟡 Branch $branch_name does not exist in the working tree."
-        fi
-        
-        branch_pattern=$(echo "$branch_name" | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
-        
-        # Отримуємо ідентифікатори комітів з історії гілки
-        commit_shas=$(git log --pretty=format:"%H" "$branch_name")
 
-        echo "# Validate Commit" > ./report.md
-        echo "All commits are valid according to regulation." >> ./report.md
-        # Перевіряємо кожен коміт
-        for commit_sha in $commit_shas; do
-          if git log --format=%B "$commit_sha" | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
-            echo "🟢 Commit $commit_sha is valid according to regulation." >> ./report.md
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Validate Commit
+      run: |
+        # Отримати SHA останнього коміту в гілці, на яку ви здійснили push
+        head_sha=$(git rev-parse HEAD)
+
+        # Отримати шаблон для гілки (видаляємо "refs/heads/")
+        branch_pattern=$(echo ${{ github.ref }} | sed 's|refs/heads/||')
+
+        # Отримати SHA попереднього коміту, щоб використовувати його як точку початку для фільтрації комітів
+        previous_sha=$(git rev-parse HEAD^)
+
+        # Перевірити всі коміти, що були додані під час останнього пушу
+        while read -r commit_hash; do
+          if git log -1 --format=%B $commit_hash | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
+            echo "# Validate Commit" > ./report.md
+            echo "Your commit - $(git log -1 --format=%B $commit_hash)" >> ./report.md
+            echo "🟢 There are valid commits according to regulation." >> ./report.md
           else
-            echo "🔴 Commit $commit_sha is not valid according to regulation." >> ./report.md
+            echo "# Validate Commit" > ./report.md
+            echo "Your commit - $(git log -1 --format=%B $commit_hash)" >> ./report.md
+            echo "🔴 There are no valid commits according to regulation." >> ./report.md
             exit 1
           fi
-        done
-        
-        # Якщо всі коміти пройшли валідацію
-        exit 0
+        done <<< "$(git log --format=%H --since=$previous_sha)"
     
-    - name: Post comment on Pull Request
+    - name: Post report as comment
       if: ${{ always() }}
       uses: thollander/actions-comment-pull-request@v2
       with:
