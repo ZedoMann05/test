@@ -13,14 +13,15 @@ jobs:
 
     - name: Validate Commit
       run: |
+        git fetch origin ${{ github.event.pull_request.head.ref }}
         # Отримати SHA останнього коміту в гілці, на яку ви здійснили push
-        head_sha=$(git rev-parse HEAD)
+        head_sha=$(git rev-parse origin/${{ github.event.pull_request.head.ref }})
 
         # Отримати шаблон для гілки (видаляємо "refs/heads/")
         branch_pattern=$(echo ${{ github.head_ref }} | sed 's|refs/heads/||')
 
         # Отримати SHA попереднього коміту, щоб використовувати його як точку початку для фільтрації комітів
-        previous_sha=$(git rev-parse HEAD^)
+        previous_sha=$(git rev-parse origin/${{ github.event.pull_request.head.ref }}^)
 
         # Перевірити всі коміти, що були додані під час останнього пушу
         while read -r commit_hash; do
