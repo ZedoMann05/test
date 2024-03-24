@@ -13,29 +13,28 @@ jobs:
 
     - name: Validate Commit
       run: |
-        git fetch origin ${{ github.event.pull_request.head.ref }}
-        # Отримати SHA останнього коміту в гілці, на яку ви здійснили push
-        head_sha=$(git rev-parse origin/${{ github.event.pull_request.head.ref }})
-
+        # Отримати список SHA комітів, які відсутні на сервері
+        git fetch origin ${{ github.head_ref }}
+    
+        # Отримати SHA останнього коміту, що був доданий під час пушу
+        head_sha=$(git log --format=%H origin/${{ github.head_ref }}..HEAD | tail -n 1)
+    
         # Отримати шаблон для гілки (видаляємо "refs/heads/")
-        branch_pattern=$(echo ${{ github.head_ref }} | sed 's|refs/heads/||')
-
-        # Отримати SHA попереднього коміту, щоб використовувати його як точку початку для фільтрації комітів
-        previous_sha=$(git rev-parse origin/${{ github.event.pull_request.head.ref }}^)
-
-        # Перевірити всі коміти, що були додані під час останнього пушу
-        while read -r commit_hash; do
-          if git log -1 --format=%B $commit_hash | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
-            echo "# Validate Commit" > ./report.md
-            echo "Your commit - $(git log -1 --format=%s $commit_hash)" >> ./report.md
-            echo "🟢 There are valid commits according to regulation." >> ./report.md
-          else
-            echo "# Validate Commit" > ./report.md
-            echo "Your commit - $(git log -1 --format=%s $commit_hash)" >> ./report.md
-            echo "🔴 There are no valid commits according to regulation." >> ./report.md
-            exit 1
-          fi
-        done <<< "$(git log --format=%H --since=$previous_sha)"
+        branch_pattern=$(echo ${{ github.head_ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
+    
+        # Перевірити останній коміт на відповідність шаблону
+        if git log -1 --format=%B $head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
+          echo "# Validate Commit" > ./report.md
+          echo "Your commit - $(git log -1 --format=%B $head_sha)" >> ./report.md
+          echo "🟢 There are valid commits according to regulation." >> ./report.md
+          exit 0
+        else
+          echo "# Validate Commit" > ./report.md
+          echo "Your commit - $(git log -1 --format=%B $head_sha)" >> ./report.md
+          echo "🔴 There are no valid commits according to regulation." >> ./report.md
+          exit 1
+        fi
+    
     
     - name: Post report as comment
       if: ${{ always() }}
