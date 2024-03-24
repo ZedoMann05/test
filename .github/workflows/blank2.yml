@@ -35,10 +35,13 @@ jobs:
         #   exit 1
         # fi
 
+        git log --format=%s $base_sha..$head_sha > commit_log.txt
+
+        # Ініціалізація змінної, що позначає стан валідації
         valid_commits=0
 
-        # Перевірка комітів за допомогою циклу
-        while read -r commit; do
+        # Перевірка комітів з файлу за допомогою циклу
+        while IFS= read -r commit; do
             # Перевірка, чи відповідає коміт умові
             if echo "$commit" | grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
                 # Якщо коміт валідний, збільшуємо лічильник валідних комітів
@@ -49,7 +52,7 @@ jobs:
                 echo "🔴 There is at least one commit that is not valid according to regulation" >> ./report.md
                 exit 1
             fi
-        done < <(git log --format=%s $base_sha..$head_sha)
+        done < commit_log.txt
 
         # Перевірка, чи є хоча б один валідний коміт
         if ((valid_commits > 0)); then
