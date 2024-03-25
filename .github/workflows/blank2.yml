@@ -27,6 +27,8 @@ jobs:
 
         validate_commit=true
 
+        cat commits.txt
+
         echo "# Validate Commit" > ./report.md
 
         while IFS= read -r commit; do
