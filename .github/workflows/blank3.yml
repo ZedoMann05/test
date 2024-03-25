@@ -1,0 +1,19 @@
+name: Another Workflow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+    branches:
+      - main
+
+jobs:
+  check-commit:
+
+    permissions:
+      pull-requests: write
+
+    name: Check commit
+    uses: ./.github/workflows/blank2.yml
+    secrets: inherit

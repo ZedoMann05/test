@@ -36,12 +36,3 @@ jobs:
         css:1MB
         mp4:30MB
         ico:50KB
-  
-  check-commit:
-
-    permissions:
-      pull-requests: write
-
-    name: Check commit
-    uses: ./.github/workflows/blank2.yml
-    secrets: inherit
