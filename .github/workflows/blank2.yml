@@ -37,19 +37,28 @@ jobs:
 
         git log --format=%s $base_sha..$head_sha > commits.txt
 
-        echo commits.txt
+        cat commits.txt
 
-        # Ініціалізація змінної, що позначає стан валідації
-        valid_commits=0
+        found_invalid=false
 
-        # Перевірка комітів з файлу за допомогою циклу
+        echo "# Validate Commit" > ./report.md
+
+        # Перевіряємо кожен рядок у файлі
         while IFS= read -r line; do
             # Перевірка відповідності рядка шаблону
             if ! grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+" <<< "$line"; then
-                echo "Рядок не відповідає вимогам: $line"
-                exit 1
+                echo "Your commit - $line" >> ./report.md
+                found_invalid=true
             fi
-        done < commits.txt
+        done < "commits.txt"
+
+        # Перевірка, чи були знайдені невідповідні рядки
+        if [ "$found_invalid" = true ]; then
+            echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
+            exit 1
+        else
+            echo "🟢 There are valid commits according to regulation." >> ./report.md
+        fi
     
     - name: Post report as comment
       if: ${{ always() }}
