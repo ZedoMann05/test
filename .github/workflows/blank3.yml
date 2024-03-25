@@ -18,6 +18,5 @@ jobs:
       pull-requests: write
 
     name: Check commit
-    if: github.event.review.state == 'approved'
     uses: ./.github/workflows/blank2.yml
     secrets: inherit
