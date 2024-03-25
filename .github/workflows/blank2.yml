@@ -33,7 +33,7 @@ jobs:
                 echo "$commit" >> ./commit.txt
                 validate_commit=false
             fi
-        done < "$(git log --format=%s $base_sha..$head_sha)"
+        done < "commits.txt"
 
         if [ "$validate_commit" = false ]; then
             echo "🔴 There is no commits that are valid according to regulation:" >> ./report.md
