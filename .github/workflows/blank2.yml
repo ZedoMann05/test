@@ -37,7 +37,7 @@ jobs:
 
         git log --format=%s $base_sha..$head_sha > commits.txt
 
-        found_invalid=false
+        validate_commit=true
 
         echo "# Validate Commit" > ./report.md
 
@@ -46,12 +46,12 @@ jobs:
             # Перевірка відповідності рядка шаблону
             if ! grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+" <<< "$line"; then
                 echo $line >> ./commit.txt
-                found_invalid=true
+                validate_commit=false
             fi
         done < "commits.txt"
 
         # Перевірка, чи були знайдені невідповідні рядки
-        if [ "$found_invalid" = true ]; then
+        if [ "$validate_commit" = false ]; then
             echo "🔴 There is no commits that are valid according to regulation:" >> ./report.md
             cat commit.txt >> ./report.md
             exit 1
