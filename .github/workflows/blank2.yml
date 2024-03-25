@@ -6,33 +6,46 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
-        
-    - name: Validate Commits
+
+    - name: Validate Commit
       run: |
-        git fetch origin pull/${{ github.event.pull_request.number }}/head:pr-${{ github.event.pull_request.number }}
-        git checkout pr-${{ github.event.pull_request.number }}
+        git fetch origin ${{ github.event.pull_request.head.ref }}
         
+        git fetch origin ${{ github.event.pull_request.base.ref }}
+
+        head_sha=$(git rev-parse origin/${{ github.event.pull_request.head.ref }})
+        
+        base_sha=$(git rev-parse origin/${{ github.event.pull_request.base.ref }})
+
         branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
 
-        if git log --format=%B HEAD | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
-          echo "# Validate Commit" > ./report.md
-          echo "Your commits:" >> ./report.md
-          git log --format=%B HEAD >> ./report.md
-          echo "🟢 There are valid commits according to the regulation." >> ./report.md
-          exit 0
+        git log --format=%s $base_sha..$head_sha > commits.txt
+
+        validate_commit=true
+
+        echo "# Validate Commit" > ./report.md
+
+        while IFS= read -r commit; do
+            # Перевірка відповідності рядка шаблону
+            if ! grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+" <<< "$commit"; then
+                echo $commit >> ./commit.txt
+                validate_commit=false
+            fi
+        done < "commits.txt"
+
+        if [ "$validate_commit" = false ]; then
+            echo "🔴 There is no commits that are valid according to regulation:" >> ./report.md
+            cat commit.txt >> ./report.md
+            exit 1
         else
-          echo "# Validate Commit" > ./report.md
-          echo "Your commits:" >> ./report.md
-          git log --format=%B HEAD >> ./report.md
-          echo "🔴 There are no commits that are valid according to the regulation." >> ./report.md
-          exit 1
+            echo "🟢 There are valid commits according to regulation." >> ./report.md
         fi
     
-    - name: Post comment on Pull Request
+    - name: Post report as comment
       if: ${{ always() }}
       uses: thollander/actions-comment-pull-request@v2
       with:
