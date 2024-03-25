@@ -9,8 +9,6 @@ on:
       - reopened
     branches:
       - main
-    paths:
-      - public
 
 jobs:
   check:
