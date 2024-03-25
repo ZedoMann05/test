@@ -5,6 +5,8 @@ on:
   pull_request:
     types:
       - opened
+      - review_requested
+      - ready_for_review
     branches:
       - main
 
