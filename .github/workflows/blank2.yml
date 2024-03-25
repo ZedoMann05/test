@@ -21,23 +21,39 @@ jobs:
         
         base_sha=$(git rev-parse origin/${{ github.event.pull_request.base.ref }})
 
+        branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
+        
+        # if git log --format=%s $base_sha..$head_sha | grep -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+"; then
+        #   echo "# Validate Commit" > ./report.md
+        #   echo "Your commit - $(git log --format=%s $base_sha..$head_sha)" >> ./report.md
+        #   echo "🟢 There are valid commits according to regulation." >> ./report.md
+        #   exit 0
+        # else
+        #   echo "# Validate Commit" > ./report.md
+        #   echo "Your commit - $(git log -1 --format=%s $base_sha..$head_sha)" >> ./report.md
+        #   echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
+        #   exit 1
+        # fi
+
         git log --format=%s $base_sha..$head_sha > commits.txt
 
-        validate_commit=true
+        found_invalid=false
 
         echo "# Validate Commit" > ./report.md
 
-        while IFS= read -r commit; do
+        # Перевіряємо кожен рядок у файлі
+        while IFS= read -r line; do
             # Перевірка відповідності рядка шаблону
-            if ! grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+" <<< "$commit"; then
-                echo "$commit" >> ./commit.txt
-                validate_commit=false
+            if ! grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+" <<< "$line"; then
+                echo $line >> ./commit.txt
+                found_invalid=true
             fi
         done < "commits.txt"
 
-        if [ "$validate_commit" = false ]; then
+        # Перевірка, чи були знайдені невідповідні рядки
+        if [ "$found_invalid" = true ]; then
             echo "🔴 There is no commits that are valid according to regulation:" >> ./report.md
-            cat ./commit.txt >> ./report.md
+            cat commit.txt >> ./report.md
             exit 1
         else
             echo "🟢 There are valid commits according to regulation." >> ./report.md
