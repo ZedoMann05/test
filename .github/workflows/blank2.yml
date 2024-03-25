@@ -48,7 +48,7 @@ jobs:
                 echo "Your commit - $line" >> ./report.md
                 found_invalid=true
             fi
-        done < "$(git log --format=%s $base_sha..$head_sha)"
+        done < "commits.txt"
 
         # Перевірка, чи були знайдені невідповідні рядки
         if [ "$found_invalid" = true ]; then
