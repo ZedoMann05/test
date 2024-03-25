@@ -38,7 +38,8 @@ jobs:
         done < "commits.txt"
 
         if [ "$validate_commit" = false ]; then
-            echo "🔴 There is no commits that are valid according to regulation:" >> ./report.md
+            echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
+            echo "Commits that do not meet the requirements:" >> ./report.md
             cat commit.txt >> ./report.md
             exit 1
         else
