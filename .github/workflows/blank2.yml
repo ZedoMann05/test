@@ -27,14 +27,15 @@ jobs:
 
         validate_commit=true
 
+        cat commits.txt
+
         echo "# Validate Commit" > ./report.md
 
         while IFS= read -r commit; do
-            # Перевірка відповідності рядка шаблону
-            if ! grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking)\($branch_pattern\)?:.+" <<< "$commit"; then
-                echo $commit >> ./commit.txt
-                validate_commit=false
-            fi
+          if ! ( grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+" <<< "$commit" || grep -q -E "^(fix)?:[^:].+" <<< "$commit" ); then
+              echo $commit >> ./commit.txt
+              validate_commit=false
+          fi
         done < "commits.txt"
 
         if [ "$validate_commit" = false ]; then

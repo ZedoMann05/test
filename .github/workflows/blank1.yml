@@ -5,8 +5,8 @@ on:
   pull_request:
     types:
       - opened
-      - synchronize
-      - reopened
+      # - synchronize
+      # - reopened
     branches:
       - main
     paths:
