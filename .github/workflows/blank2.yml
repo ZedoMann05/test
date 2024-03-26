@@ -6,11 +6,11 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
+        
     - name: Validate Commit
       run: |
         git fetch origin ${{ github.event.pull_request.head.ref }}
@@ -27,15 +27,13 @@ jobs:
 
         validate_commit=true
 
-        cat commits.txt
-
         echo "# Validate Commit" > ./report.md
 
         while IFS= read -r commit; do
-          if ! ( grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking)((.+))?:.+" <<< "$commit" || grep -q -E "^(fix)?:[^:].+" <<< "$commit" ); then
-              echo $commit >> ./commit.txt
-              validate_commit=false
-          fi
+            if ! ( grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)((.+))?:.+" <<< "$commit" || grep -q -E "^(fix)?:.+" <<< "$commit" ); then
+                echo $commit >> ./commit.txt
+                validate_commit=false
+            fi
         done < "commits.txt"
 
         if [ "$validate_commit" = false ]; then
