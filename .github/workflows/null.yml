@@ -23,13 +23,13 @@ jobs:
           git checkout -b backup/${{ github.event.inputs.target_branch }}
           git push origin backup/${{ github.event.inputs.target_branch }}
           
-    #   - name: Reset target branch to master
-    #     run: |
-    #       git checkout master
-    #       git pull origin master
-    #       git checkout ${{ github.event.inputs.target_branch }}
-    #       git reset --hard origin/master
-    #       git push --force origin ${{ github.event.inputs.target_branch }}
+      - name: Reset target branch to master
+        run: |
+          git checkout master
+          git pull origin master
+          git checkout ${{ github.event.inputs.target_branch }}
+          git reset --hard origin/master
+          git push --force origin ${{ github.event.inputs.target_branch }}
           
     #   - name: Create and merge topic branches
     #     run: |
