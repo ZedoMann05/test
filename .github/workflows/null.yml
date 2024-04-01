@@ -29,7 +29,7 @@ jobs:
 
       - name: Backup target branch
         run: |
-          backup_branch="backup/${{ github.ref_name }}$(date +"%Y%m%d%H%M" --date='TZ="Europe/Kiev" now')"
+          backup_branch="backup/${{ github.ref_name }}$(date +"%Y%m%d%H%M" -d 'TZ="Europe/Kiev" now')"
           git fetch origin ${{ github.ref_name }}
           git checkout ${{ github.ref_name }}
           git pull origin ${{ github.ref_name }}
@@ -55,7 +55,7 @@ jobs:
             fi
           done < branches_reset.txt
           echo "SLACK_MESSAGE=$(cat branch.md)" >> $GITHUB_ENV
-          echo "SLACK_FOOTER=$(date +"%Y-%m-%dT%H:%M:%SZ" --date='TZ="Europe/Kiev" now')" >> $GITHUB_ENV
+          echo "SLACK_FOOTER=$(date +"%Y-%m-%dT%H:%M:%S" -d 'TZ="Europe/Kiev" now')" >> $GITHUB_ENV
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
