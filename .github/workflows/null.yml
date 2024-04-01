@@ -33,7 +33,7 @@ jobs:
         id: save-branches
         run: |
           git fetch origin
-          comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }})) <(sort <(git branch -r --merged origin/${{ github.ref_name }})) -r > branches_reset.txt    
+          comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }})) <(sort <(git branch -r --merged origin/${{ github.ref_name }})) > branches_reset.txt    
     
       - name: Reset target branch to master
         run: |
