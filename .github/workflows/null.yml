@@ -51,3 +51,12 @@ jobs:
           
       - name: Output Branch list
         run: cat branches_reset.txt
+      
+      - name: create pr
+        run: 
+          while IFS= read -r branch; do
+            if ( grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)((getpin-.+))?:.+" <<< "$branch"); then
+                echo $branch >> ./branch.txt
+            fi
+          done < "branches_reset.txt"
+          cat branch.txt
