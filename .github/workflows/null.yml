@@ -12,24 +12,26 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
         
       - name: Backup target branch
         run: |
-          git fetch origin ${{ github.head_ref }}
-          git fetch origin ${{ github.base_ref }}
-          git checkout ${{ github.event.inputs.target_branch }}
-          git pull origin ${{ github.event.inputs.target_branch }}
-          git checkout -b "backup-development"
-#          git push origin backup/development
+          git fetch origin ${{ github.ref_name }}
+          git fetch origin main
+          git checkout ${{ github.ref_name }}
+          git pull origin ${{ github.ref_name }}
+          git checkout -b "backup/${{ github.ref_name }}"
+          git push origin "backup/${{ github.ref_name }}"
           
       - name: Reset target branch to master
         run: |
-          git checkout master
-          git pull origin master
-          git checkout ${{ github.event.inputs.target_branch }}
-          git reset --hard origin/master
-          git push --force origin ${{ github.event.inputs.target_branch }}
+          git checkout main
+          git pull origin main
+          git checkout ${{ github.ref_name }}
+          git reset --hard "origin/main"
+          git push --force origin ${{ github.ref_name }}
           
     #   - name: Create and merge topic branches
     #     run: |
