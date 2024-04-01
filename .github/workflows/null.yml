@@ -30,9 +30,9 @@ jobs:
         run: |
           git checkout main
           git pull origin main
-          git checkout $backup_branch
+          git checkout ${{ github.ref_name }}
           git reset --hard "origin/main"
-          git push --force origin $backup_branch
+          git push --force origin ${{ github.ref_name }}
           
     #   - name: Create and merge topic branches
     #     run: |
