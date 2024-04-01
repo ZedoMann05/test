@@ -25,8 +25,8 @@ jobs:
           echo "prod"
           git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }}
           echo "dev"
-          git branch -r --no-merged origin/${{ github.ref_name }}
-          comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }})) <(sort <(git branch -r --no-merged origin/${{ github.ref_name }})) > branches_reset.txt    
+          git branch -r --merged 
+          comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }})) <(sort <(git branch -r --merged)) > branches_reset.txt    
 
       - name: Backup target branch
         run: |
