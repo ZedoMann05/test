@@ -19,7 +19,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
-        
+       
+      - name: Save list of branches before reset
+        id: save-branches
+        run: |
+          git fetch origin && git pull
+          comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }})) <(sort <(git branch -r --merged origin/${{ github.ref_name }})) > branches_reset.txt    
+
       - name: Backup target branch
         run: |
           backup_branch="backup/${{ github.ref_name }}$(date +%Y%m%d%H%M)"
@@ -28,12 +34,6 @@ jobs:
           git pull origin ${{ github.ref_name }}
           git checkout -b $backup_branch
           git push origin $backup_branch
-    
-      - name: Save list of branches before reset
-        id: save-branches
-        run: |
-          git fetch origin && git pull
-          comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }})) <(sort <(git branch -r --merged origin/${{ github.ref_name }})) > branches_reset.txt    
     
       - name: Reset target branch to master
         run: |
