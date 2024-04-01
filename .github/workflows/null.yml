@@ -18,12 +18,13 @@ jobs:
         with:
           ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
        
-      - name: Save list of branches before reset
-        id: save-branches
+      - name: Branch list
         run: |
           git branch -r
           git fetch origin && git pull origin
           git branch -r
+          git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }}
+          git branch -r --merged origin/${{ github.ref_name }}
           comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }})) <(sort <(git branch -r --merged origin/${{ github.ref_name }})) > branches_reset.txt    
 
       - name: Backup target branch
@@ -44,5 +45,5 @@ jobs:
           git reset --hard origin/${{ github.event.inputs.reset_to_branch }}
           git push --force origin ${{ github.ref_name }}
           
-      - name: Output lost branches
+      - name: Output Branch list
         run: cat branches_reset.txt
