@@ -1,4 +1,4 @@
-name: Update branches
+name: Reset branche
 
 on:
   workflow_dispatch:
@@ -54,7 +54,8 @@ jobs:
                 echo "$pr" >> branch.md
             fi
           done < branches_reset.txt
-          cat branch.md
+          echo "SLACK_MESSAGE=$(cat branch.md)" >> $GITHUB_ENV
+          echo "SLACK_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
@@ -62,9 +63,9 @@ jobs:
           SLACK_COLOR: ${{ job.status }}
           SLACK_MESSAGE: |
             The environment is ready to use! Reload the necessary commits!:
-            $(cat branch.md)
-          SLACK_TITLE: 'Update DEV/STAGE to MASTER level'
-          SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: $(date -u +"%Y-%m-%dT%H:%M:%SZ")'
+            ${{ env.SLACK_MESSAGE }}
+          SLACK_TITLE: 'Reset DEV/STAGE to MASTER level'
+          SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: $SLACK_TIME'
           SLACK_WEBHOOK: ${{ secrets.GETPIN_DEVOPS_SLACK_CI_WEBHOOK }}
           SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
           SLACKIFY_MARKDOWN: true
