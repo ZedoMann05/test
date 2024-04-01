@@ -6,10 +6,6 @@ on:
       reset_to_branch:
         description: 'Reset to branch'     
         required: true
-  push:
-    branches:
-      - development
-      - staging
 
 jobs:
   update-branches:
