@@ -54,10 +54,11 @@ jobs:
       
       - name: Filter branches and create PRs
         run: |
-          touch branch.txt  # Create branch.txt if it doesn't exist
+          touch branch.md  # Create branch.txt if it doesn't exist
           while IFS= read -r branch; do
             if [[ $branch =~ ^(fix|hotfix|bugfix|feat|feature|breaking|chore)(\/getpin-[0-9]+)?\/.* ]]; then
-                echo "${branch#*/}" >> branch.txt
+                pr="[$(echo $branch)](https://github.com/ZedoMann05/test/compare/${{ github.ref_name }}...$(echo $branch))"
+                echo "$pr" >> branch.md
             fi
           done < branches_reset.txt
-          cat branch.txt
+          cat branch.md
