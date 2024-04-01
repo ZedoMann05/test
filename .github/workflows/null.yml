@@ -32,8 +32,8 @@ jobs:
       - name: Save list of branches before reset
         id: save-branches
         run: |
-          git fetch origin
-          git branch -r > branches_before_reset.txt    
+          git fetch --all && git pull --all
+          comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }})) <(sort <(git branch -r --merged origin/${{ github.ref_name }})) -r > branches_reset.txt    
     
       - name: Reset target branch to master
         run: |
@@ -44,15 +44,8 @@ jobs:
           git reset --hard origin/${{ github.event.inputs.reset_to_branch }}
           git push --force origin ${{ github.ref_name }}
           
-      - name: Find lost branches
-        id: find-lost-branches
-        run: |
-          git fetch origin
-          git branch -r > branches_after_reset.txt
-          diff branches_before_reset.txt branches_after_reset.txt | grep -E '^< ' | awk '{print substr($$2, 8)}' > lost_branches.txt
-          
       - name: Output lost branches
-        run: cat lost_branches.txt
+        run: cat branches_reset.txt
     #   - name: Create and merge topic branches
     #     run: |
     #       # Assuming you have a script to create and merge topic branches
