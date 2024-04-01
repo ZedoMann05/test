@@ -22,7 +22,7 @@ jobs:
         id: save-branches
         run: |
           git branch -r
-          git fetch --all && git pull --all
+          git fetch origin && git pull origin
           git branch -r
           comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }})) <(sort <(git branch -r --merged origin/${{ github.ref_name }})) > branches_reset.txt    
 
