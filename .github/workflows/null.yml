@@ -6,12 +6,14 @@ on:
       reset_to_branch:
         description: 'Reset to branch'     
         required: true
-    # branches:
-    #   - development
-    #   - staging
+  push:
+    branches:
+      - development
+      - staging
 
 jobs:
   update-branches:
+    if: github.ref_name == 'development' || github.ref_name == 'staging'
     runs-on: ubuntu-latest
     
     steps:
@@ -23,7 +25,9 @@ jobs:
       - name: Save list of branches before reset
         id: save-branches
         run: |
+          git branch --all
           git fetch --all && git pull --all
+          git branch --all
           comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }})) <(sort <(git branch -r --merged origin/${{ github.ref_name }})) > branches_reset.txt    
 
       - name: Backup target branch
