@@ -6,7 +6,6 @@ on:
       reset_to_branch:
         description: 'Reset to branch'     
         required: true
-        default: 'warning'
     # branches:
     #   - development
     #   - staging
