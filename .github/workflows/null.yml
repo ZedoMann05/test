@@ -29,7 +29,7 @@ jobs:
 
       - name: Backup target branch
         run: |
-          backup_branch="backup/${{ github.ref_name }}$(date +%Y%m%d%H%M)"
+          backup_branch="backup/${{ github.ref_name }}$(date +"%Y%m%d%H%M" --date='TZ="Europe/Kiev" now')"
           git fetch origin ${{ github.ref_name }}
           git checkout ${{ github.ref_name }}
           git pull origin ${{ github.ref_name }}
