@@ -55,7 +55,7 @@ jobs:
             fi
           done < branches_reset.txt
           echo "SLACK_MESSAGE=$(cat branch.md)" >> $GITHUB_ENV
-          echo "SLACK_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
+          echo "SLACK_FOOTER=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
@@ -65,7 +65,7 @@ jobs:
             The environment is ready to use! Reload the necessary commits!:
             ${{ env.SLACK_MESSAGE }}
           SLACK_TITLE: 'Reset DEV/STAGE to MASTER level'
-          SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: $SLACK_TIME'
+          SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: ${{ env.SLACK_FOOTER }}'
           SLACK_WEBHOOK: ${{ secrets.GETPIN_DEVOPS_SLACK_CI_WEBHOOK }}
           SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
           SLACKIFY_MARKDOWN: true
