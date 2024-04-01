@@ -46,22 +46,3 @@ jobs:
           
       - name: Output lost branches
         run: cat branches_reset.txt
-    #   - name: Create and merge topic branches
-    #     run: |
-    #       # Assuming you have a script to create and merge topic branches
-    #       # Replace the command below with the actual script
-    #       ./scripts/create_and_merge_topics.sh
-        
-    #   - name: Get list of tasks from YouTrack
-    #     run: |
-    #       # Assuming you have a script to fetch tasks from YouTrack
-    #       # Replace the command below with the actual script
-    #       ./scripts/get_tasks_from_youtrack.sh
-          
-    #   - name: Send report to Slack
-    #     env:
-    #       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-    #     run: |
-    #       # Assuming you have a script to format and send report to Slack
-    #       # Replace the command below with the actual script
-    #       ./scripts/send_report_to_slack.sh
