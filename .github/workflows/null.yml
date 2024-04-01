@@ -54,6 +54,7 @@ jobs:
       
       - name: Filter branches and create PRs
         run: |
+          touch branch.txt  # Create branch.txt if it doesn't exist
           while IFS= read -r branch; do
             if grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)((getpin-.+))?:.+" <<< "$branch"; then
                 echo "${branch#*/}" >> branch.txt
