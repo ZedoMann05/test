@@ -55,7 +55,7 @@ jobs:
             fi
           done < branches_reset.txt
           echo "SLACK_MESSAGE=$(cat branch.md)" >> $GITHUB_ENV
-          echo "SLACK_FOOTER=$(date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
+          echo "SLACK_FOOTER=$(date +"%Y-%m-%dT%H:%M:%SZ" --date='TZ="Europe/Kiev" now')" >> $GITHUB_ENV
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
