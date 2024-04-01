@@ -2,6 +2,11 @@ name: Update branches
 
 on:
   workflow_dispatch:
+    inputs:
+      reset_to_branch:
+        description: 'Reset to branch'     
+        required: true
+        default: 'warning'
     # branches:
     #   - development
     #   - staging
@@ -20,20 +25,35 @@ jobs:
         run: |
           backup_branch="backup/${{ github.ref_name }}$(date +%Y%m%d%H%M)"
           git fetch origin ${{ github.ref_name }}
-          git fetch origin main
           git checkout ${{ github.ref_name }}
           git pull origin ${{ github.ref_name }}
           git checkout -b $backup_branch
           git push origin $backup_branch
-          
+    
+      - name: Save list of branches before reset
+        id: save-branches
+        run: |
+          git fetch origin
+          git branch -r > branches_before_reset.txt    
+    
       - name: Reset target branch to master
         run: |
-          git checkout main
-          git pull origin main
+          git fetch origin ${{ github.event.inputs.reset_to_branch }}
+          git checkout ${{ github.event.inputs.reset_to_branch }}
+          git pull origin ${{ github.event.inputs.reset_to_branch }}
           git checkout ${{ github.ref_name }}
-          git reset --hard "origin/main"
+          git reset --hard origin/${{ github.event.inputs.reset_to_branch }}
           git push --force origin ${{ github.ref_name }}
           
+      - name: Find lost branches
+        id: find-lost-branches
+        run: |
+          git fetch origin
+          git branch -r > branches_after_reset.txt
+          diff branches_before_reset.txt branches_after_reset.txt | grep -E '^< ' | awk '{print substr($$2, 8)}' > lost_branches.txt
+          
+      - name: Output lost branches
+        run: cat lost_branches.txt
     #   - name: Create and merge topic branches
     #     run: |
     #       # Assuming you have a script to create and merge topic branches
