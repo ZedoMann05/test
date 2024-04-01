@@ -26,10 +26,10 @@ jobs:
       - name: Branch list
         run: |
           echo "prod"
-          git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }}
+          git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }} | sed 's/^ *origin\///'
           echo "dev"
-          git branch -r --merged origin/${{ github.ref_name }}
-          comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }} | sed 's/^origin\///')) <(sort <(git branch -r --merged origin/${{ github.ref_name }} | sed 's/^origin\///')) > branches_reset.txt     
+          git branch -r --merged origin/${{ github.ref_name }} | sed 's/^ *origin\///'
+          comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }} | sed 's/^ *origin\///')) <(sort <(git branch -r --merged origin/${{ github.ref_name }} | sed 's/^ *origin\///')) > branches_reset.txt    
 
       - name: Backup target branch
         run: |
@@ -56,7 +56,7 @@ jobs:
         run: |
           while IFS= read -r branch; do
             if grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)((getpin-.+))?:.+" <<< "$branch"; then
-                echo "$branch" >> branch.txt
+                echo "${branch#*/}" >> branch.txt
             fi
           done < branches_reset.txt
           cat branch.txt
