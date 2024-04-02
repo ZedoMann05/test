@@ -145,4 +145,3 @@ else
     echo -e "\nAll assets match the size limit for their file types in the following directories: \`$asset_paths\`." >> ./report.md
     echo -e "\nNo actions required." >> ./report.md
 fi
-
