@@ -56,8 +56,8 @@ jobs:
           touch branch.md
           while IFS= read -r branch; do
             if [[ $branch =~ ^(fix|hotfix|bugfix|feat|feature|breaking|chore)(\/getpin-[0-9]+)?\/.* ]]; then
-                pr="[$(echo $branch)](https://github.com/ZedoMann05/test/compare/${{ github.ref_name }}...$(echo $branch))"
-                echo "$pr" >> branch.md
+                pr="[$(echo $branch)](https://github.com/ZedoMann05/test/compare/${{ github.ref_name }}...$(echo $branch))\n"
+                echo -n "$pr" >> branch.md
             fi
           done < branches_reset.txt
           cat branch.md
@@ -91,14 +91,14 @@ jobs:
             fi
           fi
       
-      - name: Slack Notification
-        if: ${{ always() }}
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_COLOR: ${{ job.status }}
-          SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
-          SLACK_TITLE: '${{ env.SLACK_TITLE }}'
-          SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: ${{ env.SLACK_FOOTER }}'
-          SLACK_WEBHOOK: ${{ secrets.GETPIN_DEVOPS_SLACK_CI_WEBHOOK }}
-          SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
-          SLACKIFY_MARKDOWN: true
+      # - name: Slack Notification
+      #   if: ${{ always() }}
+      #   uses: rtCamp/action-slack-notify@v2
+      #   env:
+      #     SLACK_COLOR: ${{ job.status }}
+      #     SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
+      #     SLACK_TITLE: '${{ env.SLACK_TITLE }}'
+      #     SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: ${{ env.SLACK_FOOTER }}'
+      #     SLACK_WEBHOOK: ${{ secrets.GETPIN_DEVOPS_SLACK_CI_WEBHOOK }}
+      #     SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
+      #     SLACKIFY_MARKDOWN: true
