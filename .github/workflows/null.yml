@@ -72,7 +72,7 @@ jobs:
               echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             else
               echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
-              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark: <br>Reload the necessary commits!: <br>$(cat branch.md)" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark: \n Reload the necessary commits!: \n $(cat branch.md)" >> $GITHUB_ENV
               # echo "SLACK_MESSAGE=$(cat branch.md)" >> $GITHUB_ENV
               echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             fi
