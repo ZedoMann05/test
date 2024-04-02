@@ -21,44 +21,44 @@ jobs:
       - name: Fetch all branches
         id: fetch-all-branches
         run: |
-          $(git fetch --prune --unshallow origin +refs/heads/*:refs/remotes/origin/*
-          git fetch origin && git pull origin) | tee fetch-all-branches.txt
+          git fetch --prune --unshallow origin +refs/heads/*:refs/remotes/origin/*
+          git fetch origin && git pull origin
 
       - name: Branch list
         id: branch-list
         run: |
-          $(comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }} | sed 's/^ *origin\///')) <(sort <(git branch -r --merged origin/${{ github.ref_name }} | sed 's/^ *origin\///')) > branches_reset.txt) | tee branch-list.txt
+          comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }} | sed 's/^ *origin\///')) <(sort <(git branch -r --merged origin/${{ github.ref_name }} | sed 's/^ *origin\///')) > branches_reset.txt
 
       - name: Backup target branch
         id: backup-target-branch
         run: |
-          $(backup_branch="backup/${{ github.ref_name }}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M")"
+          backup_branch="backup/${{ github.ref_name }}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M")"
           git fetch origin ${{ github.ref_name }}
           git checkout ${{ github.ref_name }}
           git pull origin ${{ github.ref_name }}
           git checkout -b $backup_branch
-          git push origin $backup_branch) | tee backup-target-branch.txt
+          git push origin $backup_branch
     
       - name: Reset target branch to master
         id: reset-target-branch-to-master
         run: |
-          $(git fetch origin ${{ github.event.inputs.reset_to_branch }}
+          git fetch origin ${{ github.event.inputs.reset_to_branch }}
           git checkout ${{ github.event.inputs.reset_to_branch }}
           git pull origin ${{ github.event.inputs.reset_to_branch }}
           git checkout ${{ github.ref_name }}
           git reset --hard origin/${{ github.event.inputs.reset_to_branch }}
-          git push --force origin ${{ github.ref_name }}) | tee reset-target-branch-to-master.txt
+          git push --force origin ${{ github.ref_name }}
 
       - name: Filter branches and create PRs
         id: filter-branches-and-create-pr
         run: |
-          $(touch branch.md
+          touch branch.md
           while IFS= read -r branch; do
             if [[ $branch =~ ^(fix|hotfix|bugfix|feat|feature|breaking|chore)(\/getpin-[0-9]+)?\/.* ]]; then
                 pr="[$(echo $branch)](https://github.com/ZedoMann05/test/compare/${{ github.ref_name }}...$(echo $branch))"
                 echo "$pr" >> branch.md
             fi
-          done < branches_reset.txt) | tee filter-branches-and-create-pr.txt
+          done < branches_reset.txt
       
       - name: Setting Slack Notification
         if: ${{ always() }}
@@ -79,25 +79,15 @@ jobs:
           else
             echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level - Failed :x:" >> $GITHUB_ENV
             if [ '${{ steps.fetch-all-branches.outcome }}' == 'failure' ]; then 
-              echo "SLACK_MESSAGE=Step: Fetch all branches  
-              Problem log:  
-              $(cat fetch-all-branches.txt)"
+              echo "SLACK_MESSAGE=Step: Fetch all branches" >> $GITHUB_ENV  
             elif [ '${{ steps.branch-list.outcome }}' == 'failure' ]; then 
-              echo "SLACK_MESSAGE=Step: Branch list  
-              Problem log:  
-              $(cat branch-list.txt)"
+              echo "SLACK_MESSAGE=Step: Branch list" >> $GITHUB_ENV
             elif [ '${{ steps.backup-target-branch.outcome }}' == 'failure' ]; then
-              echo "SLACK_MESSAGE=Step: Backup target branch  
-              Problem log:  
-              $(cat backup-target-branch.txt)" 
+              echo "SLACK_MESSAGE=Step: Backup target branch" >> $GITHUB_ENV
             elif [ '${{ steps.reset-target-branch-to-master.outcome }}' == 'failure' ]; then 
-              echo "SLACK_MESSAGE=Step: Reset target branch to master  
-              Problem log:  
-              $(cat reset-target-branch-to-master.txt)" 
+              echo "SLACK_MESSAGE=Step: Reset target branch to master" >> $GITHUB_ENV
             elif [ '${{ steps.filter-branches-and-create-pr.outcome }}' == 'failure' ]; then
-              echo "SLACK_MESSAGE=Step: Filter branches and create PRs  
-              Problem log:  
-              $(cat filter-branches-and-create-pr.txt)"  
+              echo "SLACK_MESSAGE=Step: Filter branches and create PRs" >> $GITHUB_ENV
             fi
           fi
       
