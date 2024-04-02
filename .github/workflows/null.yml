@@ -19,52 +19,95 @@ jobs:
           ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
       
       - name: Fetch all branches
+        id: fetch-all-branches
         run: |
-          git fetch --prune --unshallow origin +refs/heads/*:refs/remotes/origin/*
-          git fetch origin && git pull origin
+          $(git fetch --prune --unshallow origin +refs/heads/*:refs/remotes/origin/*
+          git fetch origin && git pull origin) | tee fetch-all-branches.txt
 
       - name: Branch list
+        id: branch-list
         run: |
-          comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }} | sed 's/^ *origin\///')) <(sort <(git branch -r --merged origin/${{ github.ref_name }} | sed 's/^ *origin\///')) > branches_reset.txt    
+          $(comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }} | sed 's/^ *origin\///')) <(sort <(git branch -r --merged origin/${{ github.ref_name }} | sed 's/^ *origin\///')) > branches_reset.txt) | tee branch-list.txt
 
       - name: Backup target branch
+        id: backup-target-branch
         run: |
-          backup_branch="backup/${{ github.ref_name }}$(TZ="Europe/Kiev" date +"%Y%m%d%H%M")"
+          $(backup_branch="backup/${{ github.ref_name }}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M")"
           git fetch origin ${{ github.ref_name }}
           git checkout ${{ github.ref_name }}
           git pull origin ${{ github.ref_name }}
           git checkout -b $backup_branch
-          git push origin $backup_branch
+          git push origin $backup_branch) | tee backup-target-branch.txt
     
       - name: Reset target branch to master
+        id: reset-target-branch-to-master
         run: |
-          git fetch origin ${{ github.event.inputs.reset_to_branch }}
+          $(git fetch origin ${{ github.event.inputs.reset_to_branch }}
           git checkout ${{ github.event.inputs.reset_to_branch }}
           git pull origin ${{ github.event.inputs.reset_to_branch }}
           git checkout ${{ github.ref_name }}
           git reset --hard origin/${{ github.event.inputs.reset_to_branch }}
-          git push --force origin ${{ github.ref_name }}
+          git push --force origin ${{ github.ref_name }}) | tee reset-target-branch-to-master.txt
 
       - name: Filter branches and create PRs
+        id: filter-branches-and-create-pr
         run: |
-          touch branch.md
+          $(touch branch.md
           while IFS= read -r branch; do
             if [[ $branch =~ ^(fix|hotfix|bugfix|feat|feature|breaking|chore)(\/getpin-[0-9]+)?\/.* ]]; then
                 pr="[$(echo $branch)](https://github.com/ZedoMann05/test/compare/${{ github.ref_name }}...$(echo $branch))"
                 echo "$pr" >> branch.md
             fi
-          done < branches_reset.txt
-          echo "SLACK_MESSAGE=$(cat branch.md)" >> $GITHUB_ENV
-          echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
-
+          done < branches_reset.txt) | tee filter-branches-and-create-pr.txt
+      
+      - name: Setting Slack Notification
+        if: ${{ always() }}
+        run: |
+          if ${{ steps.fetch-all-branches.outcome == 'success' && steps.branch-list.outcome == 'success' && steps.backup-target-branch.outcome == 'success' && steps.reset-target-branch-to-master.outcome == 'success' && steps.filter-branches-and-create-pr.outcome == 'success' }}; then
+            if [[ ! -s "branch.md" ]]; then
+              echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark:" >> $GITHUB_ENV
+              echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
+            else
+              echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark:  
+              Reload the necessary commits!:  
+              $(cat branch.md)" >> $GITHUB_ENV
+              # echo "SLACK_MESSAGE=$(cat branch.md)" >> $GITHUB_ENV
+              echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
+            fi
+          else
+            echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level - Failed :x:" >> $GITHUB_ENV
+            if [ '${{ steps.fetch-all-branches.outcome }}' == 'failure' ]; then 
+              echo "SLACK_MESSAGE=Step: Fetch all branches  
+              Problem log:  
+              $(cat fetch-all-branches.txt)"
+            elif [ '${{ steps.branch-list.outcome }}' == 'failure' ]; then 
+              echo "SLACK_MESSAGE=Step: Branch list  
+              Problem log:  
+              $(cat branch-list.txt)"
+            elif [ '${{ steps.backup-target-branch.outcome }}' == 'failure' ]; then
+              echo "SLACK_MESSAGE=Step: Backup target branch  
+              Problem log:  
+              $(cat backup-target-branch.txt)" 
+            elif [ '${{ steps.reset-target-branch-to-master.outcome }}' == 'failure' ]; then 
+              echo "SLACK_MESSAGE=Step: Reset target branch to master  
+              Problem log:  
+              $(cat reset-target-branch-to-master.txt)" 
+            elif [ '${{ steps.filter-branches-and-create-pr.outcome }}' == 'failure' ]; then
+              echo "SLACK_MESSAGE=Step: Filter branches and create PRs  
+              Problem log:  
+              $(cat filter-branches-and-create-pr.txt)"  
+            fi
+          fi
+      
       - name: Slack Notification
+        if: ${{ always() }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_COLOR: ${{ job.status }}
-          SLACK_MESSAGE: |
-            The environment is ready to use! Reload the necessary commits!:
-            ${{ env.SLACK_MESSAGE }}
-          SLACK_TITLE: 'Reset DEV/STAGE to MASTER level'
+          SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
+          SLACK_TITLE: '${{ env.SLACK_TITLE }}'
           SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: ${{ env.SLACK_FOOTER }}'
           SLACK_WEBHOOK: ${{ secrets.GETPIN_DEVOPS_SLACK_CI_WEBHOOK }}
           SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
