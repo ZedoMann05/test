@@ -78,15 +78,15 @@ jobs:
             fi
           else
             echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level - Failed :x:" >> $GITHUB_ENV
-            if [ '${{ steps.fetch-all-branches.outcome }}' == 'failure' ]; then 
+            if [ ${{ steps.fetch-all-branches.outcome }} == 'failure' ]; then 
               echo "SLACK_MESSAGE=Step: Fetch all branches" >> $GITHUB_ENV  
-            elif [ '${{ steps.branch-list.outcome }}' == 'failure' ]; then 
+            elif [ ${{ steps.branch-list.outcome }} == 'failure' ]; then 
               echo "SLACK_MESSAGE=Step: Branch list" >> $GITHUB_ENV
-            elif [ '${{ steps.backup-target-branch.outcome }}' == 'failure' ]; then
+            elif [ ${{ steps.backup-target-branch.outcome }} == 'failure' ]; then
               echo "SLACK_MESSAGE=Step: Backup target branch" >> $GITHUB_ENV
-            elif [ '${{ steps.reset-target-branch-to-master.outcome }}' == 'failure' ]; then 
+            elif [ ${{ steps.reset-target-branch-to-master.outcome }} == 'failure' ]; then 
               echo "SLACK_MESSAGE=Step: Reset target branch to master" >> $GITHUB_ENV
-            elif [ '${{ steps.filter-branches-and-create-pr.outcome }}' == 'failure' ]; then
+            elif [ ${{ steps.filter-branches-and-create-pr.outcome }} == 'failure' ]; then
               echo "SLACK_MESSAGE=Step: Filter branches and create PRs" >> $GITHUB_ENV
             fi
           fi
