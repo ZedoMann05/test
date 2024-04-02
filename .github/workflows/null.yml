@@ -67,12 +67,10 @@ jobs:
         run: |
           if ${{ steps.fetch-all-branches.outcome == 'success' && steps.branch-list.outcome == 'success' && steps.backup-target-branch.outcome == 'success' && steps.reset-target-branch-to-master.outcome == 'success' && steps.filter-branches-and-create-pr.outcome == 'success' }}; then
             if [[ ! -s "branch.md" ]]; then
-              echo "1"
               echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
               echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark:" >> $GITHUB_ENV
               echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             else
-              echo "2"
               echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
               echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark: <br>Reload the necessary commits!: <br>$(cat branch.md)" >> $GITHUB_ENV
               # echo "SLACK_MESSAGE=$(cat branch.md)" >> $GITHUB_ENV
@@ -81,26 +79,26 @@ jobs:
           else
             echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level - Failed :x:" >> $GITHUB_ENV
             if [ ${{ steps.fetch-all-branches.outcome }} == 'failure' ]; then 
-              echo "SLACK_MESSAGE=Step: Fetch all branches" >> $GITHUB_ENV  
+              echo "SLACK_MESSAGE=Step: Fetch all branches :x:" >> $GITHUB_ENV  
             elif [ ${{ steps.branch-list.outcome }} == 'failure' ]; then 
-              echo "SLACK_MESSAGE=Step: Branch list" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=Step: Branch list :x:" >> $GITHUB_ENV
             elif [ ${{ steps.backup-target-branch.outcome }} == 'failure' ]; then
-              echo "SLACK_MESSAGE=Step: Backup target branch" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=Step: Backup target branch :x:" >> $GITHUB_ENV
             elif [ ${{ steps.reset-target-branch-to-master.outcome }} == 'failure' ]; then 
-              echo "SLACK_MESSAGE=Step: Reset target branch to master" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=Step: Reset target branch to master :x:" >> $GITHUB_ENV
             elif [ ${{ steps.filter-branches-and-create-pr.outcome }} == 'failure' ]; then
-              echo "SLACK_MESSAGE=Step: Filter branches and create PRs" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=Step: Filter branches and create PRs :x:" >> $GITHUB_ENV
             fi
           fi
       
-      # - name: Slack Notification
-      #   if: ${{ always() }}
-      #   uses: rtCamp/action-slack-notify@v2
-      #   env:
-      #     SLACK_COLOR: ${{ job.status }}
-      #     SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
-      #     SLACK_TITLE: '${{ env.SLACK_TITLE }}'
-      #     SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: ${{ env.SLACK_FOOTER }}'
-      #     SLACK_WEBHOOK: ${{ secrets.GETPIN_DEVOPS_SLACK_CI_WEBHOOK }}
-      #     SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
-      #     SLACKIFY_MARKDOWN: true
+      - name: Slack Notification
+        if: ${{ always() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
+          SLACK_TITLE: '${{ env.SLACK_TITLE }}'
+          SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: ${{ env.SLACK_FOOTER }}'
+          SLACK_WEBHOOK: ${{ secrets.GETPIN_DEVOPS_SLACK_CI_WEBHOOK }}
+          SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
+          SLACKIFY_MARKDOWN: true
