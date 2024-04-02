@@ -28,6 +28,7 @@ jobs:
         id: branch-list
         run: |
           comm -12 <(sort <(git branch -r --no-merged origin/${{ github.event.inputs.reset_to_branch }} | sed 's/^ *origin\///')) <(sort <(git branch -r --merged origin/${{ github.ref_name }} | sed 's/^ *origin\///')) > branches_reset.txt
+          cat branches_reset.txt
 
       - name: Backup target branch
         id: backup-target-branch
@@ -70,9 +71,7 @@ jobs:
               echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             else
               echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
-              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark:  
-              Reload the necessary commits!:  
-              $(cat branch.md)" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark: <br>Reload the necessary commits!: <br>$(cat branch.md)" >> $GITHUB_ENV
               # echo "SLACK_MESSAGE=$(cat branch.md)" >> $GITHUB_ENV
               echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             fi
@@ -91,14 +90,14 @@ jobs:
             fi
           fi
       
-      - name: Slack Notification
-        if: ${{ always() }}
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_COLOR: ${{ job.status }}
-          SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
-          SLACK_TITLE: '${{ env.SLACK_TITLE }}'
-          SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: ${{ env.SLACK_FOOTER }}'
-          SLACK_WEBHOOK: ${{ secrets.GETPIN_DEVOPS_SLACK_CI_WEBHOOK }}
-          SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
-          SLACKIFY_MARKDOWN: true
+      # - name: Slack Notification
+      #   if: ${{ always() }}
+      #   uses: rtCamp/action-slack-notify@v2
+      #   env:
+      #     SLACK_COLOR: ${{ job.status }}
+      #     SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
+      #     SLACK_TITLE: '${{ env.SLACK_TITLE }}'
+      #     SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: ${{ env.SLACK_FOOTER }}'
+      #     SLACK_WEBHOOK: ${{ secrets.GETPIN_DEVOPS_SLACK_CI_WEBHOOK }}
+      #     SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
+      #     SLACKIFY_MARKDOWN: true
