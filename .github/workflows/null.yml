@@ -20,7 +20,7 @@ jobs:
           else
             echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
             echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
-            if [[ ${{ github.ref_name }} != development || ${{ github.ref_name }} != staging ]]; then
+            if [[ ${{ github.ref_name }} != 'development' || ${{ github.ref_name }} != 'staging' ]]; then
               echo "SLACK_MESSAGE=Incorrect name of target branch: ${{ github.ref_name }} :x:" >> $GITHUB_ENV
               exit 1
             elif [ ${{ github.event.inputs.reset_to_branch }} != main ]; then
