@@ -8,8 +8,41 @@ on:
         required: true
 
 jobs:
+  validation_branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validation branch
+        id: validation-branch
+        run: |
+          if ${{ github.ref_name == 'development' && github.ref_name == 'staging' && github.event.inputs.reset_to_branch == 'main'}}; then
+            exit 0
+          else
+            echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
+            echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
+            if ${{ github.ref_name != 'development' || github.ref_name != 'staging'}}; then
+              echo "SLACK_MESSAGE=Incorrect name of target branch: ${{ github.ref_name }} :x:" >> $GITHUB_ENV
+              exit 1
+            elif ${{github.event.inputs.reset_to_branch != 'master'}}; then
+              echo "SLACK_MESSAGE=Incorrect name of the branch to which it will be reset: :white_check_mark: ${{github.event.inputs.reset_to_branch }} :x:" >> $GITHUB_ENV
+              exit 1
+            fi
+          fi
+          
+      - name: Slack Notification
+        if: ${{ steps.validation-branch.outcome == 'failure' }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
+          SLACK_TITLE: '${{ env.SLACK_TITLE }}'
+          SLACK_FOOTER: 'Target Branch: ${{ github.ref_name }}; Time: ${{ env.SLACK_FOOTER }}'
+          SLACK_WEBHOOK: ${{ secrets.GETPIN_DEVOPS_SLACK_CI_WEBHOOK }}
+          SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
+          SLACKIFY_MARKDOWN: true
+
   reset_branch:
-    if: github.ref_name == 'development' || github.ref_name == 'staging' || github.event.inputs.reset_to_branch == 'main'
+    needs: validation_branch
     runs-on: ubuntu-latest
     
     steps:
@@ -76,7 +109,8 @@ jobs:
               echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             fi
           else
-            echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level - Failed :x:" >> $GITHUB_ENV
+            echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
+            echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             if [ ${{ steps.fetch-all-branches.outcome }} == 'failure' ]; then 
               echo "SLACK_MESSAGE=Step: Fetch all branches :x:" >> $GITHUB_ENV  
             elif [ ${{ steps.branch-list.outcome }} == 'failure' ]; then 
