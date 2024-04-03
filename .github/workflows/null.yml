@@ -30,7 +30,7 @@ jobs:
           fi
           
       - name: Slack Notification
-        if: ${{ steps.validation-branch.outcome == 'failure' }}
+        if: ${{ always() && steps.validation-branch.outcome == 'failure' }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_COLOR: ${{ job.status }}
