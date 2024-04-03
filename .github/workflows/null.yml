@@ -23,7 +23,7 @@ jobs:
             if [[ ${{ github.ref_name }} != 'development' || ${{ github.ref_name }} != 'staging' ]]; then
               echo "SLACK_MESSAGE=Incorrect name of target branch: ${{ github.ref_name }} :x:" >> $GITHUB_ENV
               exit 1
-            elif [ ${{ github.event.inputs.reset_to_branch }} != main ]; then
+            elif [ ${{ github.event.inputs.reset_to_branch }} != 'main' ]; then
               echo "SLACK_MESSAGE=Incorrect name of the branch to which it will be reset: ${{ github.event.inputs.reset_to_branch }} :x:" >> $GITHUB_ENV
               exit 1
             fi
