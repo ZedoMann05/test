@@ -87,6 +87,7 @@ jobs:
         id: filter-branches-and-create-pr
         run: |
           touch branch.md
+          list=0
           while IFS= read -r branch; do
             if [[ $branch =~ ^(fix|hotfix|bugfix|feat|feature|breaking|chore)\/getpin-[0-9]+\/.* ]]; then
                 ((list++))
