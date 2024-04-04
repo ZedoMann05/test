@@ -87,10 +87,12 @@ jobs:
         id: filter-branches-and-create-pr
         run: |
           touch branch.md
+          list=1 
           while IFS= read -r branch; do
             if [[ $branch =~ ^(fix|hotfix|bugfix|feat|feature|breaking|chore)\/getpin-[0-9]+\/.* ]]; then
-                pr="\n 1. [$(echo $branch)](https://github.com/ZedoMann05/test/compare/${{ github.ref_name }}...$(echo $branch))"
+                pr="\n $list. [$(echo $branch)](https://github.com/ZedoMann05/test/compare/${{ github.ref_name }}...$(echo $branch))"
                 echo -n "$pr" >> branch.md
+                ((list++))
             fi
           done < branches_reset.txt
           cat branch.md
@@ -105,7 +107,7 @@ jobs:
               echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             else
               echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
-              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark: \n\n Reload the necessary commits! $(cat branch.md) \n @channel" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark: \n\n Reload the necessary commits! $(cat branch.md) \n\n @channel" >> $GITHUB_ENV
               # echo "SLACK_MESSAGE=$(cat branch.md)" >> $GITHUB_ENV
               echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             fi
