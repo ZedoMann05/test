@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 declare -A limits
 declare -A errors
 declare -A warnings
