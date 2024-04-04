@@ -88,7 +88,7 @@ jobs:
         run: |
           touch branch.md
           while IFS= read -r branch; do
-            if [[ $branch =~ "^(fix|hotfix|bugfix|feat|feature|breaking|chore)(\/getpin-[0-9]+)?\/.*" ]]; then
+            if [[ grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)(\/getpin-[0-9]+)?\/.*" <<< "$branch" ]]; then
                 pr="\n 1. [$(echo $branch)](https://github.com/ZedoMann05/test/compare/${{ github.ref_name }}...$(echo $branch))"
                 echo -n "$pr" >> branch.md
             fi
