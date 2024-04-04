@@ -21,10 +21,10 @@ jobs:
             echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
             echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             if [[ ${{ github.ref_name }} != 'development' && ${{ github.ref_name }} != 'staging' ]]; then
-              echo "SLACK_MESSAGE=Incorrect name of target branch: ${{ github.ref_name }} :x:" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=Incorrect name of target branch: ${{ github.ref_name }} :x: \n\n @C06S8R3Q612" >> $GITHUB_ENV
               exit 1
             elif [ ${{ github.event.inputs.reset_to_branch }} != 'main' ]; then
-              echo "SLACK_MESSAGE=Incorrect name of the branch to which it will be reset: ${{ github.event.inputs.reset_to_branch }} :x:" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=Incorrect name of the branch to which it will be reset: ${{ github.event.inputs.reset_to_branch }} :x: \n\n @C06S8R3Q612" >> $GITHUB_ENV
               exit 1
             fi
           fi
@@ -103,11 +103,11 @@ jobs:
           if ${{ steps.fetch-all-branches.outcome == 'success' && steps.branch-list.outcome == 'success' && steps.backup-target-branch.outcome == 'success' && steps.reset-target-branch-to-master.outcome == 'success' && steps.filter-branches-and-create-pr.outcome == 'success' }}; then
             if [[ ! -s "branch.md" ]]; then
               echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
-              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark:" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark: \n\n @C06S8R3Q612" >> $GITHUB_ENV
               echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             else
               echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
-              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark: \n\n Reload the necessary commits! $(cat branch.md) \n\n @channel" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=The environment is ready to use! :white_check_mark: \n\n Reload the necessary commits! $(cat branch.md) \n\n @C06S8R3Q612" >> $GITHUB_ENV
               # echo "SLACK_MESSAGE=$(cat branch.md)" >> $GITHUB_ENV
               echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             fi
@@ -115,15 +115,15 @@ jobs:
             echo "SLACK_TITLE=Reset *${{ github.ref_name }}* to MASTER level" >> $GITHUB_ENV
             echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
             if [ ${{ steps.fetch-all-branches.outcome }} == 'failure' ]; then 
-              echo "SLACK_MESSAGE=Step: Fetch all branches :x:" >> $GITHUB_ENV  
+              echo "SLACK_MESSAGE=Step: Fetch all branches :x: \n\n @C06S8R3Q612" >> $GITHUB_ENV  
             elif [ ${{ steps.branch-list.outcome }} == 'failure' ]; then 
-              echo "SLACK_MESSAGE=Step: Branch list :x:" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=Step: Branch list :x: \n\n @C06S8R3Q612" >> $GITHUB_ENV
             elif [ ${{ steps.backup-target-branch.outcome }} == 'failure' ]; then
-              echo "SLACK_MESSAGE=Step: Backup target branch :x:" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=Step: Backup target branch :x: \n\n @C06S8R3Q612" >> $GITHUB_ENV
             elif [ ${{ steps.reset-target-branch-to-master.outcome }} == 'failure' ]; then 
-              echo "SLACK_MESSAGE=Step: Reset target branch to master :x:" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=Step: Reset target branch to master :x: \n\n @C06S8R3Q612" >> $GITHUB_ENV
             elif [ ${{ steps.filter-branches-and-create-pr.outcome }} == 'failure' ]; then
-              echo "SLACK_MESSAGE=Step: Filter branches and create PRs :x:" >> $GITHUB_ENV
+              echo "SLACK_MESSAGE=Step: Filter branches and create PRs :x: \n\n @C06S8R3Q612" >> $GITHUB_ENV
             fi
           fi
       
