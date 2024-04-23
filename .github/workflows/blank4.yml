@@ -68,19 +68,20 @@ jobs:
                 db_status=$(echo '${{ toJson(needs.backup_dev_db.outputs) }}' | jq -r ".$db_name")
                 echo "$db_status"
                 if [ "$db_status" == 'failure' ]; then
-                    echo "$db_status"
-                    failed_db="${db_name//-/_}"
-                    break
+                    failed_dbs+=("${db_name//_/-}")
                 fi
             done
-            
-            # If any backup failed, update Slack message accordingly
-            echo "$failed_db"
-            if [ -n "$failed_db" ]; then
-            echo "$failed_db"
-            SLACK_MESSAGE="Step: Create dump for getpin-${failed_db}-dev-db :x: \n\n <!channel>"
+
+            # Оновлення повідомлення в Slack, якщо є помилки в базах даних
+            if [ ${#failed_dbs[@]} -gt 0 ]; then
+                failed_dbs_message=""
+                for failed_db in "${failed_dbs[@]}"; do
+                    failed_dbs_message+="Step: Create dump for getpin-${failed_db}-dev-db :x: \n\n"
+                done
+                SLACK_MESSAGE="$failed_dbs_message <!channel>"
             fi
-            
+
+            # Запис змінних у файл оточення GitHub
             echo "SLACK_TITLE=$SLACK_TITLE" >> $GITHUB_ENV
             echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
             echo "SLACK_FOOTER=$SLACK_FOOTER" >> $GITHUB_ENV
