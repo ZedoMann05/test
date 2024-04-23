@@ -1,7 +1,10 @@
 name: Backup dev database
 
 on: 
-  workflow_call:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Test scenario tags'
   schedule:
     - cron: '0 23 * * 5'
 
