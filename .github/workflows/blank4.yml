@@ -22,8 +22,11 @@ jobs:
         Plan: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
     
     outputs:
-      main_db_status: ${{ steps.steps_status.outputs.matrix.Plan}}
-      db_statuses: ${{ steps.steps_status.outputs.status }}
+      main_db_status: ${{ steps.steps_status.outputs.getpin-main-dev-db }}
+      ai_db_status: ${{ steps.steps_status.outputs.getpin-ai-dev-db }}
+      osm_db_status: ${{ steps.steps_status.outputs.getpin-osm-dev-db }}
+      posts_db_status: ${{ steps.steps_status.outputs.getpin-posts-dev-db }}
+      statistics_db_status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
 
     steps:
       - name: Set up output object
@@ -40,9 +43,8 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "ALL_DB_STATUS=${{ steps.create_dump.outcome }}" >> $GITHUB_ENV
-          echo ${{ env.ALL_DB_STATUS }}
-
+          echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
+          
   slack_notification:
     needs: backup_dev_db
     if: ${{ always() }}
@@ -54,9 +56,28 @@ jobs:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
-          echo "${{ needs.backup_dev_db.outputs.main_db_status }}"
-          echo "${{ needs.backup_dev_db.outputs.db_statuses }}"
-          echo "${{ env.ALL_DB_STATUS }}"
+            SLACK_TITLE="Backup *${{ env.PROJECT_ID }}* database"
+            SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")
+            SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
+            
+            # Check if any backup failed
+            failed_db=""
+                for db in main_db ai_db osm_db posts_db statistics_db; do
+                db_status=$(echo "${{ toJson(needs.backup_dev_db.outputs) }}" | jq -r ".$db.status")
+                if [ "$db_status" == 'failure' ]; then
+                    failed_db="${db//-/_}"
+                    break
+                fi
+            done
+            
+            # If any backup failed, update Slack message accordingly
+            if [ -n "$failed_db" ]; then
+            SLACK_MESSAGE="Step: Create dump for getpin-${failed_db}-dev-db :x: \n\n <!channel>"
+            fi
+            
+            echo "SLACK_TITLE=$SLACK_TITLE" >> $GITHUB_ENV
+            echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
+            echo "SLACK_FOOTER=$SLACK_FOOTER" >> $GITHUB_ENV
 
 
       # - name: Slack Notification
