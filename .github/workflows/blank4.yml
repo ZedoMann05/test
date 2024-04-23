@@ -36,9 +36,10 @@ jobs:
           gcloud sql export sql ${{ matrix.Plan }} --database $DB_NAME gs://getpin-backup-dev-db/${{ matrix.Plan }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
 
       - name: Update status object
+        if: ${{ always() }}
         id: steps_status
         run: |
-          echo "::set-output name=db_statuses::{\"${{ matrix.Plan }}\": \"${{ steps.create_dump.outcome }}\", ${{ needs.backup_dev_db.outputs.db_statuses }}"
+          echo "::set-output name=db_statuses::{\"${{ matrix.Plan }}\": \"${{ steps.create_dump.outcome }}\", ${{ steps.init_outputs.outputs.db_statuses }}"
 
   slack_notification:
     needs: backup_dev_db
