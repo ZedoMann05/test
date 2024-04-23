@@ -24,7 +24,7 @@ jobs:
       osm_db_status: ${{ steps.steps_status.outputs.getpin-osm-dev-db }}
       posts_db_status: ${{ steps.steps_status.outputs.getpin-posts-dev-db }}
       statistics_db_status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
-      db_status: ${{ steps.steps_status.outputs.status }}
+      db_status: ${{ matrix.Plan }}
 
     steps:
       - name: Checkout repository
