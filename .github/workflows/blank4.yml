@@ -22,11 +22,7 @@ jobs:
         Plan: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
     
     outputs:
-      main_db_status: ${{ steps.steps_status.outputs.getpin-main-dev-db }}
-      ai_db_status: ${{ steps.steps_status.outputs.getpin-ai-dev-db }}
-      osm_db_status: ${{ steps.steps_status.outputs.getpin-osm-dev-db }}
-      posts_db_status: ${{ steps.steps_status.outputs.getpin-posts-dev-db }}
-      statistics_db_status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
+      status: ${{ steps.steps_status.outputs.status }}
 
     steps:
       - name: Set up output object
@@ -43,8 +39,8 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
-          
+          echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
+
   slack_notification:
     needs: backup_dev_db
     if: ${{ always() }}
