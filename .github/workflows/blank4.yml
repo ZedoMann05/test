@@ -71,7 +71,7 @@ jobs:
                 fi
             done
 
-            failed_dbs=$(echo $failed_dbs | sed 's//_status//; s/_/-/g')
+            failed_dbs=$(echo $failed_dbs | sed 's/_status//; s/_/-/g')
             # Оновлення повідомлення в Slack, якщо є помилки в базах даних
             if [ ${#failed_dbs[@]} -gt 0 ]; then
                 failed_dbs_message=""
