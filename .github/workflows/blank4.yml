@@ -57,7 +57,7 @@ jobs:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
-            SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")
+            SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
             
             IFS=',' read -ra databases <<< "${{ env.outputs }}"
 
@@ -72,13 +72,13 @@ jobs:
             done
 
             failed_dbs=$(echo $failed_dbs | sed 's/_status//; s/_/-/g')
-            # Оновлення повідомлення в Slack, якщо є помилки в базах даних
+
             if [ ${#failed_dbs[@]} -gt 0 ]; then
                 failed_dbs_message=""
                 for failed_db in "${failed_dbs[@]}"; do
-                    failed_dbs_message+="Step: Create dump for getpin-${failed_db}-dev-db :x: \n\n"
+                    failed_dbs_message+="Job: Create dump for getpin-${failed_db}-dev-db :x: \n "
                 done
-                SLACK_MESSAGE="$failed_dbs_message <!channel>"
+                SLACK_MESSAGE="$failed_dbs_message \n\n <!channel>"
             fi
             
             # Запис змінних у файл оточення GitHub
