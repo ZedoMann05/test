@@ -40,7 +40,7 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "status=${{ steps.create_dump.outcome }}" >>> $GITHUB_OUTPUT
+          echo "all_db_status=${{ steps.create_dump.outcome }}" >> $GITHUB_ENV
 
   slack_notification:
     needs: backup_dev_db
