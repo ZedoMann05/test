@@ -1,0 +1,91 @@
+name: Backup dev database
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 23 * * 5'
+
+jobs:
+  backup_dev_db:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: proj-dev
+
+    strategy:
+      matrix:
+        db: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
+    
+    outputs:
+      main_db_status: ${{ steps.steps_status.outputs.getpin-main-dev-db }}
+      ai_db_status: ${{ steps.steps_status.outputs.getpin-ai-dev-db }}
+      osm_db_status: ${{ steps.steps_status.outputs.getpin-osm-dev-db }}
+      posts_db_status: ${{ steps.steps_status.outputs.getpin-posts-dev-db }}
+      statistics_db_status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
+
+    steps:
+      - name: Set up output object
+        id: init_outputs
+        run: echo "::set-output name=${{ matrix.db }}::{}"
+
+      - name: Create dump for ${{ matrix.db }}
+        id: create_dump
+        run: |
+          DB_NAME=$(echo ${{ matrix.db }} | sed 's/-db//; s/-/_/g')
+          gcloud sql export sql ${{ matrix.db }} --database $DB_NAME gs://getpin-backup-dev-db/${{ matrix.db }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
+
+      - name: Update status object
+        if: ${{ always() }}
+        id: steps_status
+        run: |
+          echo "${{ matrix.db }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
+          
+  slack_notification:
+    needs: backup_dev_db
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: proj-dev
+      outputs: "main_db_status,ai_db_status,osm_db_status,posts_db_status,statistics_db_status"
+        
+    steps:
+      - name: Setting Slack Notification
+        if: ${{ always() }}
+        run: |
+            SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
+            
+            IFS=',' read -ra databases <<< "${{ env.outputs }}"
+
+            # Check if any backup failed
+            for db_name in "${databases[@]}"; do
+                db_status=$(echo '${{ toJson(needs.backup_dev_db.outputs) }}' | jq -r ".$db_name")
+                echo "$db_status"
+                if [ "$db_status" == 'failure' ]; then
+                    failed_dbs+=("${db_name}")
+                fi
+            done
+
+            if [ ${#failed_dbs[@]} -gt 0 ]; then
+                failed_dbs_message=""
+                for failed in "${failed_dbs[@]}"; do
+                    failed_db=$(echo $failed | sed 's/_status//; s/_/-/g')
+                    failed_dbs_message+="Job: Create dump for getpin-${failed_db}-dev-db :x: \n "
+                done
+                SLACK_MESSAGE="$failed_dbs_message <!channel>"
+            fi
+            
+            echo "SLACK_TITLE=Backup *${{ env.PROJECT_ID }}* database" >> $GITHUB_ENV
+            echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
+            echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV  
+            echo "$SLACK_MESSAGE"
+
+      # - name: Slack Notification
+      #   if: ${{ always() }}
+      #   uses: rtCamp/action-slack-notify@v2
+      #   env:
+      #     SLACK_COLOR: ${{ needs.backup_dev_db.result }}
+      #     SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
+      #     SLACK_TITLE: '${{ env.SLACK_TITLE }}'
+      #     SLACK_FOOTER: 'Project: ${{ env.PROJECT_ID }}; Time: ${{ env.SLACK_FOOTER }}'
+      #     SLACK_WEBHOOK: ${{ secrets.GETPIN_DEV_BACKUP_SLACK_CI_WEBHOOK }}
+      #     SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
+      #     SLACKIFY_MARKDOWN: true
