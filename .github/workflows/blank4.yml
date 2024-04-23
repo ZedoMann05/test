@@ -16,31 +16,31 @@ jobs:
 
     strategy:
       matrix:
-        Plan: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
+        db: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
     
     outputs:
-      main-db-status: ${{ steps.steps_status.outputs.getpin-main-dev-db }}
-      ai-db-status: ${{ steps.steps_status.outputs.getpin-ai-dev-db }}
-      osm-db-status: ${{ steps.steps_status.outputs.getpin-osm-dev-db }}
-      posts-db-status: ${{ steps.steps_status.outputs.getpin-posts-dev-db }}
-      statistics-db-status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
+      main_db_status: ${{ steps.steps_status.outputs.getpin-main-dev-db }}
+      ai_db_status: ${{ steps.steps_status.outputs.getpin-ai-dev-db }}
+      osm_db_status: ${{ steps.steps_status.outputs.getpin-osm-dev-db }}
+      posts_db_status: ${{ steps.steps_status.outputs.getpin-posts-dev-db }}
+      statistics_db_status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
 
     steps:
       - name: Set up output object
         id: init_outputs
-        run: echo "::set-output name=${{ matrix.Plan }}::{}"
+        run: echo "::set-output name=${{ matrix.db }}::{}"
 
-      - name: Create dump for ${{ matrix.Plan }}
+      - name: Create dump for ${{ matrix.db }}
         id: create_dump
         run: |
-          DB_NAME=$(echo ${{ matrix.Plan }} | sed 's/-db//; s/-/_/g')
-          gcloud sql export sql ${{ matrix.Plan }} --database $DB_NAME gs://getpin-backup-dev-db/${{ matrix.Plan }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
+          DB_NAME=$(echo ${{ matrix.db }} | sed 's/-db//; s/-/_/g')
+          gcloud sql export sql ${{ matrix.db }} --database $DB_NAME gs://getpin-backup-dev-db/${{ matrix.db }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
 
       - name: Update status object
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
+          echo "${{ matrix.db }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
           
   slack_notification:
     needs: backup_dev_db
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: proj-dev
-      outputs: "main-db-status,ai-db-status,osm-db-status,posts-db-status,statistics-db-status"
+      outputs: "main_db_status,ai_db_status,osm_db_status,posts_db_status,statistics_db_status"
         
     steps:
       - name: Setting Slack Notification
