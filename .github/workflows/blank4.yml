@@ -22,7 +22,7 @@ jobs:
         Plan: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
     
     outputs:
-      main_db_status: ${{ steps.steps_status.outputs}}.${{ matrix.Plan }}
+      main_db_status: ${{ steps.steps_status.outputs.matrix.Plan}}
       db_statuses: ${{ steps.steps_status.outputs.db_statuses }}
 
     steps:
