@@ -22,23 +22,23 @@ jobs:
         Plan: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
     
     outputs:
-      status: ${{ steps.steps_status.outputs.status }}
+      db_statuses: ${{ steps.steps_status.outputs.db_statuses }}
 
     steps:
+      - name: Set up output object
+        id: init_outputs
+        run: echo "::set-output name=db_statuses::{}"
 
       - name: Create dump for ${{ matrix.Plan }}
         id: create_dump
         run: |
-            DB_NAME=$(echo ${{ matrix.Plan }} | sed 's/-db//; s/-/_/g')
-            gcloud sql export sql ${{ matrix.Plan }} --database $DB_NAME gs://getpin-backup-dev-db/${{ matrix.Plan }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
+          DB_NAME=$(echo ${{ matrix.Plan }} | sed 's/-db//; s/-/_/g')
+          gcloud sql export sql ${{ matrix.Plan }} --database $DB_NAME gs://getpin-backup-dev-db/${{ matrix.Plan }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
 
-      - name: Check steps status
-        if: ${{ always() }}
+      - name: Update status object
         id: steps_status
         run: |
-          echo "${{ steps.create_dump.outcome }}"
-          echo "all_db_status: ${{ env.all_db_status }}"
-          echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
+          echo "::set-output name=db_statuses::{\"${{ matrix.Plan }}\": \"${{ steps.create_dump.outcome }}\", ${{ needs.backup_dev_db.outputs.db_statuses }}"
 
   slack_notification:
     needs: backup_dev_db
@@ -51,7 +51,7 @@ jobs:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
-          echo "${{ needs.backup_dev_db.outputs.getpin-main-dev-db }}"
+          echo "${{ needs.backup_dev_db.outputs.db_statuses }}"
           echo "${{ env.all_db_status }}"
 
 
