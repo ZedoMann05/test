@@ -67,10 +67,11 @@ jobs:
                 db_status=$(echo '${{ toJson(needs.backup_dev_db.outputs) }}' | jq -r ".$db_name")
                 echo "$db_status"
                 if [ "$db_status" == 'failure' ]; then
-                    failed_dbs+=("${db_name//_/-//-status//}")
+                    failed_dbs+=("${db_name}")
                 fi
             done
 
+            failed_dbs=$(echo $failed_db | sed 's//_status//; s/_/-/g')
             # Оновлення повідомлення в Slack, якщо є помилки в базах даних
             if [ ${#failed_dbs[@]} -gt 0 ]; then
                 failed_dbs_message=""
