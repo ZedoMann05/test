@@ -67,11 +67,10 @@ jobs:
                 fi
             done
 
-            failed_dbs=$(echo $failed_dbs | sed 's/_status//; s/_/-/g')
-
             if [ ${#failed_dbs[@]} -gt 0 ]; then
                 failed_dbs_message=""
-                for failed_db in "${failed_dbs[@]}"; do
+                for failed in "${failed_dbs[@]}"; do
+                    failed_db=$(echo $failed | sed 's/_status//; s/_/-/g')
                     failed_dbs_message+="Job: Create dump for getpin-${failed_db}-dev-db :x: \n "
                 done
                 SLACK_MESSAGE="$failed_dbs_message <!channel>"
