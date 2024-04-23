@@ -63,11 +63,11 @@ jobs:
 
             # Check if any backup failed
             failed_db=""
-                for db_name in "${databases[@]}"; do
+            for db_name in "${databases[@]}"; do
                 db_status=$(echo '${{ toJson(needs.backup_dev_db.outputs) }}' | jq -r ".$db_name")
                 echo "$db_status"
                 if [ "$db_status" == 'failure' ]; then
-                    failed_dbs+=("${db_name//_/-}")
+                    failed_dbs+=$(echo $db_name | sed 's/_status//; s/_/-/g')
                 fi
             done
 
