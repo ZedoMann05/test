@@ -62,7 +62,6 @@ jobs:
             IFS=',' read -ra databases <<< "${{ env.outputs }}"
 
             # Check if any backup failed
-            failed_db=""
             for db_name in "${databases[@]}"; do
                 db_status=$(echo '${{ toJson(needs.backup_dev_db.outputs) }}' | jq -r ".$db_name")
                 echo "$db_status"
@@ -78,10 +77,9 @@ jobs:
                 for failed_db in "${failed_dbs[@]}"; do
                     failed_dbs_message+="Job: Create dump for getpin-${failed_db}-dev-db :x: \n "
                 done
-                SLACK_MESSAGE="$failed_dbs_message \n\n <!channel>"
+                SLACK_MESSAGE="$failed_dbs_message <!channel>"
             fi
             
-            # Запис змінних у файл оточення GitHub
             echo "SLACK_TITLE=Backup *${{ env.PROJECT_ID }}* database" >> $GITHUB_ENV
             echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
             echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV  
