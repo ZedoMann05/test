@@ -67,7 +67,7 @@ jobs:
         if: ${{ always() }}
         run: |
           MESSAGE=""
-          for DB_STATUS in $(echo "${{ needs.backup_dev_db.outputs }}" | grep -oP '(?<=_db_status": ").*(?=")' | tr '\n' ' '); do
+          for DB_STATUS in $(echo "${{ needs.backup_dev_db.outputs.db_status }}" | grep -oP '(?<=_db_status": ").*(?=")' | tr '\n' ' '); do
             echo "$DB_STATUS"
             if [ "$DB_STATUS" == 'failure' ]; then
               echo "$DB_STATUS"
