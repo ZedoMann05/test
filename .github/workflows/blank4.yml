@@ -42,7 +42,7 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
+          echo "status+=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
           echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
 
       - name: Limit backups count
