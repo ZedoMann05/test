@@ -9,7 +9,7 @@ on:
       - 'staging'
 
 env:
-  all_db_status: ""
+  all_db_status: "getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db"
 
 jobs:
   backup_dev_db:
@@ -20,6 +20,9 @@ jobs:
     strategy:
       matrix:
         Plan: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
+    
+    outputs:
+      status: ${{ steps.steps_status.outputs.status }}
 
     steps:
 
@@ -35,7 +38,7 @@ jobs:
         run: |
           echo "${{ steps.create_dump.outcome }}"
           echo "all_db_status: ${{ env.all_db_status }}"
-          echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
+          echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
 
   slack_notification:
     needs: backup_dev_db
@@ -48,9 +51,7 @@ jobs:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
-          echo $plan
-          cat $GITHUB_WORKFLOW_REF/status.txt
-          echo "${{ needs.backup_dev_db.outputs.status }}"
+          echo "${{ needs.backup_dev_db.outputs.getpin-main-dev-db }}"
           echo "${{ env.all_db_status }}"
 
 
