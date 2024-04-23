@@ -45,8 +45,7 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "all_db_status=${{ env.all_db_status }}${{ steps.create_dump.outcome }} " >> $GITHUB_ENV
-          echo "::set-env name=all_db_status::${{ env.all_db_status }}${{ steps.create_dump.outcome }}"
+          echo "all_db_status="${{ env.all_db_status }}${{ matrix.Plan }}=${{ steps.create_dump.outcome }} "" >> $GITHUB_ENV
           echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
           echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
 
