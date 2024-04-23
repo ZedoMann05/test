@@ -9,7 +9,7 @@ on:
       - 'staging'
 
 env:
-  db_status: ""
+  all_db_status: ""
 
 jobs:
   backup_dev_db:
@@ -27,7 +27,7 @@ jobs:
       osm_db_status: ${{ steps.steps_status.outputs.getpin-osm-dev-db }}
       posts_db_status: ${{ steps.steps_status.outputs.getpin-posts-dev-db }}
       statistics_db_status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
-      db_status: ${{ steps.steps_status.outputs.status }}
+      status: ${{ steps.steps_status.outputs.status }}
 
     steps:
       - name: Checkout repository
@@ -45,8 +45,8 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "db_status=${{ steps.create_dump.outcome }}" >> $GITHUB_ENV
-          echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
+          echo "all_db_status=${{ env.all_db_status }}${{ steps.create_dump.outcome }} " >> $GITHUB_ENV
+          echo "status=${{ env.status }}${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
           echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
 
       - name: Limit backups count
@@ -70,10 +70,10 @@ jobs:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
-          echo "${{ needs.backup_dev_db.outputs.db_status }}"
-          echo "${{ env.db_status }}"
+          echo "${{ needs.backup_dev_db.outputs.status }}"
+          echo "${{ env.all_db_status }}"
           MESSAGE=""
-          for DB_STATUS in $(echo "${{ env.db_status }}" | grep -oP '(?<=_db_status": ").*(?=")' | tr '\n' ' '); do
+          for DB_STATUS in $(echo "${{ env.all_db_status }}" | grep -oP '(?<=_db_status": ").*(?=")' | tr '\n' ' '); do
             echo "$DB_STATUS"
             if [ "$DB_STATUS" == 'failure' ]; then
               echo "$DB_STATUS"
