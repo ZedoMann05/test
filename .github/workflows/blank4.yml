@@ -63,7 +63,7 @@ jobs:
             # Check if any backup failed
             failed_db=""
                 for db in main_db ai_db osm_db posts_db statistics_db; do
-                db_status=$(echo "${{ toJson(needs.backup_dev_db.outputs) }}" | jq -r "${db}_status")
+                db_status=$(echo "${{ toJson(needs.backup_dev_db.outputs) }}" | jq -r ".$db")
                 if [ "$db_status" == 'failure' ]; then
                     failed_db="${db//-/_}"
                     break
