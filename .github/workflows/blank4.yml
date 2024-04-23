@@ -22,11 +22,11 @@ jobs:
         db: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
     
     outputs:
-      main_db_status: ${{ steps.steps_status.outputs.getpin-main-dev-db }}
-      ai_db_status: ${{ steps.steps_status.outputs.getpin-ai-dev-db }}
-      osm_db_status: ${{ steps.steps_status.outputs.getpin-osm-dev-db }}
-      posts_db_status: ${{ steps.steps_status.outputs.getpin-posts-dev-db }}
-      statistics_db_status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
+      main-db-status: ${{ steps.steps_status.outputs.getpin-main-dev-db }}
+      ai-db-status: ${{ steps.steps_status.outputs.getpin-ai-dev-db }}
+      osm-db-status: ${{ steps.steps_status.outputs.getpin-osm-dev-db }}
+      posts-db-status: ${{ steps.steps_status.outputs.getpin-posts-dev-db }}
+      statistics-db-status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
 
     steps:
       - name: Set up output object
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: proj-dev
-      outputs: "main_db_status,ai_db_status,osm_db_status,posts_db_status,statistics_db_status"
+      outputs: "main-db-status,ai-db-status,osm-db-status,posts-db-status,statistics-db-status"
         
     steps:
       - name: Setting Slack Notification
@@ -67,7 +67,7 @@ jobs:
                 db_status=$(echo '${{ toJson(needs.backup_dev_db.outputs) }}' | jq -r ".$db_name")
                 echo "$db_status"
                 if [ "$db_status" == 'failure' ]; then
-                    failed_dbs+=$(echo $db_name | sed 's/_status//; s/_/-/g')
+                    failed_dbs+=("${db_name}")
                 fi
             done
 
@@ -75,7 +75,7 @@ jobs:
             if [ ${#failed_dbs[@]} -gt 0 ]; then
                 failed_dbs_message=""
                 for failed_db in "${failed_dbs[@]}"; do
-                    failed_dbs_message+="Step: Create dump for getpin-${failed_db}-dev-db :x: \n\n"
+                    failed_dbs_message+="Job: Create dump for getpin-${failed_db}-dev-db :x: \n\n"
                 done
                 SLACK_MESSAGE="$failed_dbs_message <!channel>"
             fi
