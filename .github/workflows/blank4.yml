@@ -36,10 +36,16 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "${{ steps.create_dump.outcome }}" >> $GITHUB_WORKSPACE/status.txt
+          echo "${{ steps.create_dump.outcome }}" >> status.txt
           cat $GITHUB_WORKSPACE/status.txt
           echo "all_db_status: ${{ env.all_db_status }}"
           echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
+
+      - name: Upload status artifact
+        uses: actions/upload-artifact@v2
+        with:
+            name: status
+            path: status.txt
 
   slack_notification:
     needs: backup_dev_db
@@ -49,6 +55,11 @@ jobs:
       PROJECT_ID: proj-dev
         
     steps:
+      - name: Download status artifact
+        uses: actions/download-artifact@v2
+        with:
+            name: status
+
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
