@@ -23,7 +23,7 @@ jobs:
     
     outputs:
       main_db_status: ${{ steps.steps_status.outputs.matrix.Plan}}
-      db_statuses: ${{ steps.steps_status.outputs.db_statuses }}
+      db_statuses: ${{ steps.steps_status.outputs.status }}
 
     steps:
       - name: Set up output object
@@ -40,7 +40,7 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "::set-output name=${{ matrix.Plan }}::{\"${{ matrix.Plan }}\": \"${{ steps.create_dump.outcome }}\""
+          echo "status=${{ steps.create_dump.outcome }}" >>> $GITHUB_OUTPUT
 
   slack_notification:
     needs: backup_dev_db
@@ -54,6 +54,7 @@ jobs:
         if: ${{ always() }}
         run: |
           echo "${{ needs.backup_dev_db.outputs.main_db_status }}"
+          echo "${{ needs.backup_dev_db.outputs.db_statuses }}"
           echo "${{ env.all_db_status }}"
 
 
