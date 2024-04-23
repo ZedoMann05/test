@@ -22,7 +22,11 @@ jobs:
         Plan: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
     
     outputs:
-      status: ${{ steps.steps_status.outputs.status }}
+      main_db_status: ${{ steps.steps_status.outputs.getpin-main-dev-db }}
+      ai_db_status: ${{ steps.steps_status.outputs.getpin-ai-dev-db }}
+      osm_db_status: ${{ steps.steps_status.outputs.getpin-osm-dev-db }}
+      posts_db_status: ${{ steps.steps_status.outputs.getpin-posts-dev-db }}
+      statistics_db_status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
 
     steps:
       - name: Set up output object
@@ -40,7 +44,7 @@ jobs:
         id: steps_status
         run: |
           echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
-
+          
   slack_notification:
     needs: backup_dev_db
     if: ${{ always() }}
@@ -59,7 +63,7 @@ jobs:
             # Check if any backup failed
             failed_db=""
                 for db in main_db ai_db osm_db posts_db statistics_db; do
-                db_status=$(echo "${{ toJson(needs.backup_dev_db.outputs) }}" | jq -r ".$db.status")
+                db_status=$(echo "${{ toJson(needs.backup_dev_db.outputs) }}" | jq -r "${db}_status")
                 if [ "$db_status" == 'failure' ]; then
                     failed_db="${db//-/_}"
                     break
