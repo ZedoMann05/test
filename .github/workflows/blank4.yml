@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        Plan: [getpin-main-dev-db]
+        Plan: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
     
     outputs:
       status: ${{ steps.steps_status.outputs.status }}
