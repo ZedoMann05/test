@@ -19,21 +19,12 @@ jobs:
 
     strategy:
       matrix:
-        Plan: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
+        Plan: [getpin-main-dev-db]
     
     outputs:
-      main_db_status: ${{ steps.steps_status.outputs.getpin-main-dev-db }}
-      ai_db_status: ${{ steps.steps_status.outputs.getpin-ai-dev-db }}
-      osm_db_status: ${{ steps.steps_status.outputs.getpin-osm-dev-db }}
-      posts_db_status: ${{ steps.steps_status.outputs.getpin-posts-dev-db }}
-      statistics_db_status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
       status: ${{ steps.steps_status.outputs.status }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        env:
-            PLAN: ${{matrix.Plan}}
 
       - name: Create dump for ${{ matrix.Plan }}
         id: create_dump
@@ -46,18 +37,8 @@ jobs:
         id: steps_status
         run: |
           echo "all_db_status="${{ env.all_db_status }}${{ matrix.Plan }}=${{ steps.create_dump.outcome }} "" >> $GITHUB_ENV
+          echo "all_db_status: $all_db_status"
           echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
-          echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
-
-      - name: Limit backups count
-        if: ${{ steps.create_dump.outcome == 'success' }}
-        run: |
-          BACKUPS_COUNT=$(gcloud storage ls gs://getpin-backup-dev-db/${{ matrix.Plan }}/${DB_NAME}* | wc -l)
-          while [[ $BACKUPS_COUNT -gt 4 ]]; do
-            OLDEST_BACKUP=$(gcloud storage ls gs://getpin-backup-dev-db/${{ matrix.Plan }}/${DB_NAME}* | sed 's/gs:\/\/getpin-backup-dev-db\/${{ matrix.Plan }}\///g' | sort -t_ -k4.13n -k4.5n -k4.7n -k4.9n -k4.11n | head -n1)
-            gcloud storage rm gs://getpin-backup-dev-db/${{ matrix.Plan }}/$OLDEST_BACKUP
-            BACKUPS_COUNT=$((BACKUPS_COUNT-1))
-          done
 
   slack_notification:
     needs: backup_dev_db
@@ -72,24 +53,6 @@ jobs:
         run: |
           echo "${{ needs.backup_dev_db.outputs.status }}"
           echo "${{ env.all_db_status }}"
-          MESSAGE=""
-          for DB_STATUS in $(echo "${{ env.all_db_status }}" | grep -oP '(?<=_db_status": ").*(?=")' | tr '\n' ' '); do
-            echo "$DB_STATUS"
-            if [ "$DB_STATUS" == 'failure' ]; then
-              echo "$DB_STATUS"
-              DB_NAME=$(echo "$DB_STATUS" | sed 's/_db_status//; s/_/-/g')
-              MESSAGE+="Step: Create dump for $DB_NAME :x: \n\n <!channel>\n"
-            fi
-          done
-
-          if [ -z "$MESSAGE" ]; then
-            echo "SLACK_TITLE=Backup *${{ env.PROJECT_ID }}* database" >> $GITHUB_ENV
-            echo "SLACK_MESSAGE=Backup is ready! :white_check_mark: \n\n <!channel>" >> $GITHUB_ENV
-          else
-            echo "SLACK_TITLE=Backup *${{ env.PROJECT_ID }}* database" >> $GITHUB_ENV
-            echo "$MESSAGE" >> $GITHUB_ENV
-          fi
-          echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
 
 
       # - name: Slack Notification
