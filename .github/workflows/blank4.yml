@@ -2,9 +2,6 @@ name: Backup dev database
 
 on: 
   workflow_dispatch:
-    inputs:
-      tags:
-        description: 'Test scenario tags'
 
 jobs:
   backup_dev_db:
