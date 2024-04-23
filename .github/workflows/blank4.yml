@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: proj-dev
-      outputs: "main_db_status,ai_db_status,osm_db_status,posts_db_status,statistics_db_status"
+      outputs: "main-db-status,ai-db-status,osm-db-status,posts-db-status,statistics-db-status"
         
     steps:
       - name: Setting Slack Notification
