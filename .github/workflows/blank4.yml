@@ -37,11 +37,11 @@ jobs:
         id: steps_status
         run: |
           echo "${{ steps.create_dump.outcome }}" >> status.txt
-          cat $GITHUB_WORKSPACE/status.txt
           echo "all_db_status: ${{ env.all_db_status }}"
           echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
 
       - name: Upload status artifact
+        if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
             name: status
