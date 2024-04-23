@@ -36,7 +36,7 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "all_db_status=${{ steps.create_dump.outcome }}" >> $GITHUB_ENV
+          echo "${{ steps.create_dump.outcome }}" >> $GITHUB_WORKSPACE/status.txt
           echo "all_db_status: ${{ env.all_db_status }}"
           echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
 
@@ -51,6 +51,7 @@ jobs:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
+          cat $GITHUB_WORKSPACE/status.txt
           echo "${{ needs.backup_dev_db.outputs.status }}"
           echo "${{ env.all_db_status }}"
 
