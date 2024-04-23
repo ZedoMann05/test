@@ -8,6 +8,9 @@ on:
       - 'master'
       - 'staging'
 
+env:
+  db: "main_db_status,ai_db_status,osm_db_status,posts_db_status,statistics_db_status"
+
 jobs:
   backup_dev_db:
     runs-on: ubuntu-latest
@@ -54,26 +57,30 @@ jobs:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
-            SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
+            SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")
             
             IFS=',' read -ra databases <<< "${{ env.outputs }}"
 
             # Check if any backup failed
-            for db_name in "${databases[@]}"; do
+            failed_db=""
+                for db_name in "${databases[@]}"; do
                 db_status=$(echo '${{ toJson(needs.backup_dev_db.outputs) }}' | jq -r ".$db_name")
                 echo "$db_status"
                 if [ "$db_status" == 'failure' ]; then
-                    failed_dbs+="$db_name"
+                    failed_dbs+=("${db_name//_/-}")
                 fi
             done
 
+            # Оновлення повідомлення в Slack, якщо є помилки в базах даних
             if [ ${#failed_dbs[@]} -gt 0 ]; then
+                failed_dbs_message=""
                 for failed_db in "${failed_dbs[@]}"; do
-                    failed_db_message+="Step: Create dump for getpin-${failed_db}-dev-db :x: \n\n"
+                    failed_dbs_message+="Step: Create dump for getpin-${failed_db}-dev-db :x: \n\n"
                 done
-                SLACK_MESSAGE="$failed_db_message <!channel>"
+                SLACK_MESSAGE="$failed_dbs_message <!channel>"
             fi
             
+            # Запис змінних у файл оточення GitHub
             echo "SLACK_TITLE=Backup *${{ env.PROJECT_ID }}* database" >> $GITHUB_ENV
             echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
             echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV  
