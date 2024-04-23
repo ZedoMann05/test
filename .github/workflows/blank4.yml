@@ -45,7 +45,7 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "${{ env.db_status }}+=${{ steps.create_dump.outcome }}"
+          echo "db_status+=${{ steps.create_dump.outcome }}" >> $GITHUB_ENV
           echo "status+=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
           echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
 
