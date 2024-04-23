@@ -37,6 +37,7 @@ jobs:
         id: steps_status
         run: |
           echo "${{ steps.create_dump.outcome }}" >> $GITHUB_WORKSPACE/status.txt
+          cat $GITHUB_WORKSPACE/status.txt
           echo "all_db_status: ${{ env.all_db_status }}"
           echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
 
