@@ -39,6 +39,14 @@ jobs:
           echo "${{ steps.create_dump.outcome }}" >> status.txt
           echo "all_db_status: ${{ env.all_db_status }}"
           echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
+          echo "PLANN=${{ matrix.Plan }}" >> $GITHUB_ENV
+
+      - name: Upload status artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+            name: plan
+            path: $GITHUB_ENV
 
       - name: Upload status artifact
         if: ${{ always() }}
@@ -60,9 +68,15 @@ jobs:
         with:
             name: status
 
+      - name: Download status artifact
+        uses: actions/download-artifact@v2
+        with:
+            name: plan
+
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
+          echo $plan
           cat $GITHUB_WORKSPACE/status.txt
           echo "${{ needs.backup_dev_db.outputs.status }}"
           echo "${{ env.all_db_status }}"
