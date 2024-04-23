@@ -2,11 +2,8 @@ name: Backup dev database
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - 'development'
-      - 'master'
-      - 'staging'
+  schedule:
+    - cron: '0 23 * * 5'
 
 jobs:
   backup_dev_db:
