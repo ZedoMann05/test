@@ -80,12 +80,12 @@ jobs:
                 done
                 SLACK_MESSAGE="$failed_dbs_message <!channel>"
             fi
-
+            
             # Запис змінних у файл оточення GitHub
             echo "SLACK_TITLE=$SLACK_TITLE" >> $GITHUB_ENV
             echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
             echo "SLACK_FOOTER=$SLACK_FOOTER" >> $GITHUB_ENV
-
+            echo "$SLACK_MESSAGE"
 
       # - name: Slack Notification
       #   if: ${{ always() }}
