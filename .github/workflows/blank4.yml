@@ -39,7 +39,7 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
+          echo "${{ matrix.Plan }}=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
 
   slack_notification:
     needs: backup_dev_db
