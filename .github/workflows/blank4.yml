@@ -22,6 +22,7 @@ jobs:
         Plan: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
     
     outputs:
+      main_db_status: ${{ steps.steps_status.outputs}}${{ matrix.Plan }}
       db_statuses: ${{ steps.steps_status.outputs.db_statuses }}
 
     steps:
@@ -52,7 +53,7 @@ jobs:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
-          echo "${{ needs.backup_dev_db.outputs.getpin-main-dev-db }}"
+          echo "${{ needs.backup_dev_db.outputs.main_db_status }}"
           echo "${{ env.all_db_status }}"
 
 
