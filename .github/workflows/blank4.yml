@@ -8,9 +8,6 @@ on:
       - 'master'
       - 'staging'
 
-env:
-  db: "main_db_status,ai_db_status,osm_db_status,posts_db_status,statistics_db_status"
-
 jobs:
   backup_dev_db:
     runs-on: ubuntu-latest
@@ -36,9 +33,8 @@ jobs:
       - name: Create dump for ${{ matrix.Plan }}
         id: create_dump
         run: |
-          pwd
-        #   DB_NAME=$(echo ${{ matrix.Plan }} | sed 's/-db//; s/-/_/g')
-        #   gcloud sql export sql ${{ matrix.Plan }} --database $DB_NAME gs://getpin-backup-dev-db/${{ matrix.Plan }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
+          DB_NAME=$(echo ${{ matrix.Plan }} | sed 's/-db//; s/-/_/g')
+          gcloud sql export sql ${{ matrix.Plan }} --database $DB_NAME gs://getpin-backup-dev-db/${{ matrix.Plan }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
 
       - name: Update status object
         if: ${{ always() }}
@@ -52,16 +48,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: proj-dev
+      outputs: "main_db_status,ai_db_status,osm_db_status,posts_db_status,statistics_db_status"
         
     steps:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
-            SLACK_TITLE="Backup *${{ env.PROJECT_ID }}* database"
-            SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")
             SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
             
-            IFS=',' read -ra databases <<< "${{ env.db }}"
+            IFS=',' read -ra databases <<< "${{ env.outputs }}"
 
             # Check if any backup failed
             for db_name in "${databases[@]}"; do
@@ -72,18 +67,16 @@ jobs:
                 fi
             done
 
-            # Оновлення повідомлення в Slack, якщо є помилки в базах даних
             if [ ${#failed_dbs[@]} -gt 0 ]; then
                 for failed_db in "${failed_dbs[@]}"; do
-                    failed_dbs_message+="Step: Create dump for getpin-${failed_db}-dev-db :x: \n\n"
+                    failed_db_message+="Step: Create dump for getpin-${failed_db}-dev-db :x: \n\n"
                 done
-                SLACK_MESSAGE="$failed_dbs_message <!channel>"
+                SLACK_MESSAGE="$failed_db_message <!channel>"
             fi
             
-            # Запис змінних у файл оточення GitHub
-            echo "SLACK_TITLE=$SLACK_TITLE" >> $GITHUB_ENV
+            echo "SLACK_TITLE=Backup *${{ env.PROJECT_ID }}* database" >> $GITHUB_ENV
             echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
-            echo "SLACK_FOOTER=$SLACK_FOOTER" >> $GITHUB_ENV
+            echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV  
             echo "$SLACK_MESSAGE"
 
       # - name: Slack Notification
