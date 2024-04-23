@@ -8,8 +8,8 @@ on:
       - 'master'
       - 'staging'
 
-# env:
-#   all_db_status: "getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db"
+env:
+  db: "getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db"
 
 jobs:
   backup_dev_db:
@@ -63,7 +63,7 @@ jobs:
             # Check if any backup failed
             failed_db=""
                 for db in main_db ai_db osm_db posts_db statistics_db; do
-                db_status=$(echo "${{ toJson(needs.backup_dev_db.outputs) }}" | jq -r ".$db")
+                db_status=$(echo '${{ toJson(needs.backup_dev_db.outputs) }}' | jq -r ".$db")
                 if [ "$db_status" == 'failure' ]; then
                     failed_db="${db//-/_}"
                     break
