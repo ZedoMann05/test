@@ -1,7 +1,7 @@
 name: Backup dev database
 
-on:
-  workflow_dispatch:
+on: 
+  workflow_call:
   schedule:
     - cron: '0 23 * * 5'
 
