@@ -60,18 +60,24 @@ jobs:
             SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")
             SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
             
+            IFS=',' read -ra databases <<< "${{ env.db }}}"
+
             # Check if any backup failed
             failed_db=""
-                for db in main_db ai_db osm_db posts_db statistics_db; do
-                db_status=$(echo '${{ toJson(needs.backup_dev_db.outputs) }}' | jq -r ".$db")
+                for db_name in "${databases[@]}"; do
+                db_status=$(echo '${{ toJson(needs.backup_dev_db.outputs) }}' | jq -r ".$db_name")
+                echo "$db_status"
                 if [ "$db_status" == 'failure' ]; then
+                    echo "$db_status"
                     failed_db="${db//-/_}"
                     break
                 fi
             done
             
             # If any backup failed, update Slack message accordingly
+            echo "$failed_db"
             if [ -n "$failed_db" ]; then
+            echo "$failed_db"
             SLACK_MESSAGE="Step: Create dump for getpin-${failed_db}-dev-db :x: \n\n <!channel>"
             fi
             
