@@ -9,7 +9,7 @@ on:
       - 'staging'
 
 env:
-  db: "getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db"
+  db: "main_db_status,ai_db_status,osm_db_status,posts_db_status,statistics_db_status"
 
 jobs:
   backup_dev_db:
