@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: Set up output object
         id: init_outputs
-        run: echo "::set-output name=db_statuses::{}"
+        run: echo "::set-output name=${{ matrix.Plan }}::{}"
 
       - name: Create dump for ${{ matrix.Plan }}
         id: create_dump
@@ -39,7 +39,7 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "::set-output name=db_statuses::{\"${{ matrix.Plan }}\": \"${{ steps.create_dump.outcome }}\", ${{ steps.init_outputs.outputs.db_statuses }}"
+          echo "::set-output name=${{ matrix.Plan }}::{\"${{ matrix.Plan }}\": \"${{ steps.create_dump.outcome }}\""
 
   slack_notification:
     needs: backup_dev_db
@@ -52,7 +52,7 @@ jobs:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
-          echo "${{ needs.backup_dev_db.outputs.db_statuses }}"
+          echo "${{ needs.backup_dev_db.outputs.getpin-main-dev-db }}"
           echo "${{ env.all_db_status }}"
 
 
