@@ -67,7 +67,7 @@ jobs:
                 db_status=$(echo '${{ toJson(needs.backup_dev_db.outputs) }}' | jq -r ".$db_name")
                 echo "$db_status"
                 if [ "$db_status" == 'failure' ]; then
-                    failed_dbs+=("${db_name//_/-//_status//}")
+                    failed_dbs+=("${db_name//_/-//-status//}")
                 fi
             done
 
