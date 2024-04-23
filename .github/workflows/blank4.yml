@@ -60,7 +60,7 @@ jobs:
             SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")
             SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
             
-            IFS=',' read -ra databases <<< "${{ env.db }}}"
+            IFS=',' read -ra databases <<< "${{ env.db }}"
 
             # Check if any backup failed
             failed_db=""
