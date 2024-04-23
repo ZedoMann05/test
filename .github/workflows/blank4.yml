@@ -2,7 +2,8 @@ name: Backup dev database
 
 on: 
   workflow_dispatch:
-
+  schedule:
+    - cron: '0 23 * * 5'
 jobs:
   backup_dev_db:
     runs-on: ubuntu-latest
