@@ -20,9 +20,6 @@ jobs:
     strategy:
       matrix:
         Plan: [getpin-main-dev-db,getpin-ai-dev-db,getpin-osm-dev-db,getpin-posts-dev-db,getpin-statistics-dev-db]
-    
-    outputs:
-      status: ${{ steps.steps_status.outputs.status }}
 
     steps:
 
@@ -36,16 +33,9 @@ jobs:
         if: ${{ always() }}
         id: steps_status
         run: |
-          echo "${{ steps.create_dump.outcome }}" >> $GITHUB_WORKFLOW_REF/status.txt
+          echo "${{ steps.create_dump.outcome }}"
           echo "all_db_status: ${{ env.all_db_status }}"
           echo "status=${{ steps.create_dump.outcome }}" >> $GITHUB_OUTPUT
-
-      - name: Upload status artifact
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v2
-        with:
-            name: status
-            path: $GITHUB_WORKFLOW_REF/status.txt
 
   slack_notification:
     needs: backup_dev_db
@@ -55,11 +45,6 @@ jobs:
       PROJECT_ID: proj-dev
         
     steps:
-      - name: Download status artifact
-        uses: actions/download-artifact@v2
-        with:
-            name: status
-
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
