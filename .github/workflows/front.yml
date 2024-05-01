@@ -1,4 +1,4 @@
-name: front
+name: Another Workflow
 
 on:
   workflow_dispatch:
@@ -9,49 +9,14 @@ on:
     paths:
       - 'front/**'
 
-
 jobs:
-  front:
-    runs-on: ubuntu-latest
-    env:
+  check:
+    
+    name: Check Assets Sizes
+    uses: ./.github/workflows/front2.yml
+    secrets: inherit
+    with:
       PROJECT_ID: majestic-energy-420321
-  
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-    
-      - name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: '${{ secrets.TEST_FRONT }}'
-
-      - name: Setup Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0.2.1
-        with:
-          project_id: ${{ env.PROJECT_ID }}
-        
-      - uses: actions/setup-node@v4
-        with:
-            node-version: '20.9.0'
-
-      - name: npm install
-        run: |
-          cd ./front/survey-front-end
-          npm install
-    
-      - name: npm build
-        run: |
-          cd ./front/survey-front-end
-          npm run build
-
-      - name: check dist
-        run: |
-          cd ./front/survey-front-end/dist
-          ls -la
-          gcloud storage rm -r gs://test-front/*
-          # gcloud storage objects update gs://test-front/* --add-acl-grant=entity=user-allUsers,role=READER
-          gcloud storage cp -r ./* gs://test-front
-          gcloud storage objects update -r gs://test-front/* --add-acl-grant=entity=allUsers,role=READER
+      front_paths: ./front/survey-front-end
+      bucket_url: gs://test-front
+      node_version: 20.9.0

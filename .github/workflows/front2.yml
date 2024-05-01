@@ -1,0 +1,63 @@
+name: front
+
+on:
+  workflow_call:
+    inputs:
+      PROJECT_ID:
+        required: true
+        type: string
+      front_paths:
+        required: true
+        type: string
+      bucket_url:
+        required: true
+        type: string
+      node_version:
+        required: true
+        type: string
+
+jobs:
+  front:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: ${{ inputs.PROJECT_ID }}
+      front_paths: ${{ inputs.front_paths }}
+      bucket_url: ${{ inputs.bucket_url }}
+      node_version: ${{ inputs.node_version }}
+  
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+    
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.TEST_FRONT }}'
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+        
+      - uses: actions/setup-node@v4
+        with:
+            node-version: '${{ env.node_version }}'
+
+      - name: npm install
+        run: |
+          cd ${{ env.front_paths }}
+          npm install
+    
+      - name: npm build
+        run: |
+          cd ${{ env.front_paths }}
+          npm run build
+
+      - name: gcloud
+        run: |
+          cd ${{ env.front_paths }}/dist
+          gcloud storage rm -r ${{ env.bucket_url }}/*
+          gcloud storage cp -r ./* ${{ env.bucket_url }}
+          gcloud storage objects update -r ${{ env.bucket_url }}/* --add-acl-grant=entity=allUsers,role=READER
