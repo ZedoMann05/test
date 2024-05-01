@@ -53,4 +53,5 @@ jobs:
           ls -la
           # gcloud storage rm -r gs://test-front/*
           # gcloud storage objects update gs://test-front/* --add-acl-grant=entity=user-allUsers,role=READER
-          gcloud storage cp -r ./* gs://test-front --add-acl-grant=entity=user-allUsers,role=READER
+          gcloud storage cp -r ./* gs://test-front
+          gcloud storage objects update gs://test-front/* --add-acl-grant=entity=user-allUsers,role=READER
