@@ -6,6 +6,8 @@ on:
     branches:
       - development
       - main
+    paths:
+      - 'front/survey-front-end/*'
 
 
 jobs:
