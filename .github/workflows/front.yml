@@ -13,28 +13,42 @@ on:
 jobs:
   front:
     runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: majestic-energy-420321
+  
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
     
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20.9.0'
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.TEST_FRONT }}'
 
-    - name: npm install
-      run: |
-        cd ./front/survey-front-end
-        npm install
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+        
+      - uses: actions/setup-node@v4
+        with:
+            node-version: '20.9.0'
+
+      - name: npm install
+        run: |
+          cd ./front/survey-front-end
+          npm install
     
-    - name: npm build
-      run: |
-        cd ./front/survey-front-end
-        npm run build
+      - name: npm build
+        run: |
+          cd ./front/survey-front-end
+          npm run build
 
-    - name: check dist
-      run: |
-        cd ./front/survey-front-end/dist
-        ls -la
+      - name: check dist
+        run: |
+          cd ./front/survey-front-end/dist
+          ls -la
+          gcloud storage cp . gs://test-front
