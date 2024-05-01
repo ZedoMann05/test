@@ -51,4 +51,4 @@ jobs:
         run: |
           cd ./front/survey-front-end/dist
           ls -la
-          gcloud storage cp . gs://test-front
+          gcloud storage cp -r ./* gs://test-front
