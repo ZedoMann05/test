@@ -1,0 +1,26 @@
+# buildspec for front-end
+version: 0.2
+
+phases:
+  install:
+    on-failure: ABORT
+    runtime-versions:
+      nodejs: 16
+    commands:
+      - cd front-end/survey-front-end
+      - npm ci
+  build:
+    commands:
+      - npm run build
+
+artifacts:
+  files:
+    - front-end/survey-front-end/dist/**/*
+    - front-end/survey-front-end/package.json
+    - front-end/survey-front-end/package-lock.json
+  secondary-artifacts:
+    front_end_artifacts:
+      files:
+        - front-end/survey-front-end/dist/**/*
+        - front-end/survey-front-end/package.json
+        - front-end/survey-front-end/package-lock.json

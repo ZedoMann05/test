@@ -1,0 +1,19 @@
+{
+    "rate_us": "Please rate us",
+    "rate": "Rate",
+    "rate_and_leave_review": "Add review",
+    "thank": "Thank you!",
+    "thank_improve": "Thank you. We will contact you soon",
+    "thank_leave_review": "Thank you for the assessment. We would like to ask you to also leave public review on the platforms suggested below.",
+    "choose_platform": "Choose a platform",
+    "write_review_btn_label": "Leave review",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "phone_or_input_required": "Phone or Email must be filled",
+    "review": "Comment",
+    "submit": "Submit",
+    "private__data__register": "I agree to the processing of my personal data ",
+    "user__agreement__register": "and accept the terms of the user agreement",
+    "fill_form": "Please, give us more detail and we will try to sort out"
+}

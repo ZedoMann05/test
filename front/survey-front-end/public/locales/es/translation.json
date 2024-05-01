@@ -1,0 +1,19 @@
+{
+    "rate_us": "Por favor, califícanos",
+    "rate": "Calificación",
+    "rate_and_leave_review": "Agregar una opinión",
+    "thank": "¡Gracias!",
+    "thank_improve": "¡Gracias! Prometemos mejorar.",
+    "thank_leave_review": "Gracias por la evaluación. Nos gustaría pedirle que también deje una reseña pública en las plataformas sugeridas a continuación.",
+    "choose_platform": "Elige una plataforma",
+    "write_review_btn_label": "Deje opinión",
+    "name": "Nombre",
+    "phone": "Teléfono",
+    "email": "Correo electrónico",
+    "phone_or_input_required": "Se debe llenar el teléfono o el correo electrónico",
+    "review": "revisar",
+    "submit": "Entregar",
+    "private__data__register": "Autorizo el tratamiento de mis datos personales ",
+    "user__agreement__register": "y acepto los términos del acuerdo de usuario",
+    "fill_form": "Por favor, danos más detalles e intentaremos ordenar"
+}
