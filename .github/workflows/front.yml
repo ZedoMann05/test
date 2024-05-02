@@ -1,0 +1,28 @@
+name: Another Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      rollback:
+        description: 'rollback'  
+        type: choice
+        options:
+        - rollback
+  pull_request:
+    branches:
+      - development
+      - main
+    paths:
+      - 'front/**'
+
+jobs:
+  check:
+    
+    name: Check Assets Sizes
+    uses: ./.github/workflows/front2.yml
+    secrets: inherit
+    with:
+      PROJECT_ID: majestic-energy-420321
+      front_paths: ./front/front-end
+      bucket_url: gs://test-front
+      node_version: 20.9.0
