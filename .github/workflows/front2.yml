@@ -121,16 +121,25 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0.2.1
         with:
           project_id: ${{ env.PROJECT_ID }}
-      
-      - name: Fetch all branches
-        id: fetch-all-branches
-        run: |
-          echo ${{ github.ref_name }}
-          git fetch --prune --unshallow origin +refs/heads/*:refs/remotes/origin/*
-          git fetch origin && git pull origin    
 
       - name: choice commit
-        run: git checkout ${{ env.COMMIT_SHA }}
+        run: |
+          git fetch origin && git pull origin
+          git checkout ${{ env.COMMIT_SHA }}
+
+      - uses: actions/setup-node@v4
+        with:
+            node-version: '${{ env.NODE_VERSION }}'
+
+      - name: npm install
+        run: |
+          cd ${{ env.FRONT_PATH }}
+          npm install
+    
+      - name: npm build
+        run: |
+          cd ${{ env.FRONT_PATH }}
+          npm run build
 
       - name: check storage
         run:
