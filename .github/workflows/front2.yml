@@ -122,6 +122,13 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
       
+      - name: Fetch all branches
+        id: fetch-all-branches
+        run: |
+          echo ${{ github.ref_name }}
+          git fetch --prune --unshallow origin +refs/heads/*:refs/remotes/origin/*
+          git fetch origin && git pull origin    
+
       - name: choice commit
         run: git checkout ${{ env.COMMIT_SHA }}
 
