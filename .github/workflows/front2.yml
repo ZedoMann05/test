@@ -80,12 +80,20 @@ jobs:
         run: |
           cd ${{ env.FRONT_PATH }}
           npm run build
+      
+      - name: check storage
+        run:
+          if [ -n "$(gsutil ls ${{ env.BUCKET_URL }})" ]; then echo "storage=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
+          if [ -n "$(gsutil ls ${{ env.BUCKET_BACKUP_URL }})" ]; then echo "storage_backup=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
 
-      - name: gcloud
+      - name: deploy front to storage
         run: |
           cd ${{ env.FRONT_PATH }}/build
-          gcloud storage cp -r ${{ env.BUCKET_URL }}/* ${{ env.BUCKET_BACKUP_URL }}
-          gcloud storage rm -r ${{ env.BUCKET_URL }}/*
+          if [ $storage_backup == notnull]; then
+            gcloud storage cp -r ${{ env.BUCKET_URL }}/* ${{ env.BUCKET_BACKUP_URL }}
+          elif [ $storage == notnull]; then
+            gcloud storage rm -r ${{ env.BUCKET_URL }}/*
+          fi
           gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
           gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
 
@@ -116,8 +124,16 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      - name: gcloud
+      - name: check storage
+        run:
+          if [ -n "$(gsutil ls ${{ env.BUCKET_URL }})" ]; then echo "storage=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
+          if [ -n "$(gsutil ls ${{ env.BUCKET_BACKUP_URL }})" ]; then echo "storage_backup=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
+
+      - name: rollback
         run: |
-          gcloud storage rm -r ${{ env.BUCKET_URL }}/*
-          gcloud storage cp -r ${{ env.BUCKET_BACKUP_URL }}/* ${{ env.BUCKET_URL }}
+          if [ $storage == notnull]; then
+            gcloud storage rm -r ${{ env.BUCKET_URL }}/*
+          elif [ $storage_backup == notnull]; then
+            gcloud storage cp -r ${{ env.BUCKET_BACKUP_URL }}/* ${{ env.BUCKET_URL }}
+          fi
           gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
