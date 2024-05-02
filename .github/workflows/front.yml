@@ -9,10 +9,10 @@ on:
         options:
         - 'yes'
         - 'no'
-  pull_request:
+  push:
     branches:
       - development
-      - main
+      - staging
     paths:
       - 'front/**'
 
@@ -23,7 +23,6 @@ jobs:
     uses: ./.github/workflows/front2.yml
     secrets: inherit
     with:
-      PROJECT_ID: majestic-energy-420321
       front_paths: ./front/front-end
       bucket_url: gs://test-front
       node_version: 20.9.0
