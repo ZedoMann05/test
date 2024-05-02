@@ -17,6 +17,6 @@ jobs:
     secrets: inherit
     with:
       PROJECT_ID: majestic-energy-420321
-      front_paths: ./front/survey-front-end
+      front_paths: ./front/front-end
       bucket_url: gs://test-front
       node_version: 20.9.0
