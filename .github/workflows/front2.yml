@@ -85,14 +85,10 @@ jobs:
         run:
           if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then echo "storage=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
 
-          if [ -n "$(gcloud storage ls ${{ env.BUCKET_BACKUP_URL }})" ]; then echo "storage_backup=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
-
       - name: deploy front to storage
         run: |
           cd ${{ env.FRONT_PATH }}/build
-          if [ $storage_backup == notnull]; then
-            gcloud storage cp -r ${{ env.BUCKET_URL }}/* ${{ env.BUCKET_BACKUP_URL }}
-          elif [ $storage == notnull]; then
+          if [ $storage == notnull]; then
             gcloud storage rm -r ${{ env.BUCKET_URL }}/*
           fi
           gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
@@ -108,6 +104,7 @@ jobs:
       BUCKET_URL: ${{ needs.set_env.outputs.BUCKET_URL }}
       BUCKET_BACKUP_URL: ${{ needs.set_env.outputs.BUCKET_BACKUP_URL }}
       NODE_VERSION: ${{ inputs.node_version }}
+      COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
 
     steps:
       - name: Checkout repository
@@ -124,18 +121,19 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0.2.1
         with:
           project_id: ${{ env.PROJECT_ID }}
+      
+      - name: choice commit
+        run: git checkout ${{ env.COMMIT_SHA }}
 
       - name: check storage
         run:
           if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then echo "storage=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
 
-          if [ -n "$(gcloud storage ls ${{ env.BUCKET_BACKUP_URL }})" ]; then echo "storage_backup=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
-
       - name: rollback
         run: |
+          cd ${{ env.FRONT_PATH }}/build
           if [ $storage == notnull]; then
             gcloud storage rm -r ${{ env.BUCKET_URL }}/*
-          elif [ $storage_backup == notnull]; then
-            gcloud storage cp -r ${{ env.BUCKET_BACKUP_URL }}/* ${{ env.BUCKET_URL }}
           fi
+          gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
           gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
