@@ -83,8 +83,9 @@ jobs:
       
       - name: check storage
         run:
-          if [ -n "$(gsutil ls ${{ env.BUCKET_URL }})" ]; then echo "storage=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
-          if [ -n "$(gsutil ls ${{ env.BUCKET_BACKUP_URL }})" ]; then echo "storage_backup=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
+          if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then echo "storage=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
+
+          if [ -n "$(gcloud storage ls ${{ env.BUCKET_BACKUP_URL }})" ]; then echo "storage_backup=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
 
       - name: deploy front to storage
         run: |
@@ -126,8 +127,9 @@ jobs:
 
       - name: check storage
         run:
-          if [ -n "$(gsutil ls ${{ env.BUCKET_URL }})" ]; then echo "storage=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
-          if [ -n "$(gsutil ls ${{ env.BUCKET_BACKUP_URL }})" ]; then echo "storage_backup=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
+          if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then echo "storage=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
+
+          if [ -n "$(gcloud storage ls ${{ env.BUCKET_BACKUP_URL }})" ]; then echo "storage_backup=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
 
       - name: rollback
         run: |
