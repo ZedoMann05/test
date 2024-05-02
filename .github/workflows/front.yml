@@ -4,11 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       rollback:
-        description: 'rollback'  
+        description: 'rollback'
+        required: true
         type: choice
         options:
         - 'yes'
         - 'no'
+      commit_sha:
+        required: true
+        type: string
   push:
     branches:
       - development
