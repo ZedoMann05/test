@@ -3,9 +3,6 @@ name: front
 on:
   workflow_call:
     inputs:
-      PROJECT_ID:
-        required: true
-        type: string
       front_paths:
         required: true
         type: string
@@ -17,14 +14,42 @@ on:
         type: string
 
 jobs:
+  set_env:
+    runs-on: ubuntu-latest
+    env:
+      BUCKET_URL: ${{ inputs.bucket_url }}
+    
+    outputs:
+      PROJECT_ID: ${{ steps.set_env.outputs.project_id }}
+      BUCKET_URL: ${{ steps.set_env.outputs.bucket_url }}
+      BUCKET_BACKUP_URL: ${{ steps.set_env.outputs.bucket_backup_url }}
+
+    steps:
+      - name: set env
+        id: set_env
+        run: |
+          if [ "${{ github.ref_name }}" == "development" ]; then
+            echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
+            echo "bucket_url=${{ env.BUCKET_URL }}-dev" >> $GITHUB_OUTPUT
+            echo "bucket_backup_url=${{ env.BUCKET_URL }}-dev-backup" >> $GITHUB_OUTPUT
+            echo "Set ENV to development."
+          elif [ "${{ github.ref_name }}" == "staging" ]; then
+            echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
+            echo "bucket_url=${{ env.BUCKET_URL }}-staging" >> $GITHUB_OUTPUT
+            echo "bucket_backup_url=${{ env.BUCKET_URL }}-staging-backup" >> $GITHUB_OUTPUT
+            echo "Set ENV to staging."
+          fi
+    
   front:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.rollback == 'no' }}
+    needs: set_env
     env:
-      PROJECT_ID: ${{ inputs.PROJECT_ID }}
-      front_paths: ${{ inputs.front_paths }}
-      bucket_url: ${{ inputs.bucket_url }}
-      node_version: ${{ inputs.node_version }}
+      PROJECT_ID: ${{ needs.set_env.outputs.PROJECT_ID }}
+      FRONT_PATH: ${{ inputs.front_paths }}
+      BUCKET_URL: ${{ needs.set_env.outputs.BUCKET_URL }}
+      BUCKET_BACKUP_URL: ${{ needs.set_env.outputs.BUCKET_BACKUP_URL }}
+      NODE_VERSION: ${{ inputs.node_version }}
   
     steps:
       - name: Checkout repository
@@ -44,34 +69,42 @@ jobs:
         
       - uses: actions/setup-node@v4
         with:
-            node-version: '${{ env.node_version }}'
+            node-version: '${{ env.NODE_VERSION }}'
 
       - name: npm install
         run: |
-          cd ${{ env.front_paths }}
+          cd ${{ env.FRONT_PATH }}
           npm install
     
       - name: npm build
         run: |
-          cd ${{ env.front_paths }}
+          cd ${{ env.FRONT_PATH }}
           npm run build
+      
+      - name: check storage
+        run:
+          if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then echo "storage=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
 
-      - name: gcloud
+      - name: deploy front to storage
         run: |
-          cd ${{ env.front_paths }}/build
-          gcloud storage cp -r ${{ env.bucket_url }}/* gs://test-front-backup
-          gcloud storage rm -r ${{ env.bucket_url }}/*
-          gcloud storage cp -r ./* ${{ env.bucket_url }}
-          gcloud storage objects update -r ${{ env.bucket_url }}/* --add-acl-grant=entity=allUsers,role=READER
+          cd ${{ env.FRONT_PATH }}/build
+          if [ $storage == notnull]; then
+            gcloud storage rm -r ${{ env.BUCKET_URL }}/*
+          fi
+          gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
+          gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
 
   rollback:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.rollback == 'yes' }}
+    needs: set_env
     env:
-      PROJECT_ID: ${{ inputs.PROJECT_ID }}
-      front_paths: ${{ inputs.front_paths }}
-      bucket_url: ${{ inputs.bucket_url }}
-      node_version: ${{ inputs.node_version }}
+      PROJECT_ID: ${{ needs.set_env.outputs.PROJECT_ID }}
+      FRONT_PATH: ${{ inputs.front_paths }}
+      BUCKET_URL: ${{ needs.set_env.outputs.BUCKET_URL }}
+      BUCKET_BACKUP_URL: ${{ needs.set_env.outputs.BUCKET_BACKUP_URL }}
+      NODE_VERSION: ${{ inputs.node_version }}
+      COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
 
     steps:
       - name: Checkout repository
@@ -88,9 +121,19 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0.2.1
         with:
           project_id: ${{ env.PROJECT_ID }}
+      
+      - name: choice commit
+        run: git checkout ${{ env.COMMIT_SHA }}
 
-      - name: gcloud
+      - name: check storage
+        run:
+          if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then echo "storage=notnull" >> $GITHUB_ENV; else echo "storage=null" >> $GITHUB_ENV; fi
+
+      - name: rollback
         run: |
-          gcloud storage rm -r ${{ env.bucket_url }}/*
-          gcloud storage cp -r gs://test-front-backup/* ${{ env.bucket_url }}
-          gcloud storage objects update -r ${{ env.bucket_url }}/* --add-acl-grant=entity=allUsers,role=READER
+          cd ${{ env.FRONT_PATH }}/build
+          if [ $storage == notnull]; then
+            gcloud storage rm -r ${{ env.BUCKET_URL }}/*
+          fi
+          gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
+          gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER

@@ -4,15 +4,19 @@ on:
   workflow_dispatch:
     inputs:
       rollback:
-        description: 'rollback'  
+        description: 'rollback'
+        required: true
         type: choice
         options:
-        - yes
-        - no
-  pull_request:
+        - 'yes'
+        - 'no'
+      commit_sha:
+        required: true
+        type: string
+  push:
     branches:
       - development
-      - main
+      - staging
     paths:
       - 'front/**'
 
@@ -23,7 +27,6 @@ jobs:
     uses: ./.github/workflows/front2.yml
     secrets: inherit
     with:
-      PROJECT_ID: majestic-energy-420321
       front_paths: ./front/front-end
       bucket_url: gs://test-front
       node_version: 20.9.0
