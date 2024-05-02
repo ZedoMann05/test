@@ -122,14 +122,14 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
+      - uses: actions/setup-node@v4
+        with:
+            node-version: '${{ env.NODE_VERSION }}'
+
       - name: choice commit
         run: |
           git fetch origin && git pull origin
           git checkout ${{ env.COMMIT_SHA }}
-
-      - uses: actions/setup-node@v4
-        with:
-            node-version: '${{ env.NODE_VERSION }}'
 
       - name: npm install
         run: |
