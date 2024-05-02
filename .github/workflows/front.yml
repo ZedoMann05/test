@@ -2,6 +2,12 @@ name: Another Workflow
 
 on:
   workflow_dispatch:
+    inputs:
+      rollback:
+        description: 'rollback'  
+        type: choice
+        options:
+        - rollback
   pull_request:
     branches:
       - development
