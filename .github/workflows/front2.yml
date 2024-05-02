@@ -38,6 +38,7 @@ jobs:
             echo "bucket_url=${{ env.BUCKET_URL }}-staging" >> $GITHUB_OUTPUT
             echo "bucket_backup_url=${{ env.BUCKET_URL }}-staging-backup" >> $GITHUB_OUTPUT
             echo "Set ENV to staging."
+          fi
     
   front:
     runs-on: ubuntu-latest
