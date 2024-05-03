@@ -181,6 +181,8 @@ jobs:
           for output in "${outputs[@]}"; do
             step_status=$(echo '${{ toJson(needs.*.outputs) }}' | jq -r '.[1]."'"$output"'"')
             if [ "$step_status" == 'failure' ]; then
+              echo $step_status
+              echo $output
               failed_dbs+=("${output}")
             fi
           done
@@ -197,6 +199,9 @@ jobs:
           echo "SLACK_TITLE=Backup *${{ env.PROJECT_ID }}* database" >> $GITHUB_ENV
           echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
           echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV  
+          echo $SLACK_TITLE
+          echo $SLACK_MESSAGE
+          echo $SLACK_FOOTER
 
 
       # - name: Slack Notification
