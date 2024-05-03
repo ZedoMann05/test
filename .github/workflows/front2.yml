@@ -50,7 +50,6 @@ jobs:
       BUCKET_BACKUP_URL: ${{ needs.set_env.outputs.BUCKET_BACKUP_URL }}
       NODE_VERSION: ${{ inputs.node_version }}
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
-      outputs: "npm_install,npm_build,deploy,choice_commit"
     
     outputs:
       npm_install: ${{ steps.npm_install.outcome }}
@@ -112,25 +111,17 @@ jobs:
         run: |
           SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
 
-          step_names=($(echo "${{ toJson(steps) }}" | jq -r 'keys_unsorted[]'))
+          step_names=($(echo '${{ toJson(steps) }}' | jq -r 'keys_unsorted[]'))
 
           for output in "${step_names[@]}"; do
-            step_status=$(echo "${{ toJson(steps) }}" | jq -r ".$output.outcome")
+            step_status=$(echo '${{ toJson(steps) }}' | jq -r ".$output.outcome")
             echo $step_status
             echo $output
             if [ "$step_status" == 'failure' ]; then
-              failed_dbs+=("$output")
+              failed_step+=("$output")
+              SLACK_MESSAGE="Step: $output :x: \n <!channel>"
             fi
           done
-
-          if [ ${#failed_dbs[@]} -gt 0 ]; then
-            failed_dbs_message=""
-            for failed in "${failed_dbs[@]}"; do
-              failed_db=$(echo $failed | sed 's/_status//; s/_/-/g')
-              failed_dbs_message+="Job: Create dump for getpin-${failed_db}-dev-db :x: \n "
-            done
-            SLACK_MESSAGE="$failed_dbs_message <!channel>"
-          fi
             
           echo "SLACK_TITLE=Backup *${{ env.PROJECT_ID }}* database" >> $GITHUB_ENV
           echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
