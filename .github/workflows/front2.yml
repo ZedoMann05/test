@@ -50,6 +50,7 @@ jobs:
       BUCKET_BACKUP_URL: ${{ needs.set_env.outputs.BUCKET_BACKUP_URL }}
       NODE_VERSION: ${{ inputs.node_version }}
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
+      outputs: "npm_install,npm_build,deploy,choice_commit"
     
     outputs:
       npm_install: ${{ steps.npm_install.outcome }}
@@ -106,25 +107,15 @@ jobs:
           gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
           gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
 
-
-  slack_notification:
-    needs: [set_env, deploy_front]
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    env:
-      PROJECT_ID: ${{ needs.set_env.outputs.PROJECT_ID }}
-      outputs: "npm_install,npm_build,deploy,choice_commit"
-        
-    steps:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
           SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
             
-          IFS=',' read -ra outputs <<< "${{ env.outputs }}"
+          #IFS=',' read -ra outputs <<< "${{ env.outputs }}"
 
           for output in "${outputs[@]}"; do
-            step_status=$(echo '${{ toJson(needs.deploy_front.outputs) }}' | jq -r ".$output")
+            step_status=$(echo '${{ toJson(steps.*.outcome) }}' | jq -r ".$output")
             echo $step_status
             echo $output
             if [ "$step_status" == 'failure' ]; then
@@ -149,7 +140,7 @@ jobs:
       #   if: ${{ always() }}
       #   uses: rtCamp/action-slack-notify@v2
       #   env:
-      #     SLACK_COLOR: ${{ needs.deploy_front.result }}
+      #     SLACK_COLOR: ${{ job.status }}
       #     SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
       #     SLACK_TITLE: '${{ env.SLACK_TITLE }}'
       #     SLACK_FOOTER: 'Project: ${{ env.PROJECT_ID }}; Time: ${{ env.SLACK_FOOTER }}'
