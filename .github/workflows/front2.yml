@@ -34,13 +34,12 @@ jobs:
           if [ "${{ github.ref_name }}" == "development" ]; then
             echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
             echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}-dev" >> $GITHUB_OUTPUT
-            echo "gcp_credentials_deploy_front=${{ secrets.TEST_FRONT  }}" >> $GITHUB_OUTPUT
+            ${{ secrets.GCP_CREDENTIALS_DEPLOY_FRONT }}=${{ secrets.TEST_FRONT  }}
+            echo "GCP_CREDENTIALS_DEPLOY_FRONT=${{ secrets.TEST_FRONT  }}" >> $GITHUB_SECRETS
             echo "Set ENV to development."
           elif [ "${{ github.ref_name }}" == "staging" ]; then
             echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
             echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}-dev" >> $GITHUB_OUTPUT
-            echo "gcp_credentials_deploy_front=${{ secrets.TEST_FRONT  }}" >> $GITHUB_SECRETS
-            ${{ secrets.GCP_CREDENTIALS_DEPLOY_FRONT }}=${{ secrets.TEST_FRONT  }}
             echo "Set ENV to staging."
           fi
     
