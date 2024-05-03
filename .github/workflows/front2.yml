@@ -50,7 +50,12 @@ jobs:
       BUCKET_URL: ${{ needs.set_env.outputs.BUCKET_URL }}
       BUCKET_BACKUP_URL: ${{ needs.set_env.outputs.BUCKET_BACKUP_URL }}
       NODE_VERSION: ${{ inputs.node_version }}
-  
+    
+    outputs:
+      npm_install: ${{ steps.npm_install.outputs.npm_install }}
+      npm_build: ${{ steps.npm_build.outputs.npm_build }}
+      deploy: ${{ steps.deploy.outputs.deploy }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -106,9 +111,9 @@ jobs:
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
     
     outputs:
-      npm_install:
-      npm_build:
-      deploy:
+      npm_install: ${{ steps.npm_install.outputs.npm_install }}
+      npm_build: ${{ steps.npm_build.outputs.npm_build }}
+      deploy: ${{ steps.deploy.outputs.deploy }}
 
     steps:
       - name: Checkout repository
