@@ -28,5 +28,5 @@ jobs:
     secrets: inherit
     with:
       front_paths: ./front/front-end
-      bucket_url: gs://test-front
+      microservice_name: test-front
       node_version: 20.9.0
