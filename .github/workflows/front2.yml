@@ -42,65 +42,6 @@ jobs:
     
   deploy_front:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.rollback == 'no' || github.event.inputs.rollback == '' }}
-    needs: set_env
-    env:
-      PROJECT_ID: ${{ needs.set_env.outputs.PROJECT_ID }}
-      FRONT_PATH: ${{ inputs.front_paths }}
-      BUCKET_URL: ${{ needs.set_env.outputs.BUCKET_URL }}
-      BUCKET_BACKUP_URL: ${{ needs.set_env.outputs.BUCKET_BACKUP_URL }}
-      NODE_VERSION: ${{ inputs.node_version }}
-    
-    outputs:
-      npm_install: ${{ steps.npm_install.outcome }}
-      npm_build: ${{ steps.npm_build.outcome }}
-      deploy: ${{ steps.deploy.outcome }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-    
-      - name: Authenticate with Google Cloud
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: '${{ secrets.TEST_FRONT }}'
-
-      - name: Setup Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0.2.1
-        with:
-          project_id: ${{ env.PROJECT_ID }}
-        
-      - uses: actions/setup-node@v4
-        with:
-            node-version: '${{ env.NODE_VERSION }}'
-
-      - name: npm install
-        id: npm_install
-        run: |
-          cd ${{ env.FRONT_PATH }}
-          npm install
-    
-      - name: npm build
-        id: npm_build
-        run: |
-          cd ${{ env.FRONT_PATH }}
-          npm run build
-      
-      - name: deploy front to storage
-        id: deploy
-        run: |
-          cd ${{ env.FRONT_PATH }}/build
-          if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then
-            gcloud storage rm -r ${{ env.BUCKET_URL }}/*
-          fi
-          gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
-          gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
-
-  rollback:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.rollback == 'yes' }}
     needs: set_env
     env:
       PROJECT_ID: ${{ needs.set_env.outputs.PROJECT_ID }}
@@ -131,17 +72,18 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0.2.1
         with:
           project_id: ${{ env.PROJECT_ID }}
-
+        
       - uses: actions/setup-node@v4
         with:
             node-version: '${{ env.NODE_VERSION }}'
 
       - name: choice commit
+        if: ${{ github.event.inputs.rollback == 'yes' }}
         id: choice_commit
         run: |
           git fetch origin && git pull origin
           git checkout ${{ env.COMMIT_SHA }}
-
+            
       - name: npm install
         id: npm_install
         run: |
@@ -153,8 +95,8 @@ jobs:
         run: |
           cd ${{ env.FRONT_PATH }}
           npm run build
-
-      - name: rollback
+      
+      - name: deploy front to storage
         id: deploy
         run: |
           cd ${{ env.FRONT_PATH }}/build
@@ -164,8 +106,9 @@ jobs:
           gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
           gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
 
+
   slack_notification:
-    needs: [set_env, deploy_front, rollback]
+    needs: [set_env, deploy_front]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     env:
@@ -181,7 +124,7 @@ jobs:
           IFS=',' read -ra outputs <<< "${{ env.outputs }}"
 
           for output in "${outputs[@]}"; do
-            step_status=$(echo '${{ toJson(needs.*.outputs) }}' | jq -r ".[] | select(.\"$output\") | .\"$output\"")
+            step_status=$(echo '${{ toJson(needs.deploy_front.outputs) }}' | jq -r ".$output")
             echo $step_status
             echo $output
             if [ "$step_status" == 'failure' ]; then
@@ -206,7 +149,7 @@ jobs:
       #   if: ${{ always() }}
       #   uses: rtCamp/action-slack-notify@v2
       #   env:
-      #     SLACK_COLOR: ${{ needs.*.result }}
+      #     SLACK_COLOR: ${{ needs.deploy_front.result }}
       #     SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
       #     SLACK_TITLE: '${{ env.SLACK_TITLE }}'
       #     SLACK_FOOTER: 'Project: ${{ env.PROJECT_ID }}; Time: ${{ env.SLACK_FOOTER }}'
