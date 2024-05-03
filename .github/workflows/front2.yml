@@ -81,7 +81,7 @@ jobs:
         id: choice_commit
         run: |
           git fetch origin && git pull origin
-          git checkodsssut ${{ env.COMMIT_SHA }}
+          git checkout ${{ env.COMMIT_SHA }}
             
       - name: npm install
         id: npm_install
