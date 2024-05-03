@@ -111,12 +111,11 @@ jobs:
         if: ${{ always() }}
         run: |
           SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
-            
-          steps_json=$(echo '${{ toJson(steps) }}')
 
-          # Extracting the step outcomes dynamically
-          for output in npm_install npm_build deploy choice_commit; do
-            step_status=$(echo "$steps_json" | jq -r ".$output.outcome")
+          steps_json=$(echo '${{ toJson(steps) }}' | jq -r 'keys_unsorted[]')
+
+          for output in "${steps_json[@]}"; do
+            step_status=$(echo "${{ toJson(steps) }}" | jq -r ".$output.outcome")
             echo $step_status
             echo $output
             if [ "$step_status" == 'failure' ]; then
