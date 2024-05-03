@@ -112,14 +112,15 @@ jobs:
         run: |
           SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
             
-          #IFS=',' read -ra outputs <<< "${{ env.outputs }}"
+          steps_json=$(echo '${{ toJson(steps) }}')
 
-          for output in "${outputs[@]}"; do
-            step_status=$(echo '${{ toJson(steps) }}' | jq -r ".$output")
+          # Extracting the step outcomes dynamically
+          for output in npm_install npm_build deploy choice_commit; do
+            step_status=$(echo "$steps_json" | jq -r ".$output.outcome")
             echo $step_status
             echo $output
             if [ "$step_status" == 'failure' ]; then
-              failed_dbs+=("${output}")
+              failed_dbs+=("$output")
             fi
           done
 
