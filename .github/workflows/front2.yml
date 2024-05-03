@@ -42,7 +42,7 @@ jobs:
     
   deploy_front:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.rollback == 'no' }}
+    if: ${{ github.event.inputs.rollback == 'no' || github.event.inputs.rollback == '' }}
     needs: set_env
     env:
       PROJECT_ID: ${{ needs.set_env.outputs.PROJECT_ID }}
