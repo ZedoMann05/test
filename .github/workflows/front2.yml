@@ -23,6 +23,7 @@ jobs:
       PROJECT_ID: ${{ steps.set_env.outputs.project_id }}
       BUCKET_URL: ${{ steps.set_env.outputs.bucket_url }}
       BUCKET_BACKUP_URL: ${{ steps.set_env.outputs.bucket_backup_url }}
+      GCP_CREDENTIALS_DEPLOY_FRONT: ${{ steps.set_env.outputs.gcp_credentials_deploy_front }}
 
     steps:
       - name: set env
@@ -31,11 +32,12 @@ jobs:
           if [ "${{ github.ref_name }}" == "development" ]; then
             echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
             echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}-dev" >> $GITHUB_OUTPUT
-            echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}-${{ steps.set_env.outputs.project_id }}-dev" 
+            echo "gcp_credentials_deploy_front=${{ secrets.TEST-FRONT }}" >> $GITHUB_OUTPUT
             echo "Set ENV to development."
           elif [ "${{ github.ref_name }}" == "staging" ]; then
             echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
-            echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}${{ steps.set_env.outputs.project_id }}-dev" >> $GITHUB_OUTPUT
+            echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}-dev" >> $GITHUB_OUTPUT
+            echo "gcp_credentials_deploy_front=${{ secrets.TEST-FRONT }}" >> $GITHUB_OUTPUT
             echo "Set ENV to staging."
           fi
     
@@ -49,6 +51,7 @@ jobs:
       BUCKET_BACKUP_URL: ${{ needs.set_env.outputs.BUCKET_BACKUP_URL }}
       NODE_VERSION: ${{ inputs.node_version }}
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
+      GCP_CREDENTIALS_DEPLOY_FRONT: ${{ needs.set_env.outputs.GCP_CREDENTIALS_DEPLOY_FRONT }}
 
     steps:
       - name: Checkout repository
@@ -59,7 +62,7 @@ jobs:
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: '${{ secrets.TEST_FRONT }}'
+          credentials_json: '${{ env.GCP_CREDENTIALS_DEPLOY_FRONT }}'
 
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.1
