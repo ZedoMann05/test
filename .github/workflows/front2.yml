@@ -6,7 +6,7 @@ on:
       front_paths:
         required: true
         type: string
-      bucket_url:
+      microservice_name:
         required: true
         type: string
       node_version:
@@ -17,7 +17,7 @@ jobs:
   set_env:
     runs-on: ubuntu-latest
     env:
-      BUCKET_URL: ${{ inputs.bucket_url }}
+      MICROSERVICE_NAME: ${{ inputs.microservice_name }}
     
     outputs:
       PROJECT_ID: ${{ steps.set_env.outputs.project_id }}
@@ -30,13 +30,12 @@ jobs:
         run: |
           if [ "${{ github.ref_name }}" == "development" ]; then
             echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
-            echo "bucket_url=${{ env.BUCKET_URL }}-dev" >> $GITHUB_OUTPUT
-            echo "bucket_backup_url=${{ env.BUCKET_URL }}-dev-backup" >> $GITHUB_OUTPUT
+            echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}-dev" >> $GITHUB_OUTPUT
+            echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}-${{ steps.set_env.outputs.project_id }}-dev" 
             echo "Set ENV to development."
           elif [ "${{ github.ref_name }}" == "staging" ]; then
             echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
-            echo "bucket_url=${{ env.BUCKET_URL }}-staging" >> $GITHUB_OUTPUT
-            echo "bucket_backup_url=${{ env.BUCKET_URL }}-staging-backup" >> $GITHUB_OUTPUT
+            echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}${{ steps.set_env.outputs.project_id }}-dev" >> $GITHUB_OUTPUT
             echo "Set ENV to staging."
           fi
     
@@ -50,12 +49,6 @@ jobs:
       BUCKET_BACKUP_URL: ${{ needs.set_env.outputs.BUCKET_BACKUP_URL }}
       NODE_VERSION: ${{ inputs.node_version }}
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
-    
-    outputs:
-      npm_install: ${{ steps.npm_install.outcome }}
-      npm_build: ${{ steps.npm_build.outcome }}
-      deploy: ${{ steps.deploy.outcome }}
-      choice_commit: ${{ steps.choice_commit.outcome }}
 
     steps:
       - name: Checkout repository
@@ -96,8 +89,8 @@ jobs:
           cd ${{ env.FRONT_PATH }}
           npm run build
       
-      - name: deploy front to storage
-        id: deploy
+      - name: deploy front
+        id: deploy_front
         run: |
           cd ${{ env.FRONT_PATH }}/build
           if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then
@@ -109,7 +102,7 @@ jobs:
       - name: Setting Slack Notification
         if: ${{ always() }}
         run: |
-          SLACK_MESSAGE="Backup is ready! :white_check_mark: \n\n <!channel>"
+          SLACK_MESSAGE="Deploy front is ready! :white_check_mark: \n\n <!channel>"
 
           step_names=($(echo '${{ toJson(steps) }}' | jq -r 'keys_unsorted[]'))
 
@@ -118,14 +111,15 @@ jobs:
             echo $step_status
             echo $output
             if [ "$step_status" == 'failure' ]; then
-              failed_step+=("$output")
-              SLACK_MESSAGE="Step: $output :x: \n <!channel>"
+              failed_step=$(echo "$output" | sed 's/_/ /g')
+              SLACK_MESSAGE="Step: $failed_step :x: \n <!channel>"
             fi
           done
             
-          echo "SLACK_TITLE=Backup *${{ env.PROJECT_ID }}* database" >> $GITHUB_ENV
+          echo "SLACK_TITLE=Deploy front: ${{ inputs.microservice_name }}" >> $GITHUB_ENV
           echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
           echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV  
+          echo $SLACK_MESSAGE
 
       # - name: Slack Notification
       #   if: ${{ always() }}
@@ -134,7 +128,7 @@ jobs:
       #     SLACK_COLOR: ${{ job.status }}
       #     SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
       #     SLACK_TITLE: '${{ env.SLACK_TITLE }}'
-      #     SLACK_FOOTER: 'Project: ${{ env.PROJECT_ID }}; Time: ${{ env.SLACK_FOOTER }}'
+      #     SLACK_FOOTER: 'Microservice: ${{ inputs.microservice_name }}; Env: ${{ github.ref_name }}; Time: ${{ env.SLACK_FOOTER }}'
       #     SLACK_WEBHOOK: ${{ secrets.GETPIN_DEV_BACKUP_SLACK_CI_WEBHOOK }}
       #     SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
       #     SLACKIFY_MARKDOWN: true
