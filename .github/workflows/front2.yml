@@ -179,7 +179,7 @@ jobs:
           IFS=',' read -ra outputs <<< "${{ env.outputs }}"
 
           for output in "${outputs[@]}"; do
-            step_status=$(echo '${{ toJson(needs.*.outputs) }}' | jq -r ".$output")
+            step_status=$(echo '${{ toJson(needs.*.outputs) }}' | jq -r '.[1]."'"$output"'"')
             if [ "$step_status" == 'failure' ]; then
               failed_dbs+=("${output}")
             fi
