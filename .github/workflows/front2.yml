@@ -31,7 +31,6 @@ jobs:
           if [ "${{ github.ref_name }}" == "development" ]; then
             echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
             echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}-dev" >> $GITHUB_OUTPUT
-            echo "GCP_CREDENTIALS_DEPLOY_FRONT=${{ secrets.TEST_FRONT  }}" >> $GITHUB_SECRETS
             echo "Set ENV to development."
           elif [ "${{ github.ref_name }}" == "staging" ]; then
             echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
@@ -57,9 +56,16 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
     
       - name: Authenticate with Google Cloud
+        if: ${{ github.ref_name == 'development' }}
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS_DEPLOY_FRONT }}'
+          credentials_json: '${{ secrets.TEST_FRONT }}'
+      
+      - name: Authenticate with Google Cloud
+        if: ${{ github.ref_name == 'staging' }}
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.TEST_FRONT }}'
 
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.1
