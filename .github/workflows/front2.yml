@@ -114,6 +114,7 @@ jobs:
       npm_install: ${{ steps.npm_install.outcome }}
       npm_build: ${{ steps.npm_build.outcome }}
       deploy: ${{ steps.deploy.outcome }}
+      choice_commit: ${{ steps.choice_commit.outcome }}
 
     steps:
       - name: Checkout repository
@@ -136,6 +137,7 @@ jobs:
             node-version: '${{ env.NODE_VERSION }}'
 
       - name: choice commit
+        id: choice_commit
         run: |
           git fetch origin && git pull origin
           git checkout ${{ env.COMMIT_SHA }}
@@ -168,7 +170,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: ${{ needs.set_env.outputs.PROJECT_ID }}
-      outputs: "npm_install,npm_build,deploy"
+      outputs: "npm_install,npm_build,deploy,choice_commit"
         
     steps:
       - name: Setting Slack Notification
@@ -180,9 +182,9 @@ jobs:
 
           for output in "${outputs[@]}"; do
             step_status=$(echo '${{ toJson(needs.*.outputs) }}' | jq -r '.[1]."'"$output"'"')
+            echo $step_status
+            echo $output
             if [ "$step_status" == 'failure' ]; then
-              echo $step_status
-              echo $output
               failed_dbs+=("${output}")
             fi
           done
@@ -199,9 +201,9 @@ jobs:
           echo "SLACK_TITLE=Backup *${{ env.PROJECT_ID }}* database" >> $GITHUB_ENV
           echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
           echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV  
-          echo $SLACK_TITLE
-          echo $SLACK_MESSAGE
-          echo $SLACK_FOOTER
+          echo ${{ env.SLACK_TITLE }}
+          echo ${{ env.SLACK_MESSAGE }}
+          echo ${{ env.SLACK_FOOTER }}
 
 
       # - name: Slack Notification
