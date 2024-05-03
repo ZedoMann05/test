@@ -115,7 +115,7 @@ jobs:
           #IFS=',' read -ra outputs <<< "${{ env.outputs }}"
 
           for output in "${outputs[@]}"; do
-            step_status=$(echo '${{ toJson(steps.*.outcome) }}' | jq -r ".$output")
+            step_status=$(echo '${{ toJson(steps) }}' | jq -r ".$output")
             echo $step_status
             echo $output
             if [ "$step_status" == 'failure' ]; then
