@@ -117,7 +117,7 @@ jobs:
           step_names=($(echo "$steps_json" | jq -r 'keys_unsorted[]'))
 
           for output in "${step_names[@]}"; do
-            step_status=$(echo "${{ toJson(steps) }}" | jq -r ".$output.outcome")
+            step_status=$(echo "$steps_json" | jq -r ".$output.outcome")
             echo $step_status
             echo $output
             if [ "$step_status" == 'failure' ]; then
