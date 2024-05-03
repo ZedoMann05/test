@@ -52,9 +52,9 @@ jobs:
       NODE_VERSION: ${{ inputs.node_version }}
     
     outputs:
-      npm_install: ${{ steps.npm_install.outputs.npm_install }}
-      npm_build: ${{ steps.npm_build.outputs.npm_build }}
-      deploy: ${{ steps.deploy.outputs.deploy }}
+      npm_install: ${{ steps.npm_install.outcome }}
+      npm_build: ${{ steps.npm_build.outcome }}
+      deploy: ${{ steps.deploy.outcome }}
 
     steps:
       - name: Checkout repository
@@ -111,9 +111,9 @@ jobs:
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
     
     outputs:
-      npm_install: ${{ steps.npm_install.outputs.npm_install }}
-      npm_build: ${{ steps.npm_build.outputs.npm_build }}
-      deploy: ${{ steps.deploy.outputs.deploy }}
+      npm_install: ${{ steps.npm_install.outcome }}
+      npm_build: ${{ steps.npm_build.outcome }}
+      deploy: ${{ steps.deploy.outcome }}
 
     steps:
       - name: Checkout repository
