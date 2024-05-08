@@ -23,7 +23,6 @@ jobs:
     
     name: Check Assets Sizes
     uses: ./.github/workflows/front2.yml
-    if: ${{ startsWith(github.event.head_commit.modified, 'front/**') }}
     secrets: inherit
     with:
       front_paths: ./front/front-end
