@@ -20,7 +20,7 @@ on:
 
 jobs:
   check:
-    
+    permissions: write-all
     name: Check Assets Sizes
     uses: ./.github/workflows/front2.yml
     secrets: inherit
