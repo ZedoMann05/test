@@ -11,7 +11,6 @@ on:
         - 'yes'
         - 'no'
       commit_sha:
-        required: true
         type: string
   push:
     branches:
