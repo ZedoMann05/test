@@ -25,6 +25,6 @@ jobs:
     uses: ./.github/workflows/front2.yml
     secrets: inherit
     with:
-      front_paths: front/front-end
+      front_paths: ./front/front-end
       microservice_name: test-front
       node_version: 20.9.0
