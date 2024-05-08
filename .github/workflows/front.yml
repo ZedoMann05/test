@@ -22,7 +22,8 @@ jobs:
     permissions: write-all
     name: Check Assets Sizes
     uses: ./.github/workflows/front2.yml
-    secrets: inherit
+    secrets:
+      GCP_FRONT: ${{ secrets[format('{0}_FRONT', 'TEST')] }}
     with:
       front_paths: front/front-end
       microservice_name: test-front
