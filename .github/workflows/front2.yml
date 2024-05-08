@@ -12,6 +12,9 @@ on:
       node_version:
         required: true
         type: string
+    secrets:
+      GCP_FRONT:
+        required: true
 
 jobs:
   set_env:
@@ -84,13 +87,13 @@ jobs:
         if: ${{ github.ref_name == 'development' }}
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: '${{ secrets.TEST_FRONT }}'
+          credentials_json: '${{ secrets.GCP_FRONT }}'
       
       - name: Authenticate with Google Cloud
         if: ${{ github.ref_name == 'staging' }}
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: '${{ secrets.TEST_FRONT }}'
+          credentials_json: '${{ secrets.GCP_FRONT }}'
 
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.1
