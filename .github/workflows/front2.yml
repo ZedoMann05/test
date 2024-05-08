@@ -46,7 +46,7 @@ jobs:
           done < files.txt
 
       - name: cancel action
-        if: ${{ steps.check_files.outputs.run_job != 'true' || github.event.inputs.rollback != 'yes' && github.event.inputs.rollback != 'no' }}
+        if: ${{ steps.check_files.outputs.run_job != 'true' && github.event.inputs.rollback == '' }}
         uses: andymckay/cancel-action@0.4
 
       - name: set env
