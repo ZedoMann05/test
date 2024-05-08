@@ -42,7 +42,7 @@ jobs:
           while IFS= read -r file
           do
             echo $file
-            if [[ $file ~= ./front/front-end/* ]]; then
+            if [[ $file == ./front/front-end/* ]]; then
               echo "run_job=true" >> $GITHUB_OUTPUT
             fi
           done < files.txt
