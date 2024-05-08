@@ -53,8 +53,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 2
     
+      - name: check modified files
+        id: check_files
+        run: |
+          echo "=============== list modified files ==============="
+          git diff --name-only HEAD^ HEAD
+          
+          echo "========== check paths of modified files =========="
+          git diff --name-only HEAD^ HEAD &gt; files.txt
+          while IFS= read -r file
+          do
+            echo $file
+            if [[ $file != ${{ env.FRONT_PATH }}/* ]]; then
+              echo "run_job=false" >> $GITHUB_OUTPUT
+              break
+            else
+              echo "run_job=true" >> $GITHUB_OUTPUT
+            fi
+          done &lt; files.txt
+
+      - name: check modified files
+        if: steps.check_files.outputs.run_job == 'false'
+        uses: "andymckay/cancel-action@0.3"
+
       - name: Authenticate with Google Cloud
         if: ${{ github.ref_name == 'development' }}
         uses: google-github-actions/auth@v1
@@ -75,7 +98,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
             node-version: '${{ env.NODE_VERSION }}'
-
+      
       - name: choice commit
         if: ${{ github.event.inputs.rollback == 'yes' }}
         id: choice_commit
