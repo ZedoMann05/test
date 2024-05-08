@@ -28,3 +28,5 @@ jobs:
       front_paths: front/front-end
       microservice_name: test-front
       node_version: 20.9.0
+      bucket_url: ${{ format('gs://test-front-{0}', 'dev') }}
+      project_id: ${{ format('majestic-{0}-420321', 'energy') }}

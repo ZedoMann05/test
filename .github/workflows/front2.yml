@@ -12,6 +12,12 @@ on:
       node_version:
         required: true
         type: string
+      bucket_url:
+        required: true
+        type: string
+      project_id:
+        required: true
+        type: string
     secrets:
       GCP_FRONT:
         required: true
@@ -20,14 +26,8 @@ jobs:
   set_env:
     runs-on: ubuntu-latest
     env:
-      MICROSERVICE_NAME: ${{ inputs.microservice_name }}
       FRONT_PATH: ${{ inputs.front_paths }}
-    
-    outputs:
-      PROJECT_ID: ${{ steps.set_env.outputs.project_id }}
-      BUCKET_URL: ${{ steps.set_env.outputs.bucket_url }}
-      BUCKET_BACKUP_URL: ${{ steps.set_env.outputs.bucket_backup_url }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,36 +44,22 @@ jobs:
           do
             echo $file
             if [[ $file == ${{ env.FRONT_PATH }}/* ]]; then
-              echo "run_job=true" >> $GITHUB_OUTPUT
+              echo "check_path=true" >> $GITHUB_OUTPUT
             fi
           done < files.txt
 
       - name: cancel action
-        if: ${{ steps.check_files.outputs.run_job != 'true' && github.event.inputs.rollback == '' }}
+        if: ${{ steps.check_files.outputs.check_path != 'true' && github.event.inputs.rollback == '' }}
         uses: andymckay/cancel-action@0.4
-
-      - name: set env
-        id: set_env
-        run: |
-          if [ "${{ github.ref_name }}" == "development" ]; then
-            echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
-            echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}-dev" >> $GITHUB_OUTPUT
-            echo "Set ENV to development."
-          elif [ "${{ github.ref_name }}" == "staging" ]; then
-            echo "project_id=majestic-energy-420321" >> $GITHUB_OUTPUT
-            echo "bucket_url=gs://${{ env.MICROSERVICE_NAME }}-dev" >> $GITHUB_OUTPUT
-            echo "Set ENV to staging."
-          fi
     
   deploy_front:
     permissions: write-all
     runs-on: ubuntu-latest
     needs: set_env
     env:
-      PROJECT_ID: ${{ needs.set_env.outputs.PROJECT_ID }}
+      PROJECT_ID: ${{ inputs.project_id }}
       FRONT_PATH: ${{ inputs.front_paths }}
-      BUCKET_URL: ${{ needs.set_env.outputs.BUCKET_URL }}
-      BUCKET_BACKUP_URL: ${{ needs.set_env.outputs.BUCKET_BACKUP_URL }}
+      BUCKET_URL: ${{ inputs.bucket_url }}
       NODE_VERSION: ${{ inputs.node_version }}
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
 
@@ -105,7 +91,7 @@ jobs:
             node-version: '${{ env.NODE_VERSION }}'
       
       - name: choice commit
-        if: ${{ github.event.inputs.rollback == 'yes' }}
+        if: ${{ github.event.inputs.rollback == 'yes' && env.COMMIT_SHA != '' }}
         id: choice_commit
         run: |
           git fetch origin && git pull origin
