@@ -42,16 +42,13 @@ jobs:
           while IFS= read -r file
           do
             echo $file
-            if [[ $file != ./front/front-end/* ]]; then
-              echo "run_job=false" >> $GITHUB_OUTPUT
-              break
-            else
+            if [[ $file ~= ./front/front-end/* ]]; then
               echo "run_job=true" >> $GITHUB_OUTPUT
             fi
           done < files.txt
 
       - name: cancel action
-        if: ${{ steps.check_files.outputs.run_job == 'false' }}
+        if: ${{ steps.check_files.outputs.run_job != 'true' }}
         uses: andymckay/cancel-action@0.4
 
       - name: set env
