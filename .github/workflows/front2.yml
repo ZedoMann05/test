@@ -131,7 +131,7 @@ jobs:
           gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
 
       - name: Setting Slack Notification
-        if: ${{ always() }}
+        if: ${{ always() && !cancelled() }}
         run: |
           SLACK_MESSAGE="Deploy front is ready! :white_check_mark: \n\n <!channel>"
 
