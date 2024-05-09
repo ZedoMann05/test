@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: choice commit
         if: ${{ env.COMMIT_SHA != '' }}
@@ -76,7 +78,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
