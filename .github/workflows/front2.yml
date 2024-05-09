@@ -30,16 +30,24 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FRONT_PATH: ${{ inputs.front_paths }}
+      COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
-    
+      
+      - name: choice commit
+        if: ${{ env.COMMIT_SHA != '' }}
+        id: choice_commit
+        run: |
+          git fetch origin && git pull origin
+          git checkout ${{ env.COMMIT_SHA }}
+
       - name: check modified files
         id: check_files
-        run: |
+        run: |     
           git diff --name-only HEAD^ HEAD
           
           git diff --name-only HEAD^ HEAD > files.txt
