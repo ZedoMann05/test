@@ -69,13 +69,6 @@ jobs:
           fetch-depth: 2
 
       - name: Authenticate with Google Cloud
-        if: ${{ github.ref_name == 'development' }}
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: '${{ secrets.GCP_FRONT }}'
-      
-      - name: Authenticate with Google Cloud
-        if: ${{ github.ref_name == 'staging' }}
         uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GCP_FRONT }}'
@@ -90,7 +83,7 @@ jobs:
             node-version: '${{ env.NODE_VERSION }}'
       
       - name: choice commit
-        if: ${{ github.event.inputs.rollback == 'yes' && env.COMMIT_SHA != '' }}
+        if: ${{ env.COMMIT_SHA != '' }}
         id: choice_commit
         run: |
           git fetch origin && git pull origin
@@ -116,7 +109,7 @@ jobs:
             gcloud storage rm -r ${{ env.BUCKET_URL }}/*
           fi
           gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
-          gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
+          #gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
 
       - name: Setting Slack Notification
         if: ${{ always() && !cancelled() }}
