@@ -127,8 +127,12 @@ jobs:
           #  gcloud storage rm -r ${{ env.BUCKET_URL }}/*
           #fi
           gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
-          gsutil -m rm -r ${{ env.BUCKET_URL }}/*
+          #gcloud storage rm -r ${{ env.BUCKET_URL }}/*
           #gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
+          if [ -n "$(gsutil ls -a ${{ env.BUCKET_URL }}/**)" ]; then
+            # Видалення старих версій файлів
+            gsutil -m rm -r "${{ env.BUCKET_URL }}/**"
+          fi
 
       - name: Setting Slack Notification
         if: ${{ always() && !cancelled() }}
