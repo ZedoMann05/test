@@ -99,13 +99,18 @@ jobs:
           git fetch origin && git pull origin
           git checkout ${{ env.COMMIT_SHA }}
             
+      - name: setting env
+        id: setting_env
+        run: |
+          cd ${{ env.FRONT_PATH }}
+          echo "${{ env.ENV_TEST }}" > .env
+          cat .env
+          ls -la
+
       - name: npm install
         id: npm_install
         run: |
           cd ${{ env.FRONT_PATH }}
-          echo "$(${{ env.ENV_TEST }})" > .env
-          cat .env
-          ls -la
           npm install
     
       - name: npm build
@@ -119,9 +124,9 @@ jobs:
         run: |
           cd ${{ env.FRONT_PATH }}/build
           if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then
-            gsutil -m rm -r ${{ env.BUCKET_URL }}/*
+            gcloud storage rm -r ${{ env.BUCKET_URL }}/*
           fi
-          gsutil -m cp -r ./* ${{ env.BUCKET_URL }}
+          gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
           #gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
 
       - name: Setting Slack Notification
