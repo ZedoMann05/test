@@ -26,3 +26,5 @@ jobs:
       env_test: |
         VITE_BASE_URL=https://test/
         test
+        test1
+        test2
