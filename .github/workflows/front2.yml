@@ -18,6 +18,9 @@ on:
       project_id:
         required: true
         type: string
+      env_test:
+        required: true
+        type: string
     secrets:
       GCP_FRONT:
         required: true
@@ -49,7 +52,7 @@ jobs:
           done < files.txt
 
       - name: cancel action
-        if: ${{ steps.check_files.outputs.check_path != 'true' && github.event.inputs.rollback == '' }}
+        if: ${{ steps.check_files.outputs.check_path != 'true' }}
         uses: andymckay/cancel-action@0.4
     
   deploy_front:
@@ -60,6 +63,7 @@ jobs:
       FRONT_PATH: ${{ inputs.front_paths }}
       BUCKET_URL: ${{ inputs.bucket_url }}
       NODE_VERSION: ${{ inputs.node_version }}
+      ENV_TEST: ${{ inputs.env_test }}
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
 
     steps:
@@ -93,6 +97,9 @@ jobs:
         id: npm_install
         run: |
           cd ${{ env.FRONT_PATH }}
+          echo ${{ env.ENV_TEST }} > .env
+          ls -la
+          cat .env
           npm install
     
       - name: npm build
