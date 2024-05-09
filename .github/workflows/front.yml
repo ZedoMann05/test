@@ -3,13 +3,6 @@ name: Another Workflow
 on:
   workflow_dispatch:
     inputs:
-      rollback:
-        description: 'rollback'
-        required: true
-        type: choice
-        options:
-        - 'yes'
-        - 'no'
       commit_sha:
         type: string
   push:
