@@ -123,10 +123,11 @@ jobs:
         id: deploy_front
         run: |
           cd ${{ env.FRONT_PATH }}/build
-          if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then
-            gcloud storage rm -r ${{ env.BUCKET_URL }}/*
-          fi
+          #if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then
+          #  gcloud storage rm -r ${{ env.BUCKET_URL }}/*
+          #fi
           gcloud storage cp -r ./* ${{ env.BUCKET_URL }}
+          gsutil -m rm -r ${{ env.BUCKET_URL }}/*
           #gcloud storage objects update -r ${{ env.BUCKET_URL }}/* --add-acl-grant=entity=allUsers,role=READER
 
       - name: Setting Slack Notification
