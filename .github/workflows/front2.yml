@@ -105,8 +105,7 @@ jobs:
         id: npm_install
         run: |
           cd ${{ env.FRONT_PATH }}
-          echo "${{ env.ENV_TEST }}" > .env
-          ls -la
+          echo "$(${{ env.ENV_TEST }})" > .env
           cat .env
           npm install
     
