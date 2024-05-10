@@ -21,11 +21,13 @@ on:
       env_test:
         required: true
         type: string
+      gcp_secrets_manager:
+        required: true
+        type: string
     secrets:
       GCP_FRONT:
         required: true
       GCP_FRONT_SECRET:
-        required: true
 
 jobs:
   set_env:
@@ -73,6 +75,7 @@ jobs:
       BUCKET_URL: ${{ inputs.bucket_url }}
       NODE_VERSION: ${{ inputs.node_version }}
       ENV_TEST: ${{ inputs.env_test }}
+      GCP_SECRETS_MANAGER: ${{ inputs.gcp_secrets_manager }}
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
 
     steps:
@@ -80,6 +83,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Authenticate with Google Cloud
+        if: ${{ env.GCP_SECRETS_MANAGER == 'true' }}
         uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GCP_FRONT_SECRET }}'
