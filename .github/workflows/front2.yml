@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       
       - name: choice commit
         if: ${{ env.COMMIT_SHA != '' }}
@@ -46,7 +48,7 @@ jobs:
       - name: check modified files
         id: check_files
         run: |     
-          git diff --name-only HEAD^ ${{ env.COMMIT_SHA }} > files.txt
+          git diff --name-only HEAD^ HEAD > files.txt
           while IFS= read -r file
           do
             echo $file
