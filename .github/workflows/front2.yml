@@ -80,7 +80,7 @@ jobs:
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: '${{ secrets.GCP_FRONT }}'
+          credentials_json: '${{ secrets.SECRET_FRONT }}'
 
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.1
@@ -118,6 +118,16 @@ jobs:
           cd ${{ env.FRONT_PATH }}
           npm run build
       
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_FRONT }}'
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
       - name: deploy front
         id: deploy_front
         run: |
