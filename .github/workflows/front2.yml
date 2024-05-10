@@ -36,7 +36,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
+          fetch-depth: 10
       
       - name: choice commit
         if: ${{ env.COMMIT_SHA != '' }}
@@ -47,8 +47,7 @@ jobs:
 
       - name: check modified files
         id: check_files
-        run: |
-          #git fetch origin ${{ github.ref_name }} && git pull origin ${{ github.ref_name }}     
+        run: |     
           git diff --name-only HEAD^ HEAD > files.txt
           while IFS= read -r file
           do
