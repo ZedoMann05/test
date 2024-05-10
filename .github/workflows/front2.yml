@@ -42,7 +42,9 @@ jobs:
         if: ${{ env.COMMIT_SHA != '' }}
         id: choice_commit
         run: |
-          git fetch origin ${{ env.COMMIT_SHA }} && git pull origin ${{ env.COMMIT_SHA }}
+          git fetch origin ${{ github.ref_name }}
+          git checkout ${{ github.ref_name }}
+          git pull origin ${{ github.ref_name }}
           git checkout ${{ env.COMMIT_SHA }}
 
       - name: check modified files
