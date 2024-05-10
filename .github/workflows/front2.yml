@@ -46,7 +46,9 @@ jobs:
       - name: check modified files
         id: check_files
         run: |
-          git fetch --prune --unshallow origin +refs/heads/${{ github.ref_name }}:refs/remotes/origin/${{ github.ref_name }}     
+          if [ ${{ steps.choice_commit.outcome != 'success' }} ]; then
+            git fetch --prune --unshallow origin +refs/heads/${{ github.ref_name }}:refs/remotes/origin/${{ github.ref_name }}     
+          fi
           git diff --name-only HEAD^ HEAD > files.txt
           while IFS= read -r file
           do
