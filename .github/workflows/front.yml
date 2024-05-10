@@ -17,6 +17,7 @@ jobs:
     uses: ./.github/workflows/front2.yml
     secrets:
       GCP_FRONT: ${{ secrets[format('{0}_FRONT', 'TEST')] }}
+      GCP_FRONT_SECRET: ${{ secrets.SECRET_FRONT }}
     with:
       front_paths: front/front-end
       microservice_name: test-front
