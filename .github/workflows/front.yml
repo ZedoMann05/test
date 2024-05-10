@@ -23,6 +23,4 @@ jobs:
       node_version: 20.9.0
       bucket_url: ${{ format('gs://test-front-{0}', 'dev') }}
       project_id: ${{ format('majestic-{0}-420321', 'energy') }}
-      env_test: |
-        VITE_BASE_URL=https://test/
-        $(pwd)
+      env_test: ${{ env.ENV_FRONT }}
