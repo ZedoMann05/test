@@ -46,7 +46,7 @@ jobs:
       - name: check modified files
         id: check_files
         run: |     
-          git diff --name-only HEAD^ HEAD > files.txt
+          git diff --name-only HEAD^ ${{ env.COMMIT_SHA }} > files.txt
           while IFS= read -r file
           do
             echo $file
