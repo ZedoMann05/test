@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
       
       - name: choice commit
         if: ${{ env.COMMIT_SHA != '' }}
@@ -46,8 +48,8 @@ jobs:
       - name: check modified files
         id: check_files
         run: |
-          git fetch origin ${{ github.ref_name }} && git pull origin ${{ github.ref_name }}     
-          git diff --name-only ${{ github.ref_name }}^ ${{ github.ref_name }} > files.txt
+          #git fetch origin ${{ github.ref_name }} && git pull origin ${{ github.ref_name }}     
+          git diff --name-only HEAD^ HEAD > files.txt
           while IFS= read -r file
           do
             echo $file
