@@ -42,7 +42,7 @@ jobs:
         if: ${{ env.COMMIT_SHA != '' }}
         id: choice_commit
         run: |
-          git fetch origin ${{ env.COMMIT_SHA }} && git pull origin ${{ env.COMMIT_SHA }}
+          git fetch origin ${{ env.COMMIT_SHA }} && git pull --no-rebase origin ${{ env.COMMIT_SHA }}
           git checkout ${{ env.COMMIT_SHA }}
 
       - name: check modified files
