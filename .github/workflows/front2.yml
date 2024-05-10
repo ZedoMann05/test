@@ -126,7 +126,7 @@ jobs:
           #if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then
           #  gcloud storage rm -r ${{ env.BUCKET_URL }}/*
           #fi
-          gcloud storage rsync ./* ${{ env.BUCKET_URL }} --recursive - --delete-unmatched-destination-objects
+          gcloud storage rsync . ${{ env.BUCKET_URL }} --recursive --delete-unmatched-destination-objects
           #gcloud storage rm -r ${{ env.BUCKET_URL }}/*
 
       - name: Setting Slack Notification
