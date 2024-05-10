@@ -47,7 +47,7 @@ jobs:
         id: check_files
         run: |
           git fetch origin ${{ github.ref_name }} && git pull origin ${{ github.ref_name }}     
-          git diff --name-only HEAD^ HEAD > files.txt
+          git diff --name-only ${{ github.ref_name }}^ ${{ github.ref_name }} > files.txt
           while IFS= read -r file
           do
             echo $file
