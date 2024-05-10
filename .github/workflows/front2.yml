@@ -97,7 +97,7 @@ jobs:
         if: ${{ env.COMMIT_SHA != '' }}
         id: choice_commit
         run: |
-          git fetch origin ${{ env.COMMIT_SHA }} && git pull origin ${{ env.COMMIT_SHA }}
+          git fetch --prune --unshallow origin +refs/heads/${{ github.ref_name }}:refs/remotes/origin/${{ github.ref_name }}
           git checkout ${{ env.COMMIT_SHA }}
             
       - name: setting env
