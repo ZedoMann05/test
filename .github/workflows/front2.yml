@@ -24,6 +24,8 @@ on:
     secrets:
       GCP_FRONT:
         required: true
+      GCP_FRONT_SECRET:
+        required: true
 
 jobs:
   set_env:
@@ -80,7 +82,7 @@ jobs:
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: '${{ secrets.SECRET_FRONT }}'
+          credentials_json: '${{ secrets.GCP_FRONT_SECRET }}'
 
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.1
