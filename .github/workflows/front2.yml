@@ -35,14 +35,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       
       - name: choice commit
         if: ${{ env.COMMIT_SHA != '' }}
         id: choice_commit
         run: |
-          git fetch origin && git pull origin
+          git fetch origin ${{ env.COMMIT_SHA }} && git pull origin ${{ env.COMMIT_SHA }}
           git checkout ${{ env.COMMIT_SHA }}
 
       - name: check modified files
@@ -75,8 +73,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
@@ -96,7 +92,7 @@ jobs:
         if: ${{ env.COMMIT_SHA != '' }}
         id: choice_commit
         run: |
-          git fetch origin && git pull origin
+          git fetch origin ${{ env.COMMIT_SHA }} && git pull origin ${{ env.COMMIT_SHA }}
           git checkout ${{ env.COMMIT_SHA }}
             
       - name: setting env
