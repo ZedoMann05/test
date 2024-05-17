@@ -35,6 +35,8 @@ jobs:
     env:
       FRONT_PATH: ${{ inputs.front_paths }}
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
+    outputs:
+      modify_files: ${{ steps.check_files.outputs.check_path }}
 
     steps:
       - name: Checkout repository
@@ -62,13 +64,14 @@ jobs:
             fi
           done < files.txt
 
-      - name: cancel action
-        if: ${{ steps.check_files.outputs.check_path != 'true' }}
-        uses: andymckay/cancel-action@0.4
+      # - name: cancel action
+      #   if: ${{ steps.check_files.outputs.check_path != 'true' }}
+      #   uses: andymckay/cancel-action@0.4
     
   deploy_front:
     runs-on: ubuntu-latest
     needs: set_env
+    if: ${{ needs.set_env.outputs.modify_files == 'true' }}
     env:
       PROJECT_ID: ${{ inputs.project_id }}
       FRONT_PATH: ${{ inputs.front_paths }}
