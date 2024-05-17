@@ -2,21 +2,27 @@ name: Another Workflow
 
 on:
   workflow_dispatch:
-  pull_request:
+    inputs:
+      commit_sha:
+        type: string
+  push:
     branches:
       - development
-      - main
-    paths:
-      - 'front/**'
+      - staging
 
 jobs:
   check:
-    
+    permissions: write-all
     name: Check Assets Sizes
     uses: ./.github/workflows/front2.yml
-    secrets: inherit
+    secrets:
+      GCP_FRONT: ${{ secrets[format('{0}_FRONT', 'TEST')] }}
+      GCP_FRONT_SECRET: ${{ secrets.SECRET_FRONT }}
     with:
-      PROJECT_ID: majestic-energy-420321
-      front_paths: ./front/front-end
-      bucket_url: gs://test-front
+      front_paths: front/front-end
+      microservice_name: test-front
       node_version: 20.9.0
+      gcp_secrets_manager: 'true'
+      bucket_url: ${{ format('gs://test-front-{0}', 'dev') }}
+      project_id: ${{ format('majestic-{0}-420321', 'energy') }}
+      env_test: ${{ vars.ENV_FRONT }}

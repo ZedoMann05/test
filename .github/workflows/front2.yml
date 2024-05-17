@@ -3,38 +3,93 @@ name: front
 on:
   workflow_call:
     inputs:
-      PROJECT_ID:
-        required: true
-        type: string
       front_paths:
         required: true
         type: string
-      bucket_url:
+      microservice_name:
         required: true
         type: string
       node_version:
         required: true
         type: string
+      bucket_url:
+        required: true
+        type: string
+      project_id:
+        required: true
+        type: string
+      env_test:
+        required: true
+        type: string
+      gcp_secrets_manager:
+        required: true
+        type: string
+    secrets:
+      GCP_FRONT:
+        required: true
+      GCP_FRONT_SECRET:
 
 jobs:
-  front:
+  set_env:
     runs-on: ubuntu-latest
     env:
-      PROJECT_ID: ${{ inputs.PROJECT_ID }}
-      front_paths: ${{ inputs.front_paths }}
-      bucket_url: ${{ inputs.bucket_url }}
-      node_version: ${{ inputs.node_version }}
-  
+      FRONT_PATH: ${{ inputs.front_paths }}
+      COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
+    outputs:
+      modify_files: ${{ steps.check_files.outputs.check_path }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: choice commit
+        if: ${{ env.COMMIT_SHA != '' }}
+        id: choice_commit
+        run: |
+          git fetch --prune --unshallow origin +refs/heads/${{ github.ref_name }}:refs/remotes/origin/${{ github.ref_name }}
+          git checkout ${{ env.COMMIT_SHA }}
+
+      - name: check modified files
+        id: check_files
+        run: |
+          if ${{ steps.choice_commit.outcome != 'success' }}; then
+            git fetch --prune --unshallow origin +refs/heads/${{ github.ref_name }}:refs/remotes/origin/${{ github.ref_name }}     
+          fi
+          git diff --name-only HEAD^ HEAD > files.txt
+          while IFS= read -r file
+          do
+            echo $file
+            if [[ $file == ${{ env.FRONT_PATH }}/* ]]; then
+              echo "check_path=true" >> $GITHUB_OUTPUT
+            fi
+          done < files.txt
+
+      # - name: cancel action
+      #   if: ${{ steps.check_files.outputs.check_path != 'true' }}
+      #   uses: andymckay/cancel-action@0.4
     
+  deploy_front:
+    runs-on: ubuntu-latest
+    needs: set_env
+    if: ${{ needs.set_env.outputs.modify_files == 'true' }}
+    env:
+      PROJECT_ID: ${{ inputs.project_id }}
+      FRONT_PATH: ${{ inputs.front_paths }}
+      BUCKET_URL: ${{ inputs.bucket_url }}
+      NODE_VERSION: ${{ inputs.node_version }}
+      ENV_TEST: ${{ inputs.env_test }}
+      GCP_SECRETS_MANAGER: ${{ inputs.gcp_secrets_manager }}
+      COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Authenticate with Google Cloud
+        if: ${{ env.GCP_SECRETS_MANAGER == 'true' }}
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: '${{ secrets.TEST_FRONT }}'
+          credentials_json: '${{ secrets.GCP_FRONT_SECRET }}'
 
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.1
@@ -43,21 +98,85 @@ jobs:
         
       - uses: actions/setup-node@v4
         with:
-            node-version: '${{ env.node_version }}'
+            node-version: '${{ env.NODE_VERSION }}'
+      
+      - name: choice commit
+        if: ${{ env.COMMIT_SHA != '' }}
+        id: choice_commit
+        run: |
+          git fetch --prune --unshallow origin +refs/heads/${{ github.ref_name }}:refs/remotes/origin/${{ github.ref_name }}
+          git checkout ${{ env.COMMIT_SHA }}
+            
+      - name: setting env
+        id: setting_env
+        run: |
+          cd ${{ env.FRONT_PATH }}
+          echo "${{ env.ENV_TEST }}" > .env
+          cat .env
+          ls -la
 
       - name: npm install
+        id: npm_install
         run: |
-          cd ${{ env.front_paths }}
+          cd ${{ env.FRONT_PATH }}
           npm install
     
       - name: npm build
+        id: npm_build
         run: |
-          cd ${{ env.front_paths }}
+          cd ${{ env.FRONT_PATH }}
           npm run build
+      
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_FRONT }}'
 
-      - name: gcloud
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: deploy front
+        id: deploy_front
         run: |
-          cd ${{ env.front_paths }}/build
-          gcloud storage rm -r ${{ env.bucket_url }}/*
-          gcloud storage cp -r ./* ${{ env.bucket_url }}
-          gcloud storage objects update -r ${{ env.bucket_url }}/* --add-acl-grant=entity=allUsers,role=READER
+          cd ${{ env.FRONT_PATH }}/build
+          #if [ -n "$(gcloud storage ls ${{ env.BUCKET_URL }})" ]; then
+          #  gcloud storage rm -r ${{ env.BUCKET_URL }}/*
+          #fi
+          gcloud storage rsync . ${{ env.BUCKET_URL }} --recursive --delete-unmatched-destination-objects
+          #gcloud storage rm -r ${{ env.BUCKET_URL }}/*
+
+      - name: Setting Slack Notification
+        if: ${{ always() && !cancelled() }}
+        run: |
+          SLACK_MESSAGE="Deploy front is ready! :white_check_mark: \n\n <!channel>"
+
+          step_names=($(echo '${{ toJson(steps) }}' | jq -r 'keys_unsorted[]'))
+
+          for output in "${step_names[@]}"; do
+            step_status=$(echo '${{ toJson(steps) }}' | jq -r ".$output.outcome")
+            echo $step_status
+            echo $output
+            if [ "$step_status" == 'failure' ]; then
+              failed_step=$(echo "$output" | sed 's/_/ /g')
+              SLACK_MESSAGE="Step: $failed_step :x: \n <!channel>"
+            fi
+          done
+            
+          echo "SLACK_TITLE=Deploy front: ${{ inputs.microservice_name }}" >> $GITHUB_ENV
+          echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
+          echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV  
+          echo $SLACK_MESSAGE
+
+      # - name: Slack Notification
+      #   if: ${{ always() }}
+      #   uses: rtCamp/action-slack-notify@v2
+      #   env:
+      #     SLACK_COLOR: ${{ job.status }}
+      #     SLACK_MESSAGE: ${{ env.SLACK_MESSAGE }}
+      #     SLACK_TITLE: '${{ env.SLACK_TITLE }}'
+      #     SLACK_FOOTER: 'Microservice: ${{ inputs.microservice_name }}; Env: ${{ github.ref_name }}; Time: ${{ env.SLACK_FOOTER }}'
+      #     SLACK_WEBHOOK: ${{ secrets.GETPIN_DEV_BACKUP_SLACK_CI_WEBHOOK }}
+      #     SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
+      #     SLACKIFY_MARKDOWN: true
