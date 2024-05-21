@@ -24,13 +24,13 @@ jobs:
       node_version: 20.9.0
       gcp_secrets_manager: 'true'
       #bucket_url: ${{ format('gs://test-front-{0}', 'dev') }}
-      bucket_url: ${{ github.ref_name == 'master' && format('gs://test-front-{0}', 'master') || format('gs://test-front-{0}', 'dev') }}
+      bucket_url: ${{ github.ref_name == 'master' && 'gs://test-front-master' || format('gs://test-front-{0}', 'dev') }}
       project_id: ${{ format('majestic-{0}-420321', 'energy') }}
       env_test: |
         VITE_BASE_URL=$(
           if [ "${{ github.ref_name }}" == "development" ]; then 
             echo "${{ format('https://test-{0}/', github.ref_name) }}"
           else 
-            echo "${{ format('https://test-{0}/', github.ref_name) }}"
+            echo "https://test-master/"
           fi
         )
