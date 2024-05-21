@@ -25,4 +25,5 @@ jobs:
       gcp_secrets_manager: 'true'
       bucket_url: ${{ format('gs://test-front-{0}', 'dev') }}
       project_id: ${{ format('majestic-{0}-420321', 'energy') }}
-      env_test: ${{ vars.ENV_FRONT }}
+      env_test: |
+        VITE_BASE_URL=$(if ${{ github.ref_name }} == 'master'; then ${{ format('https://surveyor.getpin-proj-{0}.dev/', github.ref_name) }}; else ${{ format('https://surveyor.getpin-proj-{0}.dev/', 'dev') }}; fi) 
