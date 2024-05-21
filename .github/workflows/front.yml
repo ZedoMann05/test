@@ -26,9 +26,9 @@ jobs:
       #bucket_url: ${{ format('gs://test-front-{0}', 'dev') }}
       bucket_url: $(
                     if [ "${{ github.ref_name }}" == "development" ]; then 
-                      echo "${{ format('gs://test-front-{0}', 'dev') }}"
+                      ${{ format('gs://test-front-{0}', 'dev') }}
                     else 
-                      echo "${{ format('gs://test-front-{0}', 'dev') }}"
+                      ${{ format('gs://test-front-{0}', 'dev') }}
                     fi
                   )
       project_id: ${{ format('majestic-{0}-420321', 'energy') }}
