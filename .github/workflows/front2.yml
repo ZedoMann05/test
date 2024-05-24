@@ -121,7 +121,7 @@ jobs:
           cd ${{ env.FRONT_PATH }}
           echo "${{ env.ENV_TEST }}" > .env
           cat .env
-          ls -la
+          ll
 
       - name: NPM Install
         id: npm_install
@@ -156,24 +156,23 @@ jobs:
           #gcloud storage rm -r ${{ env.BUCKET_URL }}/*
 
       - name: Setting Slack Notification
-        if: ${{ always() }}
+        if: ${{ always() && !cancelled() }}
         run: |
           SLACK_MESSAGE="Deploy front is ready! :white_check_mark:"
 
-          step_names=($(echo '${{ toJson(steps) }}' | jq -r 'keys_unsorted[]'))
+          step_names=$(echo '${{ toJson(steps) }}' | jq -r 'keys_unsorted[]')
 
-          for output in "${step_names[@]}"; do
-            step_status=$(echo '${{ toJson(steps) }}' | jq -r ".${output}.outcome")
+          for step_name in $step_names; do
+            step_status=$(echo '${{ toJson(steps) }}' | jq -r ".[\"${step_name}\"].outcome")
             if [ "$step_status" == 'failure' ]; then
-              failed_step=$(echo "$output" | sed 's/_/ /g')
-              SLACK_MESSAGE="Step: $failed_step :x:"
+              SLACK_MESSAGE="Step: ${step_name//_/ } :x:"
               break
             fi
           done
             
           echo "SLACK_TITLE=Deploy front: ${{ inputs.microservice_name }}" >> $GITHUB_ENV
           echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
-          echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV
+          echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV 
 
       # - name: Slack Notification
       #   if: ${{ always() }}
