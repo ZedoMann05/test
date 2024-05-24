@@ -22,6 +22,8 @@ jobs:
       front_paths: front/front-end
       microservice_name: test-front
       node_version: 20.9.0
+      npm_install: npm install
+      npm_build: npm run build
       gcp_secrets_manager: 'true'
       #bucket_url: ${{ format('gs://test-front-{0}', 'dev') }}
       bucket_url: ${{ github.ref_name == 'master' && 'gs://test-front-master' || 'gs://test-front-dev' }}

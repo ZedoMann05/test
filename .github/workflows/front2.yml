@@ -24,6 +24,12 @@ on:
       gcp_secrets_manager:
         required: true
         type: string
+      npm_install:
+        required: true
+        type: string
+      npm_build:
+        required: true
+        type: string
     secrets:
       GCP_FRONT:
         required: true
@@ -78,6 +84,8 @@ jobs:
       BUCKET_URL: ${{ inputs.bucket_url }}
       NODE_VERSION: ${{ inputs.node_version }}
       ENV_TEST: ${{ inputs.env_test }}
+      NPM_INSTALL: ${{ inputs.npm_install }}
+      NPM_BUILD: ${{ inputs.npm_build }}
       GCP_SECRETS_MANAGER: ${{ inputs.gcp_secrets_manager }}
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
 
@@ -115,17 +123,17 @@ jobs:
           cat .env
           ls -la
 
-      - name: npm install
+      - name: NPM Install
         id: npm_install
         run: |
           cd ${{ env.FRONT_PATH }}
-          npm install
+          ${{ env.NPM_INSTALL }}
     
-      - name: npm build
+      - name: NPM Build
         id: npm_build
         run: |
           cd ${{ env.FRONT_PATH }}
-          npm run build
+          ${{ env.NPM_BUILD }}
       
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
