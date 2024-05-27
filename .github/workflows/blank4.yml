@@ -46,7 +46,7 @@ jobs:
         id: create_dump
         run: |
           DB_NAME=$(echo ${{ matrix.db }} | sed 's/-db//; s/-/_/g')
-          gcloud sql export sql ${{ matrix.db }} --database $DB_NAME gs://backup-db-testing/${{ matrix.db }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
+          gcloud sql export sql ${{ matrix.db }} --database $DB_NAME gs://backup-db-testing/${{ matrix.db }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql --project=majestic-energy-420321
         env:
           PROJECT_ID: majestic-energy-420321
           GOOGLE_CLOUD_PROJECT: majestic-energy-420321
