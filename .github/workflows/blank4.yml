@@ -41,6 +41,12 @@ jobs:
         run: |
           gcloud auth activate-service-account --key-file=${{ env.CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE }}
           gcloud config set project ${{ env.PROJECT_ID }}
+      
+      - name: Enable Cloud SQL Admin API
+        run: |
+          gcloud services enable sqladmin.googleapis.com
+        env:
+          GOOGLE_CLOUD_PROJECT: majestic-energy-420321
 
       - name: Create dump for ${{ matrix.db }}
         id: create_dump
@@ -49,10 +55,6 @@ jobs:
           gcloud sql export sql ${{ matrix.db }} --database $DB_NAME gs://backup-db-testing/${{ matrix.db }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
         env:
           PROJECT_ID: majestic-energy-420321
-          CLOUDSDK_CORE_PROJECT: majestic-energy-420321
-          CLOUDSDK_PROJECT: majestic-energy-420321
-          GCLOUD_PROJECT: majestic-energy-420321
-          GCP_PROJECT: majestic-energy-420321
           GOOGLE_CLOUD_PROJECT: majestic-energy-420321
 
       - name: Update status object
