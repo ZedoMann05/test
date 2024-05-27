@@ -8,7 +8,7 @@ jobs:
   backup_dev_db:
     runs-on: ubuntu-latest
     env:
-      PROJECT_ID: proj-dev
+      PROJECT_ID: majestic-energy-420321
 
     strategy:
       matrix:
@@ -22,6 +22,19 @@ jobs:
       statistics_db_status: ${{ steps.steps_status.outputs.getpin-statistics-dev-db }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.BACKUP }}'
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
       - name: Set up output object
         id: init_outputs
         run: echo "::set-output name=${{ matrix.db }}::{}"
@@ -30,7 +43,7 @@ jobs:
         id: create_dump
         run: |
           DB_NAME=$(echo ${{ matrix.db }} | sed 's/-db//; s/-/_/g')
-          gcloud sql export sql ${{ matrix.db }} --database $DB_NAME gs://getpin-backup-dev-db/${{ matrix.db }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
+          gcloud sql export sql ${{ matrix.db }} --database $DB_NAME gs://backup-db-testing/${{ matrix.db }}/${DB_NAME}_$(TZ="Europe/Kiev" date +"%Y%m%d%H%M").sql
 
       - name: Update status object
         if: ${{ always() }}
