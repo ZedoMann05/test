@@ -24,6 +24,12 @@ on:
       gcp_secrets_manager:
         required: true
         type: string
+      npm_install:
+        required: true
+        type: string
+      npm_build:
+        required: true
+        type: string
     secrets:
       GCP_FRONT:
         required: true
@@ -78,6 +84,8 @@ jobs:
       BUCKET_URL: ${{ inputs.bucket_url }}
       NODE_VERSION: ${{ inputs.node_version }}
       ENV_TEST: ${{ inputs.env_test }}
+      NPM_INSTALL: ${{ inputs.npm_install }}
+      NPM_BUILD: ${{ inputs.npm_build }}
       GCP_SECRETS_MANAGER: ${{ inputs.gcp_secrets_manager }}
       COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
 
@@ -113,19 +121,19 @@ jobs:
           cd ${{ env.FRONT_PATH }}
           echo "${{ env.ENV_TEST }}" > .env
           cat .env
-          ls -la
+          ll
 
-      - name: npm install
+      - name: NPM Install
         id: npm_install
         run: |
           cd ${{ env.FRONT_PATH }}
-          npm install
+          ${{ env.NPM_INSTALL }}
     
-      - name: npm build
+      - name: NPM Build
         id: npm_build
         run: |
           cd ${{ env.FRONT_PATH }}
-          npm run build
+          ${{ env.NPM_BUILD }}
       
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v1
@@ -150,24 +158,23 @@ jobs:
       - name: Setting Slack Notification
         if: ${{ always() && !cancelled() }}
         run: |
-          SLACK_MESSAGE="Deploy front is ready! :white_check_mark: \n\n <!channel>"
+          SLACK_MESSAGE="Deploy front is ready! :white_check_mark:"
 
-          step_names=($(echo '${{ toJson(steps) }}' | jq -r 'keys_unsorted[]'))
+          step_names=$(echo '${{ toJson(steps) }}' | jq -r 'keys_unsorted[]')
 
-          for output in "${step_names[@]}"; do
-            step_status=$(echo '${{ toJson(steps) }}' | jq -r ".$output.outcome")
-            echo $step_status
-            echo $output
+          for step_name in $step_names; do
+            step_status=$(echo '${{ toJson(steps) }}' | jq -r ".[\"${step_name}\"].outcome")
             if [ "$step_status" == 'failure' ]; then
-              failed_step=$(echo "$output" | sed 's/_/ /g')
-              SLACK_MESSAGE="Step: $failed_step :x: \n <!channel>"
+              SLACK_MESSAGE="Step: ${step_name//_/ } :x:"
+              break
             fi
           done
-            
+          
+          echo $SLACK_MESSAGE
+
           echo "SLACK_TITLE=Deploy front: ${{ inputs.microservice_name }}" >> $GITHUB_ENV
           echo "SLACK_MESSAGE=$SLACK_MESSAGE" >> $GITHUB_ENV
-          echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV  
-          echo $SLACK_MESSAGE
+          echo "SLACK_FOOTER=$(TZ="Europe/Kiev" date +"%Y-%m-%dT%H:%M:%S")" >> $GITHUB_ENV 
 
       # - name: Slack Notification
       #   if: ${{ always() }}

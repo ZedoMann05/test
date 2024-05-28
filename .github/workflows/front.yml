@@ -22,7 +22,11 @@ jobs:
       front_paths: front/front-end
       microservice_name: test-front
       node_version: 20.9.0
+      npm_install: npm install
+      npm_build: npm run build
       gcp_secrets_manager: 'true'
-      bucket_url: ${{ format('gs://test-front-{0}', 'dev') }}
+      #bucket_url: ${{ format('gs://test-front-{0}', 'dev') }}
+      bucket_url: ${{ github.ref_name == 'master' && 'gs://test-front-master' || 'gs://test-front-dev' }}
       project_id: ${{ format('majestic-{0}-420321', 'energy') }}
-      env_test: ${{ vars.ENV_FRONT }}
+      env_test: |
+        VITE_BASE_URL=${{ github.ref_name == 'master' && 'https://test-master/' || format('https://test-{0}/', 'dev') }}
