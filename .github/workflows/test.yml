@@ -28,4 +28,3 @@ jobs:
           SLACK_FOOTER: 'Time: ${{ env.SLACK_FOOTER }}'
           SLACK_WEBHOOK: ${{ secrets.GETPIN_DEVOPS_SLACK_CI_WEBHOOK }}
           SLACK_ICON: https://avatars.slack-edge.com/2023-02-15/4830237365520_6ec25f9ef61c9165fda5_48.jpg
-          SLACKIFY_MARKDOWN: true
