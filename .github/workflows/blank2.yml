@@ -21,22 +21,23 @@ jobs:
         
         base_sha=$(git rev-parse origin/${{ github.event.pull_request.base.ref }})
 
-        branch_pattern=$(echo ${{ github.event.pull_request.head.ref }} | grep -oE '\/([a-zA-Z0-9_-]+)\/' | cut -d'/' -f2)
-
         git log --format=%s $base_sha..$head_sha > commits.txt
 
-        validate_commit=true
-
-        echo "# Validate Commit" > ./report.md
+        echo "validate_commit=true" >> $GITHUB_ENV
 
         while IFS= read -r commit; do
-            if ! ( grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)((.+))?:.+" <<< "$commit" || grep -q -E "^(fix)?:.+" <<< "$commit" ); then
+            if ! ( grep -q -i -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)((.+))?:.+" <<< "$commit" || grep -q -i -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore) ((.+))?:.+" <<< "$commit" || grep -q -i -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)?:.+" <<< "$commit" || grep "Merge" <<< "$commit" ); then
                 echo $commit >> ./commit.txt
-                validate_commit=false
+                echo "validate_commit=false" >> $GITHUB_ENV
             fi
+            cat commits.txt
         done < "commits.txt"
 
-        if [ "$validate_commit" = false ]; then
+    - name: Create report
+      run: |
+        echo "# Validate Commit" > ./report.md
+
+        if [ ${{ env.validate_commit }} = false ]; then
             echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
             echo "Commits that do not meet the requirements:" >> ./report.md
             cat commit.txt >> ./report.md
