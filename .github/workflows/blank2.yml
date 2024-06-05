@@ -30,10 +30,11 @@ jobs:
         echo "# Validate Commit" > ./report.md
 
         while IFS= read -r commit; do
-            if ! ( grep -q -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)((.+))?:.+" <<< "$commit" || grep -q -E "^(fix)?:.+" <<< "$commit" ); then
+            if ! ( grep -q -i -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)((.+))?:.+" <<< "$commit" || grep -q -i -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore) ((.+))?:.+" <<< "$commit" || grep -q -i -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)?:.+" <<< "$commit" || grep "Merge" <<< "$commit" ); then
                 echo $commit >> ./commit.txt
                 validate_commit=false
             fi
+            cat commits.txt
         done < "commits.txt"
 
         if [ "$validate_commit" = false ]; then
