@@ -23,12 +23,12 @@ jobs:
 
         git log --format=%s $base_sha..$head_sha > commits.txt
 
-        validate_commit=true
+        echo "validate_commit=true" >> $GITHUB_ENV
 
         while IFS= read -r commit; do
             if ! ( grep -q -i -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)((.+))?:.+" <<< "$commit" || grep -q -i -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore) ((.+))?:.+" <<< "$commit" || grep -q -i -E "^(fix|hotfix|bugfix|feat|feature|breaking|chore)?:.+" <<< "$commit" || grep "Merge" <<< "$commit" ); then
                 echo $commit >> ./commit.txt
-                validate_commit=false
+                echo "validate_commit=false" >> $GITHUB_ENV
             fi
             cat commits.txt
         done < "commits.txt"
@@ -37,7 +37,7 @@ jobs:
       run: |
         echo "# Validate Commit" > ./report.md
 
-        if [ "$validate_commit" = false ]; then
+        if [ ${{ env.validate_commit }} = false ]; then
             echo "🔴 There is no commits that are valid according to regulation" >> ./report.md
             echo "Commits that do not meet the requirements:" >> ./report.md
             cat commit.txt >> ./report.md
